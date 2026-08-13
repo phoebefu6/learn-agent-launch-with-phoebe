@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 5 · Risk tiers and the launch gate - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Leader session 5 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Leader track · Session 5 of 6</div>
+    <h1>Risk tiers and the launch gate: <span class="accent">the bar comes from the blast radius</span></h1>
+    <p class="sub">There is no universal launch bar, and any framework that hands you one is selling something. The bar comes from what a wrong action costs, which is a product decision that lands on your desk as a statistics requirement. This session builds the tier table, the six gates that cannot be traded against each other, the rollout ladder that gets you from an offline number to general availability, and the regulatory floor that applies underneath all of it.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Heads of product · eng leaders · risk &amp; compliance</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:5">3-25 · Tiers, gates, the rollout ladder, the legal floor</span>
+      <span class="a3" style="flex:4">25-40 · Two decision exercises</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why "is 90% good enough" is an unanswerable question</h2>
+    </div>
+    <p class="lede">Session a4 gave you the arithmetic: what a number proves, and how many examples it took to prove it. This session gives you the other half, and it is not a statistics question at all. Ninety percent is excellent for an internal bot that looks things up, and negligent for a bot that moves money. Same number, opposite verdict, and the thing that separates them is not the model.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      A four-tier table you can classify any bot against in five minutes, the six conjunctive gates and the reason they must never be averaged, a staged rollout ladder with a named gate at every step, a one-name-per-gate sign-off model, and an orientation map of the EU AI Act, NIST AI RMF and the if-then structure that Anthropic's RSP made familiar.
+    </div>
+    <div class="callout tip">
+      <strong>No tools today</strong>
+      This is a judgement session. Nothing to install, nothing to run. The two exercises are arguments you have out loud, and the second one is deliberately uncomfortable, because it is a rehearsal of a meeting you will otherwise have for the first time under pressure.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="tiers">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the tiers</span>
+      <h2>Four tiers, set by what a wrong action costs <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Classify on capability, not on intent. The question is never "what is this bot for" but "what is the worst thing it can do unattended, once". The answer places it in a row, and the row carries a bar, an evidence requirement and a set of obligations you do not get to negotiate afterwards.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four risk tiers: T1 low read-only and reversible, T2 medium writes data or sends messages, T3 high financial or irreversible or regulated, T4 no-autonomy where the agent proposes and a human executes. Each carries a launch bar and an evidence requirement.">
+        <style>
+          .tiL { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .tiS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .tiH { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .tiX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .tiK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="126" height="72" rx="10" fill="#3D7D5A"/>
+        <text class="tiL" x="42" y="58">T1</text>
+        <text class="tiS" x="42" y="76" fill="#EDF6F0">low</text>
+        <rect x="162" y="24" width="338" height="72" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tiX" x="180" y="58">Read-only, informational, reversible.</text>
+        <text class="tiX" x="180" y="76">No decisions about people.</text>
+        <rect x="512" y="24" width="344" height="72" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="tiH" x="530" y="46">Bar ~80%. n &gt;= 100.</text>
+        <text class="tiX" x="530" y="64">CI lower bound &gt;= target minus 6 pts.</text>
+        <text class="tiX" x="530" y="82">Standard canary is enough.</text>
+
+        <rect x="24" y="108" width="126" height="72" rx="10" fill="#1A4D33"/>
+        <text class="tiL" x="42" y="142">T2</text>
+        <text class="tiS" x="42" y="160">medium</text>
+        <rect x="162" y="108" width="338" height="72" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tiX" x="180" y="142">Writes data, sends messages, makes</text>
+        <text class="tiX" x="180" y="160">customer-facing commitments.</text>
+        <rect x="512" y="108" width="344" height="72" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="tiH" x="530" y="130">Bar ~85%. n &gt;= 200-500 + adversarial.</text>
+        <text class="tiX" x="530" y="148">Injection suite passes at 100%.</text>
+        <text class="tiX" x="530" y="166">Shadow mode before canary.</text>
+
+        <rect x="24" y="192" width="126" height="72" rx="10" fill="#0E3320"/>
+        <text class="tiL" x="42" y="226">T3</text>
+        <text class="tiS" x="42" y="244">high</text>
+        <rect x="162" y="192" width="338" height="72" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tiX" x="180" y="226">Financial or irreversible actions.</text>
+        <text class="tiX" x="180" y="244">Regulated domains.</text>
+        <rect x="512" y="192" width="344" height="72" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="tiH" x="530" y="214">Bar ~90%. n &gt;= 500-1000 per slice.</text>
+        <text class="tiX" x="530" y="232">Human approval on the action itself.</text>
+        <text class="tiX" x="530" y="250">Kill switch drilled, not documented.</text>
+
+        <rect x="24" y="276" width="126" height="72" rx="10" fill="#BF6708"/>
+        <text class="tiL" x="42" y="310">T4</text>
+        <text class="tiS" x="42" y="328" fill="#FDF3E3">no autonomy</text>
+        <rect x="162" y="276" width="338" height="72" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="tiX" x="180" y="318" fill="#3A2A08">A single wrong action is catastrophic.</text>
+        <rect x="512" y="276" width="344" height="72" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="tiH" x="530" y="298">Bar: not applicable.</text>
+        <text class="tiX" x="530" y="316">Agent proposes, a human executes.</text>
+        <text class="tiX" x="530" y="334">No autonomous path ships at all.</text>
+
+        <rect x="24" y="360" width="832" height="98" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tiH" x="44" y="386">The cheapest way to pass a gate is to drop a tier</text>
+        <text class="tiX" x="44" y="408">Beacon's support bot is T3 for one reason: it can issue a refund credit. Remove that capability and it</text>
+        <text class="tiX" x="44" y="426">becomes T2: the bar falls five points and the human-approval requirement disappears. That is a product</text>
+        <text class="tiX" x="44" y="444">decision worth a five-minute conversation, and it is almost never the one the room has.</text>
+
+        <rect x="24" y="474" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="tiK" x="48" y="486">Tier is a product decision that lands as a statistics requirement. It is set by blast radius, not by</text>
+        <text class="tiK" x="48" y="504">how good the model is. A better model does not move a bot out of T3.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four tiers, four bars, and the product decision hiding underneath them</figcaption>
+    </figure>
+
+    <table class="clean">
+      <tr><th>Beacon bot</th><th>Worst thing it can do unattended</th><th>Tier</th><th>What that costs the team</th></tr>
+      <tr><td><strong>Analyst bot</strong></td><td>Return a wrong number to an analyst who checks it against a dashboard</td><td>T1 to T2</td><td>Read-only rails by construction, a 100-case set, standard canary</td></tr>
+      <tr><td><strong>Insight bot</strong></td><td>Send an executive summary containing an invented finding</td><td>T2</td><td>Adversarial slice, shadow mode first, 200 to 500 cases</td></tr>
+      <tr><td><strong>Support bot</strong></td><td>Issue a refund credit to a customer who talked it into one</td><td>T3</td><td>500 to 1000 cases per critical slice, human approval on the refund, drilled kill switch</td></tr>
+    </table>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Scoping the action space down is the move nobody proposes<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Look at the support bot row again. One capability - issue a refund credit - is doing all the work. It raises the bar by five points, multiplies the evidence requirement by two to five times, adds a human-approval step to the product, and puts a kill-switch drill on the ops backlog. Everything else about that bot is T2 behaviour.</p>
+        <p>So the cheapest launch strategy available is: <strong>ship the bot without the refund capability, and let it draft a refund for a human to issue.</strong> Two weeks of labelling saved, an approval flow avoided, a regulated action removed from the autonomous path. It is on the table in every one of these projects and it is proposed in almost none of them, because cutting scope feels like failure while spending three weeks on evals feels like rigour.</p>
+        <p>The discipline to build: before anyone argues about the bar, ask which single capability is setting the tier, and ask what it would cost to remove it. Sometimes the answer is "that capability is the product". Often it is "nobody has thought about it".</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The if-then structure, borrowed from safety policy<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The tier table is not a novel invention. It is the same shape as Anthropic's Responsible Scaling Policy, which pairs tiered capability levels with <strong>if-then commitments</strong>: crossing a defined capability threshold triggers stronger safeguards <em>before</em> deployment, not after an incident. The commitment is written while everybody is calm and cannot be renegotiated by the team that later wants to ship.</p>
+        <p>That is the whole trick, and it transfers cleanly to product. "If this bot can take an irreversible financial action, then it needs 500 cases per critical slice and human approval on the action" is an if-then commitment. Written in advance, it is governance. Written after the eval comes back at 88%, it is a negotiation, and the team that spent a quarter building the bot will win that negotiation every time.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="gates">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the six gates</span>
+      <h2>Six lights, and why averaging them is the whole failure <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">The tier tells you how high the quality bar sits. It does not tell you whether to ship, because quality is one of six things a launch depends on. The gates are <strong>conjunctive</strong>: all green means go, any red means no-go, regardless of how green the others are. That sentence is doing more work than it looks like it is.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 435" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Six conjunctive launch gates joined by AND, contrasted with a blended weighted score that hides a failing safety gate behind five strong ones.">
+        <style>
+          .cgT { font: 700 11px Inter, sans-serif; fill: #FFFFFF; }
+          .cgS { font: 400 10px Inter, sans-serif; fill: #A9CDB8; }
+          .cgA { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .cgH { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .cgX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .cgR { font: 700 12.5px Inter, sans-serif; fill: #991B1B; }
+          .cgW { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+          .cgK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="132" height="70" rx="10" fill="#0E3320"/>
+        <text class="cgT" x="34" y="46">1 · Quality</text>
+        <text class="cgS" x="34" y="64">CI lower bound</text>
+        <text class="cgS" x="34" y="82">clears tier bar</text>
+
+        <rect x="164" y="24" width="132" height="70" rx="10" fill="#1A4D33"/>
+        <text class="cgT" x="174" y="46">2 · Safety</text>
+        <text class="cgS" x="174" y="64">adversarial run,</text>
+        <text class="cgS" x="174" y="82">rails held</text>
+
+        <rect x="304" y="24" width="132" height="70" rx="10" fill="#3D7D5A"/>
+        <text class="cgT" x="314" y="46">3 · Performance</text>
+        <text class="cgS" x="314" y="64" fill="#EDF6F0">p95 inside the</text>
+        <text class="cgS" x="314" y="82" fill="#EDF6F0">latency SLO</text>
+
+        <rect x="444" y="24" width="132" height="70" rx="10" fill="#3D7D5A"/>
+        <text class="cgT" x="454" y="46">4 · Cost</text>
+        <text class="cgS" x="454" y="64" fill="#EDF6F0">cost per task in</text>
+        <text class="cgS" x="454" y="82" fill="#EDF6F0">budget + retries</text>
+
+        <rect x="584" y="24" width="132" height="70" rx="10" fill="#1A4D33"/>
+        <text class="cgT" x="594" y="46">5 · UX + HITL</text>
+        <text class="cgS" x="594" y="64">can say I do not</text>
+        <text class="cgS" x="594" y="82">know; human acts</text>
+
+        <rect x="724" y="24" width="132" height="70" rx="10" fill="#BF6708"/>
+        <text class="cgT" x="734" y="46">6 · Ops ready</text>
+        <text class="cgS" x="734" y="64" fill="#FDF3E3">rollback drilled,</text>
+        <text class="cgS" x="734" y="82" fill="#FDF3E3">monitoring wired</text>
+
+        <rect x="24" y="104" width="832" height="44" rx="10" fill="#12241B"/>
+        <text class="cgA" x="44" y="132">GO  =  quality AND safety AND performance AND cost AND oversight AND ops readiness</text>
+
+        <rect x="24" y="160" width="404" height="118" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="cgH" x="44" y="186">The blended score, which is what a room does</text>
+        <text class="cgX" x="44" y="208">Quality 96 · Safety 55 · Performance 92 · Cost 88</text>
+        <text class="cgX" x="44" y="226">Oversight 90 · Ops 70. Weighted average: 82. That</text>
+        <text class="cgX" x="44" y="244">reads like a pass, and it is the number a slide</text>
+        <text class="cgX" x="44" y="262">will show, because averages are comfortable.</text>
+
+        <rect x="452" y="160" width="404" height="118" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="cgR" x="472" y="186">What that 82 is actually describing</text>
+        <text class="cgW" x="472" y="208">A bot whose safety rails hold barely half the time,</text>
+        <text class="cgW" x="472" y="226">shipping because it is fast and grounded. The 82 is</text>
+        <text class="cgW" x="472" y="244">real. So is the injection that empties a refund</text>
+        <text class="cgW" x="472" y="262">budget in week one. Averages hide minimums.</text>
+
+        <rect x="24" y="296" width="832" height="76" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="cgH" x="44" y="322">Conjunctive, stated so it cannot be argued with</text>
+        <text class="cgX" x="44" y="344">All six green means go. Any one red means no-go, whatever the other five say. The verdict is the</text>
+        <text class="cgX" x="44" y="362">minimum across the six, never the average. Google's ML Test Score scores the same way, on purpose.</text>
+
+        <rect x="24" y="388" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="cgK" x="48" y="400">Gates get traded the moment they become numbers on one slide. Keep them as six lights with six</text>
+        <text class="cgK" x="48" y="418">owners, so a trade has to be proposed out loud by a named person. That is usually enough to stop it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - six gates joined by AND, and what an average does to the weakest one</figcaption>
+    </figure>
+
+    <p>Six lights need six owners. One name per gate, and the same person does not hold two, because the value of the structure is that somebody has to say no in a room where everyone else is saying yes. The person who signs is the person who gets woken up.</p>
+
+    <table class="clean">
+      <tr><th>Gate</th><th>Who owns the threshold</th><th>What their signature actually means</th></tr>
+      <tr><td><strong>1 · Quality</strong></td><td>The team that built the eval</td><td>The CI lower bound clears the tier bar, and the judge was calibrated against human labels</td></tr>
+      <tr><td><strong>2 · Safety</strong></td><td>Security, trust and safety</td><td>The adversarial slice was actually run on this build. This signature carries a veto</td></tr>
+      <tr><td><strong>3 · Performance</strong></td><td>Engineering</td><td>p95 and p99 hold under realistic load, not the average on a quiet afternoon</td></tr>
+      <tr><td><strong>4 · Cost</strong></td><td>Whoever owns the budget line</td><td>Cost per completed task, including retries and failed attempts, is inside budget at forecast volume</td></tr>
+      <tr><td><strong>5 · UX + human oversight</strong></td><td>Design plus the operations team who will do the approving</td><td>The bot can abstain, and a person genuinely reviews irreversible actions rather than clicking through</td></tr>
+      <tr><td><strong>6 · Ops readiness</strong></td><td>The on-call team</td><td>Regression suite in CI, monitoring wired, and a rollback they have personally rehearsed</td></tr>
+    </table>
+
+    <div class="callout warn">
+      <strong>The failure mode this structure exists to prevent</strong>
+      One person presents one number, the room debates whether it feels high enough, and the loudest opinion wins. Everything above is machinery for making that meeting impossible. If your gate review still ends with a discussion of whether 87% feels acceptable, the gates are decorative.
+    </div>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="rollout">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the ladder</span>
+      <h2>A passed gate buys you the first rung, not the launch <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Launch is not an event. It is six rungs, each with its own gate to advance, and the offline scorecard only clears the first one. The rungs exist because every step exposes the bot to a population it has not met yet, and each new population finds failures the previous one could not.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Staged rollout ladder: offline eval, shadow mode, internal dogfood, canary at one to five percent, progressive ramp, then general availability, each with the gate required to advance.">
+        <style>
+          .rlT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .rlS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .rlX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .rlH { font: 700 12.5px Inter, sans-serif; fill: #3A2A08; }
+          .rlA { font: 400 11px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="200" height="56" rx="10" fill="#0E3320"/>
+        <text class="rlT" x="42" y="48">1 · Offline eval</text>
+        <text class="rlS" x="42" y="66">no user has seen it</text>
+        <rect x="236" y="24" width="620" height="56" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rlX" x="254" y="46">Gate to advance: the six-gate scorecard passes on the golden set, with the</text>
+        <text class="rlX" x="254" y="64">CI lower bound above the tier bar. No traffic has touched it yet.</text>
+
+        <rect x="24" y="90" width="200" height="56" rx="10" fill="#1A4D33"/>
+        <text class="rlT" x="42" y="114">2 · Shadow mode</text>
+        <text class="rlS" x="42" y="132">real inputs, no output</text>
+        <rect x="236" y="90" width="620" height="56" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rlX" x="254" y="112">Runs on real traffic in parallel, output shown to nobody. Gate to advance:</text>
+        <text class="rlX" x="254" y="130">no rail breach on live inputs, and latency and cost hold at real volume.</text>
+
+        <rect x="24" y="156" width="200" height="56" rx="10" fill="#1A4D33"/>
+        <text class="rlT" x="42" y="180">3 · Internal dogfood</text>
+        <text class="rlS" x="42" y="198">your own staff first</text>
+        <rect x="236" y="156" width="620" height="56" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rlX" x="254" y="178">Your own people, who will report the embarrassing failure a customer would</text>
+        <text class="rlX" x="254" y="196">silently leave over. Gate to advance: no P1 from internal use in a week.</text>
+
+        <rect x="24" y="222" width="200" height="56" rx="10" fill="#3D7D5A"/>
+        <text class="rlT" x="42" y="246">4 · Canary 1-5%</text>
+        <text class="rlS" x="42" y="264" fill="#EDF6F0">one canary at a time</text>
+        <rect x="236" y="222" width="620" height="56" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rlX" x="254" y="244">One canary at a time, metrics split canary versus control. Gate to advance:</text>
+        <text class="rlX" x="254" y="262">no significant gap against control on quality, latency, cost or error rate.</text>
+
+        <rect x="24" y="288" width="200" height="56" rx="10" fill="#3D7D5A"/>
+        <text class="rlT" x="42" y="312">5 · Progressive ramp</text>
+        <text class="rlS" x="42" y="330" fill="#EDF6F0">5 to 25 to 50 to 100%</text>
+        <rect x="236" y="288" width="620" height="56" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rlX" x="254" y="310">Each step is a fresh comparison, not a formality. Gate to advance: the same</text>
+        <text class="rlX" x="254" y="328">canary-versus-control read holds at the new share of traffic.</text>
+
+        <rect x="24" y="354" width="200" height="56" rx="10" fill="#BF6708"/>
+        <text class="rlT" x="42" y="378">6 · GA</text>
+        <text class="rlS" x="42" y="396" fill="#FDF3E3">not the end of eval</text>
+        <rect x="236" y="354" width="620" height="56" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="rlA" x="254" y="376">Gate to STAY, not to advance: online eval on sampled traffic, and a rollback</text>
+        <text class="rlA" x="254" y="394">trigger armed against every one of the six gates. Session a6 owns this rung.</text>
+
+        <rect x="24" y="422" width="832" height="94" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rlH" x="44" y="448" fill="#1F2622">The three rules that make a canary a canary</text>
+        <text class="rlX" x="44" y="470">One canary at a time, so a breach has exactly one cause. Metrics split canary versus control, so you</text>
+        <text class="rlX" x="44" y="488">compare against the same hour rather than against yesterday. A breach halts the ramp or automatically</text>
+        <text class="rlX" x="44" y="506">rolls back - it never opens a discussion about whether the breach was real.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - six rungs, six gates to advance, and the canary discipline underneath rungs 4 and 5</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>Rungs 4 and 5 are not an AI idea.</strong> Google's SRE guidance on canarying releases predates all of this and says the same three things: run one canary at a time so an observed problem has a single candidate cause, split your metrics into canary and control populations so the comparison is contemporaneous, and treat a breach as an automatic halt or rollback rather than an input to a judgement call. The ML Test Score rubric encodes the same requirement as <strong>Infrastructure test 6</strong>: the model is canaried before it reaches full production. The novelty in agent launches is not the ladder, it is that the metric being compared is a pass rate with an interval around it rather than an error count.</p>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What each rung actually buys you<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Teams skip rungs because each one looks like a delay. It helps to name what you lose by skipping each:</p>
+        <ul>
+          <li><strong>Skip shadow mode</strong> and you find out at 1% of traffic that real user phrasing is nothing like your golden set. Shadow mode is the only rung where a total failure costs you nothing at all.</li>
+          <li><strong>Skip internal dogfood</strong> and your first honest bug report comes from a customer who is not motivated to write one. Your own staff will describe a failure precisely; a customer will simply leave.</li>
+          <li><strong>Skip the canary</strong> and your first exposure is a population large enough to make a rollback a public event.</li>
+          <li><strong>Skip the progressive ramp</strong> and you discover the load-dependent failures - queueing, rate limits, cache misses, cost per task at real concurrency - at 100% of traffic instead of 25%.</li>
+        </ul>
+        <p>Each rung is cheap insurance against the class of failure that only that rung can find. The ladder is not caution, it is sequencing.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="regulatory">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · the floor</span>
+      <h2>The regulatory floor sits underneath every tier <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">Your tier table is an internal instrument. Underneath it there is a floor you do not set, and the most commonly missed fact about that floor is that its most immediate obligation applies to the bots you classified as low risk.</p>
+
+    <div class="callout warn">
+      <strong>Read this before the table</strong>
+      This section is orientation for engineers and leaders. It is not legal advice and it is not counsel. It exists so that you know which questions to take to a lawyer and roughly when, not so that you can answer them yourself. Timelines and interpretations move; every claim here traces to a dated source in this course's source map, verified 13 August 2026, and should be re-verified before you rely on it.
+    </div>
+
+    <table class="clean">
+      <tr><th>Instrument</th><th>What it says</th><th>What it does to your launch</th></tr>
+      <tr><td><strong>EU AI Act, Article 50</strong><br>transparency</td><td>Applies from <strong>2 August 2026</strong> to any system that interacts with people, <strong>regardless of risk tier</strong>. Users must know they are interacting with AI, disclosed at first interaction</td><td>This is the obligation people miss, because they are looking at the high-risk list. Your T1 read-only internal helper is in scope if a person talks to it. Disclosure is a UX requirement with a date on it</td></tr>
+      <tr><td><strong>EU AI Act, Article 6 and Annex III</strong><br>high-risk classification</td><td>Named high-risk categories, with a narrow derogation for genuinely procedural tasks. The derogation has a hard exception: <strong>profiling of natural persons is always high-risk</strong>. The Annex III timeline was extended to December 2027; Article 50 was not deferred with it</td><td>If your bot profiles people, the "it only does a narrow procedural task" argument is unavailable to you. Answer that question before you design the eval, because it changes what evidence you need to keep</td></tr>
+      <tr><td><strong>EU AI Act, Article 14</strong><br>human oversight</td><td>High-risk systems must be designed so that people can effectively oversee them</td><td>This is gate 5 with legal weight behind it. "A human approved it" only counts if the human could realistically have refused</td></tr>
+      <tr><td><strong>NIST AI RMF 1.0</strong></td><td>Four functions: <strong>GOVERN, MAP, MEASURE, MANAGE</strong>. Voluntary, and structured as a lifecycle rather than a checklist</td><td>The most useful import is GOVERN sitting across the other three. Most teams do MEASURE well, MAP occasionally, and GOVERN never - which is exactly why their thresholds move after the result comes in</td></tr>
+      <tr><td><strong>NIST GenAI Profile, AI 600-1</strong> (July 2024)</td><td>Adds twelve generative-AI risk categories, including <strong>confabulation</strong> and <strong>prompt injection</strong></td><td>These are named risk categories now, not engineering folklore. Confabulation maps to your quality gate, prompt injection to your safety gate. Both belong in the eval, not the risk register</td></tr>
+      <tr><td><strong>Anthropic's RSP</strong><br>as a product analog</td><td>Tiered levels with <strong>if-then commitments</strong>: crossing a capability threshold triggers stronger safeguards <em>before</em> deployment</td><td>Not a regulation, and not binding on you. It is the cleanest published example of the structure your tier table is copying: the safeguard is decided at the threshold, in advance, by people who are not under launch pressure</td></tr>
+    </table>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The mapping that saves you a compliance project<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Read the four functions of the NIST framework against the six gates and the overlap is almost total. <strong>MAP</strong> is your tier classification: what is this system, who does it affect, what happens when it is wrong. <strong>MEASURE</strong> is gates 1 through 4. <strong>MANAGE</strong> is gates 5 and 6 plus everything in session a6. <strong>GOVERN</strong> is the part that says the threshold was written down in advance, by a named owner, and cannot be moved by the team that wants to ship.</p>
+        <p>That mapping matters practically. A team with a working six-gate launch process is not starting a compliance programme from zero; it is documenting one it already runs. A team without one will build a parallel compliance artefact that nobody consults, and the launch decision will still be made by the loudest person in the room.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Discussion 1 of 2</span>
+      <h2>Tier your own bots, out loud <span class="tag demo">★ 8 min · everyone argues</span></h2>
+    </div>
+    <p class="lede">Nothing to install. Take a bot you actually own, or one your organisation is about to ship, and run it through these five prompts in order. The disagreement in step 3 is the point of the exercise.</p>
+
+    <div class="steps">
+      <div class="step"><p>Write one sentence: <strong>the worst thing this bot can do unattended, once.</strong> Not the worst thing that could go wrong with the project - the worst single action the bot can take without a person in the loop. If the sentence contains money, a message a customer receives, or a decision about a person, you are already at T3.</p></div>
+      <div class="step"><p>Place it in a tier from Part 1, and write down the bar and the evidence requirement that comes with it. Say the number of cases out loud. Notice the reaction in the room when somebody hears "500 to 1000 per critical slice" for the first time.</p></div>
+      <div class="step"><p>Now the argument: <strong>name the single capability that is setting the tier</strong>, and ask what it would cost to remove it or to route it through a human. Time-box this to three minutes. Somebody will say "but then it is not really an agent". Ask them what the extra tier costs in labelling weeks, and let the two numbers sit next to each other.</p></div>
+      <div class="step"><p>Check the floor. Does a person interact with it? Then Article 50 disclosure applies from 2 August 2026 regardless of the tier you just assigned. Does it profile natural persons? Then the narrow-procedural-task derogation is not available. Write both answers down as facts, not opinions, and take them to counsel rather than resolving them here.</p></div>
+      <div class="step"><p>Assign a name to each of the six gates. One person per gate, nobody holding two. If you cannot fill a gate, that gate is currently owned by nobody, which means in practice it is currently green by default. That is the most useful output of this exercise.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>What usually happens in step 5</strong>
+      Quality, performance and cost find owners in seconds. Safety and ops readiness are argued about. Gate 5, human oversight, is almost always unowned, because the person who will actually do the approving is not in the room and has not been asked whether they have time to read what they are approving. That absence is a finding.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Discussion 2 of 2</span>
+      <h2>Rehearse the gate review you are dreading <span class="tag demo">★ 7 min · role play</span></h2>
+    </div>
+    <p class="lede">The scenario: Beacon's support bot comes to review three days before a launch that has been announced to customers. Quality is 96 against a T3 bar of 90. Performance and UX are green. The injection suite passes 55% of its cases. Rollback has never been rehearsed. Assign roles and run it.</p>
+
+    <div class="steps">
+      <div class="step"><p><strong>The product lead</strong> opens by proposing a blended readiness score of 82 and noting that five of six gates are comfortably green. This is not a strawman. It is the single most common opening in a real gate review, and it is made in good faith.</p></div>
+      <div class="step"><p><strong>The safety owner</strong> has to say no, alone, three days before an announced launch, on the strength of one gate. Notice how much easier that is when the threshold was written down in advance by somebody who is not in the room, and how nearly impossible it is when the safety gate has no named owner.</p></div>
+      <div class="step"><p><strong>The room</strong> proposes the two compromises that always get proposed: ship at 1% canary with the refund capability disabled, or ship on time and fix the injection suite in the first sprint. One of these is a genuine tier change. The other is a trade against a red gate wearing a schedule as a disguise.</p></div>
+      <div class="step"><p><strong>Decide, and write the sentence.</strong> Whatever you land on, it has to be one paragraph naming every gate, its number, its owner and its verdict. If the paragraph cannot be written, the decision was not made - a mood was reached.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <strong>The compromise that is actually correct</strong>
+      Disabling the refund capability is not a fudge. It drops the bot from T3 to T2, removes the regulated action from the autonomous path, and lowers the blast radius that the injection suite was protecting against in the first place. The bot ships, the customer announcement holds, and the safety gate is now being asked a much easier question. The second compromise - ship and fix it in a sprint - is the one that reads as pragmatic and is not, because it trades a red safety gate against a date.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 45-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Write your organisation's tier table on one page and get it approved before your next launch, not during it. Four rows, a bar, an evidence requirement and an obligation each. It is a one-page document and it will outlast every model you are currently arguing about.</li>
+      <li>For each bot in flight, name the single capability that is setting its tier, and cost the alternative where a human executes that action. Bring both numbers to the same meeting. You are looking for the cases where three weeks of eval work is buying you something a product decision could have given away for free.</li>
+      <li>Fill in the six gate owners for your highest-risk bot and send them each a one-line message telling them they own that gate. The ones who reply "since when" are the ones you needed to find.</li>
+      <li>Take two questions to counsel rather than answering them internally: does Article 50 disclosure apply to each of our user-facing bots, and does any of them profile natural persons. Both have dates attached and neither is an engineering judgement.</li>
+      <li>Write down which rung of the rollout ladder your last launch actually started at. If the answer is "canary" or later, list the failure classes that only shadow mode and dogfood could have caught, and check them against the incidents that followed.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every framework and date on this page traces to a primary source catalogued in this course's source map, verified 13 August 2026. Regulatory timelines move; re-verify before you rely on any of it. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">EU AI Act Article 50: transparency from 2 August 2026, any chatbot, any risk tier, disclosure at first interaction</span><span class="note">Part 4 · the obligation most often missed, because it sits below the high-risk list</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">EU AI Act Article 6 and Annex III: high-risk categories, the narrow-procedural-task derogation, profiling of natural persons always high-risk, Annex III extended to December 2027</span><span class="note">Part 4 · orientation only, explicitly not legal advice</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">EU AI Act Article 14 human oversight, mapped onto gate 5</span><span class="note">Part 2 and Part 4</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">NIST AI RMF 1.0 GOVERN / MAP / MEASURE / MANAGE, and the GenAI Profile AI 600-1 adding confabulation and prompt injection</span><span class="note">Part 4 · mapped directly onto the six gates</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic's Responsible Scaling Policy: tiered levels with if-then commitments, safeguards before deployment</span><span class="note">Part 1 self-study · used as the product analog for the tier table</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google SRE canarying: one canary at a time, canary versus control, breach halts or auto-rolls back</span><span class="note">Part 3 · rungs 4 and 5 of the ladder</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google ML Test Score, Infrastructure test 6: canary before production; minimum-across-sections scoring</span><span class="note">Part 2 and Part 3 · full ops rubric in a6</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">The evidence arithmetic behind each tier's case count</span><span class="note">Derived in a4 · applied here as a requirement</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Running the six gates on a live scorecard for all three Beacon bots</span><span class="note">Not on this page by design · b9 operationalises it with the simulator</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Your internal analytics helper is read-only, reversible and firmly T1. Does the EU AI Act's Article 50 transparency obligation apply to it?</p>
+      <button class="qopt" type="button">A · No - Article 50 attaches to high-risk systems under Annex III, and a T1 bot is not one</button>
+      <button class="qopt" type="button">B · Yes, if a person interacts with it - Article 50 transparency applies from 2 August 2026 to any system people converse with, regardless of risk tier, with disclosure at first interaction</button>
+      <button class="qopt" type="button">C · Not until December 2027, when the Annex III timeline lands</button>
+      <p class="qwhy">This is the most commonly missed fact on the page, and it is missed because everyone reads the high-risk list first. Article 50 is a transparency obligation that sits underneath the tiering entirely: it is about users knowing they are talking to an AI. The Annex III high-risk timeline was extended to December 2027, but Article 50 was not deferred along with it. Your internal tier table has no bearing on this one, and the fix is a UX change with a date attached. Orientation only - take the specifics to counsel.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Your bot has been at 5% canary for a week with no pages and no complaints. What is the gate to advance to 25%?</p>
+      <button class="qopt" type="button">A · Time served - a clean week at 5% is the gate</button>
+      <button class="qopt" type="button">B · The absence of customer complaints, which is the only real-world signal that matters</button>
+      <button class="qopt" type="button">C · A contemporaneous canary-versus-control comparison showing no significant gap on quality, latency, cost or error rate, with a breach halting the ramp or auto-rolling back</button>
+      <p class="qwhy">"No pages and no complaints" is an absence of evidence, not evidence. The SRE canarying discipline is specific: split your metrics into a canary population and a control population so you are comparing the same hour rather than comparing against yesterday, run one canary at a time so a breach has exactly one candidate cause, and pre-commit that a breach halts or rolls back rather than opening a debate. Silence at 5% often just means 5% of traffic is too small a sample to have surfaced the failure yet, which is the same interval problem from a4 wearing different clothes.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Your bot scores applicants against fixed criteria. The team argues this is a narrow, purely procedural task and the Annex III derogation applies. What is the problem with that argument?</p>
+      <button class="qopt" type="button">A · The derogation has a hard exception: a system that performs profiling of natural persons is always high-risk, so the narrow-procedural-task route is unavailable here</button>
+      <button class="qopt" type="button">B · Nothing, as long as a human reviews the output before it is used</button>
+      <button class="qopt" type="button">C · Nothing, provided the criteria are documented and the model is not fine-tuned</button>
+      <p class="qwhy">The narrow-procedural-task derogation exists, and it is genuinely narrow. Profiling of natural persons is carved out of it explicitly and always sits in the high-risk category, which means the classification question is settled before you get to argue about how procedural the task feels. Option B confuses Article 14 human oversight, which is an obligation that comes <em>with</em> high-risk classification, with a way of escaping the classification. This page is orientation for engineers and leaders, not counsel - the value of knowing this is that you take the question to a lawyer early, rather than discovering it during a launch review.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 5 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The bar comes from the blast radius</b><span>T1 ~80%, T2 ~85%, T3 ~90% plus human approval on the action, T4 no autonomous path at all. Not from how good the model is.</span></div>
+      <div class="cheat-item"><b>Classify on capability, not intent</b><span>One sentence: the worst thing it can do unattended, once. Money, a customer message, or a decision about a person means T3.</span></div>
+      <div class="cheat-item"><b>Scope down before you scale up</b><span>Find the single capability setting the tier and cost removing it. Cheapest gate-passing move there is, and the least proposed.</span></div>
+      <div class="cheat-item"><b>Six gates, conjunctive</b><span>Quality, safety, performance, cost, UX and human oversight, ops readiness. The verdict is the minimum, never the average.</span></div>
+      <div class="cheat-item"><b>One name per gate</b><span>Six owners, nobody holding two. An unowned gate is green by default, and the safety veto only works if it belongs to somebody.</span></div>
+      <div class="cheat-item"><b>Launch is a ladder, not an event</b><span>Offline eval, shadow, dogfood, canary 1-5%, ramp 5/25/50/100, GA. Each rung has its own gate to advance.</span></div>
+      <div class="cheat-item"><b>Canary discipline</b><span>One canary at a time, canary versus control on the same hour, and a breach halts or auto-rolls back rather than starting a discussion.</span></div>
+      <div class="cheat-item"><b>Article 50 is the floor, not the ceiling</b><span>From 2 August 2026, any chatbot, any tier: users must know it is AI, disclosed at first interaction. Orientation, not legal advice.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 5 of 6 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="a6-after-launch.html">Next: After GA →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

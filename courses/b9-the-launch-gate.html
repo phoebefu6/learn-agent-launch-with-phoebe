@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder session 9 · The launch gate - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Builder session 9 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Builder track · Session 9 of 10</div>
+    <h1>The launch gate: <span class="accent">the six lights, and the one that never lies</span></h1>
+    <p class="sub">Eight sessions of metrics arrive here. This is the session where you run all three Beacon bots through one scorecard, watch the confidence figure climb from a number that flattered you to a number you can sign, and find out which of your levers were fixing the bot and which were only fixing the measurement. The simulator is live on this page and the statistics inside it are real.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Builder track</span>
+      <span class="chip audience">AI engineers · ML engineers · technical PMs</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · The six gates</span>
+      <span class="a3" style="flex:6">15-40 · Build-along: the climb, then all three bots</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>One scorecard, six lights, one signature</h2>
+    </div>
+    <p class="lede">A launch decision fails in a predictable way: somebody presents a single accuracy number, the room debates whether it feels high enough, and the loudest opinion wins. The fix is not a better number - it is six numbers that cannot be traded against each other, each with a threshold written down before anyone ran anything.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      Beacon's completed launch scorecard for all three bots, the distinction between levers that improve the bot and levers that only improve the measurement, a personal answer to "what does 90% confident mean", and the sign-off sentence you can put in writing.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="six-gates">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the scorecard</span>
+      <h2>Six gates that do not trade against each other <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">The central design rule: gates are <strong>conjunctive</strong>. All green means go. Any red means no-go, regardless of how green the others are. A bot that is brilliant and unaffordable does not ship; a bot that is fast, cheap and ungrounded does not ship either. The moment you let a strong gate compensate for a weak one, you are back to debating a single number.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Six launch gates: quality, safety, performance, cost, human oversight, and ops readiness. All must be green; any red blocks the launch.">
+        <style>
+          .sgT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .sgS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .sgH { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .sgX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .sgK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="272" height="76" rx="10" fill="#0E3320"/>
+        <text class="sgT" x="42" y="48">1 · Quality</text>
+        <text class="sgS" x="42" y="68">CI lower bound clears the tier bar</text>
+        <text class="sgS" x="42" y="86">and the judge is calibrated</text>
+
+        <rect x="304" y="24" width="272" height="76" rx="10" fill="#1A4D33"/>
+        <text class="sgT" x="322" y="48">2 · Safety</text>
+        <text class="sgS" x="322" y="68">adversarial slice was actually run</text>
+        <text class="sgS" x="322" y="86">and the rails held</text>
+
+        <rect x="584" y="24" width="272" height="76" rx="10" fill="#3D7D5A"/>
+        <text class="sgT" x="602" y="48">3 · Performance</text>
+        <text class="sgS" x="602" y="68" fill="#EDF6F0">p95 within the latency SLO,</text>
+        <text class="sgS" x="602" y="86" fill="#EDF6F0">not the average</text>
+
+        <rect x="24" y="112" width="272" height="76" rx="10" fill="#3D7D5A"/>
+        <text class="sgT" x="42" y="136">4 · Cost</text>
+        <text class="sgS" x="42" y="156" fill="#EDF6F0">cost per task inside budget,</text>
+        <text class="sgS" x="42" y="174" fill="#EDF6F0">including retries</text>
+
+        <rect x="304" y="112" width="272" height="76" rx="10" fill="#1A4D33"/>
+        <text class="sgT" x="322" y="136">5 · UX + human oversight</text>
+        <text class="sgS" x="322" y="156">it can say "I do not know", and a</text>
+        <text class="sgS" x="322" y="174">person commits irreversible actions</text>
+
+        <rect x="584" y="112" width="272" height="76" rx="10" fill="#BF6708"/>
+        <text class="sgT" x="602" y="136">6 · Ops readiness</text>
+        <text class="sgS" x="602" y="156" fill="#FDF3E3">regression suite in CI, rollback</text>
+        <text class="sgS" x="602" y="174" fill="#FDF3E3">rehearsed, monitoring wired</text>
+
+        <rect x="24" y="212" width="832" height="98" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="sgH" x="44" y="238">Why gate 1 is worded so carefully</text>
+        <text class="sgX" x="44" y="260">"CI lower bound clears the bar" - not "accuracy clears the bar". Those differ by 19 points at n=20 and by</text>
+        <text class="sgX" x="44" y="278">2 points at n=1000. "And the judge is calibrated" closes the other door: an uncalibrated judge inflates the</text>
+        <text class="sgX" x="44" y="296">pass rate before the interval is ever computed, so a wide-enough set graded badly still fails this gate.</text>
+
+        <rect x="24" y="326" width="404" height="76" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="sgH" x="44" y="350">Levers that fix the bot</text>
+        <text class="sgX" x="44" y="370">grounding · context · abstention · rails · verify</text>
+        <text class="sgX" x="44" y="388">hitl · latency and cost engineering</text>
+        <rect x="452" y="326" width="404" height="76" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="sgH" x="472" y="350">Levers that fix the measurement</text>
+        <text class="sgX" x="472" y="370">representative sampling · adversarial slice</text>
+        <text class="sgX" x="472" y="388">judge calibration · golden set size · regression suite</text>
+
+        <rect x="24" y="418" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="sgK" x="48" y="430">Measurement levers usually push your number DOWN. That is them working, and it is why teams skip them.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - six conjunctive gates, and the two families of lever behind them</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the quality gate needs a risk tier attached<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>There is no universal launch bar, and any course that gives you one is selling something. The bar comes from the blast radius of a wrong answer, which is what the tier encodes (session a5 builds the table):</p>
+        <ul>
+          <li><strong>T1 - low</strong> (read-only, informational, reversible): bar around 80%. A wrong answer costs a user thirty seconds.</li>
+          <li><strong>T2 - medium</strong> (writes data, sends messages, makes commitments): bar around 85%, plus an adversarial slice and shadow mode before canary.</li>
+          <li><strong>T3 - high</strong> (financial or irreversible actions, regulated domains): bar around 90%, human approval on the action itself, kill switch drilled.</li>
+        </ul>
+        <p>Beacon's support bot can issue a refund credit. That single capability moves it from T2 to T3, raises its bar by five points, and forces the approval gate. Notice what a cheap product decision it would be to remove that capability - and how rarely anyone weighs it that way. <strong>Scoping the action space down is the fastest way to pass a launch gate, and it is almost never on the table because it feels like giving up.</strong></p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Reliability is not capability: pass^k<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Everything on this scorecard measures a single run. Production is not a single run - the same user asks the same thing on Tuesday. tau-bench introduced <strong>pass^k</strong>, the probability that <em>all</em> k independent trials of a task succeed, as against pass@k, the probability that at least one does. They pull in opposite directions: pass@k rewards a model that occasionally gets there, pass^k rewards one that always does.</p>
+        <p>The arithmetic is unforgiving. A task the bot passes 75% of the time succeeds three times running only 42% of the time. On tau-bench's retail domain, GPT-4o-class agents scored under 50% at pass^1 and <strong>under 25% at pass^8</strong> - the same agent, the same tasks, just asked to be consistent. If your bot handles an eight-step workflow, that is the number that matters, and it is not the one on your dashboard. Session b8 measures it properly.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 3</span>
+      <h2>The climb: six rungs from applause to signature <span class="tag demo">★ 10 min · watch, then argue</span></h2>
+    </div>
+    <p class="lede">Step through these in order. Beacon's support bot is T3, so the bar is 90%. Read each caption before you look at the meter - the story is in what changed between rungs, and twice it is nothing about the bot at all.</p>
+
+    <div class="glbox" data-mode="ladder"></div>
+
+    <div class="callout warn">
+      <strong>Rung 1 is the trap, and it is the most common state of a real project</strong>
+      Nineteen of twenty passed. The pass rate reads 95%. The confidence figure reads 76.4%, because 19 of 20 is genuinely compatible with a bot that is right seven times in ten. Nobody in that demo is lying - they are reporting a point estimate and hearing a guarantee. Between rung 1 and rung 2 the bot does not change at all, and the number falls by forty points.
+    </div>
+
+    <div class="callout tip">
+      <strong>Rung 6 is the one teams skip</strong>
+      Between rung 5 and rung 6 the bot does not change either. The pass rate barely moves - 94.7% both times. The confidence figure climbs from 88.8% to 92.5% because 400 more labelled examples narrowed the interval. That is the whole of the last rung: you did not make it better, you made it provable. It is unglamorous, it is a week of labelling, and it is the difference between a gate that holds and a gate that hopes.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 3</span>
+      <h2>Three bots, three different gates <span class="tag demo">★ 12 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">Same company, same discipline, three different answers. Work each board until all six gates are green, then compare what it took. The levers that mattered are different every time, and two levers are marked "not a gate for this bot" - read why.</p>
+
+    <h3 style="margin-top:1.6rem">Beacon Support Bot - the judged one</h3>
+    <p>No ground truth. Correctness is an opinion until a human or a calibrated judge supplies one. Groundedness carries the weight here, and the escalation path is a gate, not a nicety.</p>
+    <div class="glbox" data-bot="chatbot" data-tier="t3"></div>
+
+    <h3 style="margin-top:2rem">Beacon Analyst Bot - the executable one</h3>
+    <p>Every answer is runnable, so most of this eval belongs on the execution rung rather than the judge rung. Watch what output verification does here that it could not do for the chatbot - and notice that grounding is dimmed, because there is no passage to cite when correctness is settled by rows.</p>
+    <div class="glbox" data-bot="sql" data-tier="t2"></div>
+
+    <h3 style="margin-top:2rem">Beacon Insight Bot - the compound one</h3>
+    <p>The hardest of the three, because it is the other two stacked: an executable inner stage and a judged outer narrative, with errors compounding between them. This is the only bot that needs all five quality levers before it clears the bar.</p>
+    <div class="glbox" data-bot="analytics" data-tier="t2"></div>
+
+    <div class="steps">
+      <div class="step"><p>Take each board to all-green and write down the <strong>minimum lever set</strong> that got you there. They differ, and the differences are the argument for archetype-specific criteria rather than one company-wide eval template.</p></div>
+      <div class="step"><p>On any board, switch every quality lever on but leave <strong>latency + cost engineering</strong> off. Performance and cost go red together. That is the real trade every eval-focused team discovers late: quality levers are bought with milliseconds and cents, and something has to pay for them.</p></div>
+      <div class="step"><p>Now drop the analytics bot to n=100 with everything else on. It clears a T2 bar of 85% - and would miss a T3 bar of 90%. Same evidence, different tier, different answer. The tier is a product decision that lands as a statistics requirement.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ DEMO 3 ============ -->
+  <section class="section" id="demo-3">
+    <div class="section-kicker">
+      <span class="klabel">Demo 3 of 3</span>
+      <h2>Write the sign-off sentence <span class="tag demo">★ 5 min · everyone writes</span></h2>
+    </div>
+    <p class="lede">A launch decision that cannot be written in one paragraph has not been made. Fill this in for your own bot, from your own scorecard, and notice every place you have to write "we did not measure that".</p>
+
+    <div class="prompt-box good">
+      <span class="label">★ The sign-off template - every blank is a gate</span>
+      <p>On <strong>[n]</strong> cases sampled from <strong>[which traffic, which period]</strong>, including a <strong>[x]%</strong> adversarial and unanswerable slice, graded by <strong>[rungs used]</strong> with the judge calibrated against <strong>[m]</strong> human labels, <strong>[bot]</strong> passed <strong>[s]</strong>. True task success is therefore at least <strong>[CI lower bound]</strong> with 95% confidence, against a <strong>[tier]</strong> bar of <strong>[bar]</strong>. Latency is <strong>[p95]</strong> against a <strong>[SLO]</strong> SLO and cost is <strong>[cost]</strong> per <strong>[unit]</strong> against a <strong>[budget]</strong> budget. The safety canary passes at 100%, irreversible actions require human approval, the regression suite is wired to CI, and rollback was last rehearsed on <strong>[date]</strong>. Rollback triggers are <strong>[list]</strong>. I recommend launch at <strong>[x]%</strong> canary.</p>
+    </div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The last two blanks are the ones that get skipped, and they are the ones Google's own data flags.</strong> The ML Test Score rubric lists "models can be quickly and safely rolled back" as a production-readiness test and adds that rolling back is an emergency procedure operators should <em>practice</em>. In Google's internal survey across teams, no single test in that rubric was implemented by more than 80% of teams - and the scoring rule is deliberately harsh: your final score is the <em>minimum</em> across the four sections, not the average. Strong evals do not compensate for an unrehearsed rollback, in exactly the way a green quality gate does not compensate for a red ops gate here.</p>
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Fill in the sign-off paragraph for a bot you actually own, leaving genuine blanks where you have no evidence. The blanks are your backlog, in priority order, and they are more useful than any roadmap you would have written.</li>
+      <li>Assign your bot a tier by writing down the worst thing it can do unattended. If that sentence involves money, a message a customer receives, or a decision about a person, you are at T3 and your bar just moved.</li>
+      <li>Compute the Wilson interval on your last real eval run. If the lower bound is below your bar, you have two options and you should cost both: improve the bot, or label more examples. Teams reflexively pick the first and it is often the more expensive one.</li>
+      <li>Rehearse a rollback. Not a discussion about rollback - an actual timed revert of the prompt or model version in a staging environment, with somebody holding a stopwatch. Write the number down. It belongs in the sign-off.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every figure on this page traces to a primary source catalogued in this course's source map. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The six-gate conjunctive scorecard, assembled from the launch-readiness literature</span><span class="note">Part 1 · thresholds per tier come from a5</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Wilson score interval as the confidence figure, computed live in the browser</span><span class="note">Demo 1-2 · table and derivation in a4</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">pass^k vs pass@k, and tau-bench's retail consistency numbers</span><span class="note">Part 1 self-study · measured in b8</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google ML Test Score: rollback as a rehearsed procedure, minimum-across-sections scoring</span><span class="note">Demo 3 · full ops rubric in a6 and b10</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Per-archetype criteria selection</span><span class="note">Applied here · derived in b5, b6, b7</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Staged rollout mechanics beyond the canary percentage</span><span class="note">Named here · a5 and b10 carry the ladder</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Between ladder rung 5 and rung 6 the pass rate stays at 94.7% but the confidence figure climbs from 88.8% to 92.5%. What changed?</p>
+      <button class="qopt" type="button">A · The bot was improved with an additional quality lever</button>
+      <button class="qopt" type="button">B · Nothing about the bot - the golden set grew from 100 to 500 cases, which narrowed the interval around the same rate</button>
+      <button class="qopt" type="button">C · The risk tier was lowered, so the bar came down</button>
+      <p class="qwhy">This is the rung teams skip because it improves nothing you can demo. The interval width shrinks roughly with the square root of n, so five times the cases buys you a little over half the width. The bot was already good enough at rung 5; it just was not yet provable against a 90% bar. Improving and proving are separate pieces of work with separate costs.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Your bot scores brilliantly on quality and safety but is 60% over its cost budget. The quality gate is very green. Do you ship?</p>
+      <button class="qopt" type="button">A · Yes - quality is the gate that matters and it more than compensates</button>
+      <button class="qopt" type="button">B · Yes, and fix cost in the next sprint</button>
+      <button class="qopt" type="button">C · No - the gates are conjunctive by design, so a red gate blocks regardless of how green the others are</button>
+      <p class="qwhy">The entire value of a six-gate scorecard is that gates cannot be traded against each other. The moment a strong gate is allowed to compensate for a weak one, you are back to arguing about a single blended number and the loudest opinion wins. Cost being red has a real fix - route easy turns to a smaller model, cache, trim context - and that fix belongs before launch, not after finance sees the bill.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Beacon's support bot moves from T2 to T3 purely because it can issue a refund credit. What is the cheapest way to pass its launch gate?</p>
+      <button class="qopt" type="button">A · Seriously consider removing the refund capability - scoping the action space down drops the tier, the bar and the approval requirement at once</button>
+      <button class="qopt" type="button">B · Switch to a larger model to raise the pass rate above 90%</button>
+      <button class="qopt" type="button">C · Lower the bar to 85% and document the exception</button>
+      <p class="qwhy">The tier is set by blast radius, and blast radius is a product decision, not a fact of nature. Removing one capability can drop the bar five points and remove the human-approval requirement entirely - far cheaper than the labelling and engineering needed to earn a T3 bar. It is almost never proposed, because cutting scope feels like failure while spending three weeks on evals feels like rigour. Option C is the genuinely dangerous answer: moving a bar after seeing the result is exactly what setting it in advance was for.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Builder session 9 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Six gates, conjunctive</b><span>Quality, safety, performance, cost, human oversight, ops. All green = go. Any red = no-go. No trading.</span></div>
+      <div class="cheat-item"><b>Gate 1 is worded twice over</b><span>CI lower bound clears the bar AND the judge is calibrated. Either one alone can be gamed.</span></div>
+      <div class="cheat-item"><b>Two lever families</b><span>Levers that fix the bot raise the number. Levers that fix the measurement usually lower it - that is them working.</span></div>
+      <div class="cheat-item"><b>Quality is bought with latency and cost</b><span>Every quality lever adds milliseconds and cents. Something has to pay them back, or performance and cost go red together.</span></div>
+      <div class="cheat-item"><b>Tier sets the bar</b><span>T1 ~80%, T2 ~85%, T3 ~90% plus human approval. Blast radius of a wrong action, not vibes.</span></div>
+      <div class="cheat-item"><b>Scope down before you scale up</b><span>Removing one irreversible capability can drop a tier. Cheapest gate-passing move available, and the least proposed.</span></div>
+      <div class="cheat-item"><b>pass^k, not pass@k</b><span>75% per trial is 42% over three. Consistency is the production metric; capability is the demo metric.</span></div>
+      <div class="cheat-item"><b>The sign-off sentence</b><span>n, sampling, slice, grading, calibration, passes, CI lower bound, tier, latency, cost, canary, rollback triggers. Blanks are your backlog.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Builder session 9 of 10 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="b10-eval-in-production.html">Next: Eval in production →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/gate-live.js?v=2"></script>
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder session 3 · Operational metrics - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Builder session 3 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Builder track · Session 3 of 10</div>
+    <h1>Operational metrics: <span class="accent">the percentile where your unhappiest users live</span></h1>
+    <p class="sub">Yesterday's session was about whether the answer is right. This one is about whether anyone waited long enough to read it, and what it cost you to produce. Two gates, two numbers, and one habit that ruins both: reporting an average. By the end you will have Beacon's latency and cost table with p50, p95 and p99 columns, and you will have priced every quality lever from b2 in milliseconds and cents.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Builder track</span>
+      <span class="chip audience">AI engineers · ML engineers · technical PMs</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:5">3-22 · Latency anatomy, percentiles, the money</span>
+      <span class="a3" style="flex:4">22-40 · Build-along: the ops table, then price the levers</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Two gates that nobody argues about until launch week</h2>
+    </div>
+    <p class="lede">Quality gets all the meeting time. Then the bot ships, the p99 turns out to be eleven seconds, finance sees the first full month of inference spend, and both of those become somebody's emergency. Operational metrics are unglamorous, cheap to instrument and almost always measured too late - and unlike quality metrics, they have the decency to be objective.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The difference between time-to-first-token and total response time and why users only feel one of them; percentile discipline with the arithmetic to prove why an average lies; starter latency SLOs you can adopt on Monday; the cost anchors that make an ROI argument, including the per-outcome pricing shift; and a priced list of your own quality levers, in milliseconds and cents.
+    </div>
+    <div class="callout tip">
+      <strong>The key teaching point of this session, stated once up front</strong>
+      Every quality lever you switched on in b2 costs milliseconds and cents. Strict claim checking means a second model call. Better grounding means a longer context. Retries for reliability multiply everything. <strong>Quality and operational gates are coupled</strong>, which is why in b9 you will watch performance and cost go red together the moment you take quality seriously. Nobody warns you about this, and it is the trade that decides most launches.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="latency-anatomy">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · latency anatomy</span>
+      <h2>Users feel the first token, not the last <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">When an answer streams, the perceived wait ends at the first token and the reading begins. Total response time is still real - it caps how fast a conversation can move, and it is the whole story for anything non-streaming - but it is not the number the user is judging you on.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 410" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Latency anatomy: time to first token is the blank-screen wait, inter-token latency drives the streaming phase, and full response time is the sum. Gate on p95 time to first token, never on the average.">
+        <style>
+          .laT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .laW { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .laN { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .laI { font: 400 11px Inter, sans-serif; fill: #1F2622; }
+          .laX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .laA { font: 400 11px Inter, sans-serif; fill: #3A2A08; }
+          .laK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="32" rx="8" fill="#0E3320"/>
+        <text class="laT" x="44" y="44">One streamed answer, illustrative timings - the two numbers that are not the same number</text>
+
+        <rect x="24" y="72" width="140" height="44" rx="8" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="laI" x="38" y="99">Server side</text>
+        <rect x="176" y="72" width="100" height="44" rx="6" fill="#1A4D33"/>
+        <text class="laW" x="190" y="92">TTFT</text>
+        <text class="laW" x="190" y="108" fill="#A9CDB8">600 ms</text>
+        <rect x="282" y="72" width="525" height="44" rx="6" fill="#3D7D5A"/>
+        <text class="laW" x="298" y="92">inter-token latency (TPOT), one small gap per token</text>
+        <text class="laW" x="298" y="108" fill="#EDF6F0">320 tokens x 10 ms = 3,200 ms of streaming</text>
+
+        <rect x="24" y="130" width="140" height="44" rx="8" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="laI" x="38" y="157">User side</text>
+        <rect x="176" y="130" width="100" height="44" rx="6" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="laA" x="190" y="150">a blank</text>
+        <text class="laA" x="190" y="166">screen</text>
+        <rect x="282" y="130" width="525" height="44" rx="6" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="laX" x="298" y="150">text appearing, faster than anyone can read it</text>
+        <text class="laX" x="298" y="166">TTFT is what they feel; total time is what they forgive</text>
+
+        <path d="M176 186 L176 192 L807 192 L807 186" fill="none" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="laX" x="176" y="210">full response time = 3,800 ms - the number on your dashboard, and the wrong one to gate on</text>
+
+        <rect x="24" y="232" width="406" height="112" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="laN" x="44" y="258">Gate on TTFT, at p95</text>
+        <text class="laX" x="44" y="280">p95 TTFT under 500 ms is a common interactive bar;</text>
+        <text class="laX" x="44" y="298">200-500 ms is achievable when well tuned. A looser</text>
+        <text class="laX" x="44" y="316">starting SLO: p95 TTFT under 1 s plus p95 inter-token</text>
+        <text class="laX" x="44" y="334">under 50 ms. Voice is its own regime: ~800 ms.</text>
+
+        <rect x="450" y="232" width="406" height="112" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="laN" x="470" y="258">Never gate on the average</text>
+        <text class="laX" x="470" y="280">An average TTFT of 400 ms is compatible with one</text>
+        <text class="laX" x="470" y="298">user in twenty waiting three seconds. Averages hide</text>
+        <text class="laX" x="470" y="316">the tail, and the tail is where the people who quit</text>
+        <text class="laX" x="470" y="334">actually live. Report p50, p95 and p99, or nothing.</text>
+
+        <rect x="24" y="362" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="laK" x="48" y="374">TTFT and total time move for different reasons. A bigger model raises both; a longer prompt raises</text>
+        <text class="laK" x="48" y="392">TTFT alone; a chattier answer raises total time alone. Two numbers, two different fixes.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the blank-screen wait, the streaming phase, and the number to gate on</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why TTFT and TPOT need separate gates<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The two halves of the timeline are produced by different work, so they fail independently and they get fixed differently.</p>
+        <ul>
+          <li><strong>TTFT</strong> is queueing plus reading the whole prompt before a single token comes back. It grows with prompt length, with retrieval that runs before the model, with any pre-flight guardrail call, and with load. Every one of those is a lever you added in b2 for quality reasons.</li>
+          <li><strong>Inter-token latency (TPOT)</strong> is the per-token cost of generation. It is mostly a property of the model and the serving stack, and it barely cares how long your prompt was. It sets the ceiling on how fast the answer can finish.</li>
+        </ul>
+        <p>A useful starting SLO if you have nothing today: <strong>p95 TTFT under one second and p95 inter-token latency under 50 ms</strong>. That is deliberately loose - it is a floor to detect regressions against, not a target to be proud of. Well-tuned interactive systems land in the 200 to 500 ms TTFT range, and p95 TTFT under 500 ms is a common target for anything that feels like a chat.</p>
+        <p>Conversational voice is a different regime entirely, because there is no partial output to look at while you wait. The working budget there is roughly <strong>800 ms of round-trip</strong> for the whole loop, which has to cover speech recognition, the model and speech synthesis. If Beacon ever puts its support bot on a phone line, none of today's numbers survive the move.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What to instrument, and the units that make it comparable<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Record five fields per request and you can compute everything on this page later: <strong>ttft_ms</strong>, <strong>total_ms</strong>, <strong>output_tokens</strong>, <strong>input_tokens</strong>, and an <strong>attempt number</strong> so retries are visible rather than folded silently into a single latency figure.</p>
+        <p>Inter-token latency is then derived, not measured: <code>(total_ms - ttft_ms) / max(1, output_tokens - 1)</code>. Deriving it rather than logging per-token timestamps keeps the instrumentation cheap and gives you a number that is comparable across models with different tokenizers, as long as you say which tokenizer produced the count.</p>
+        <p>One trap worth naming now: log <strong>one row per request</strong>, not one per user session. A percentile computed over sessions weights a chatty user the same as a quiet one and quietly flatters your tail. Session a4 makes the same point about golden sets, where it shows up as the cluster standard error gotcha - and it can widen a real confidence interval by up to about three times.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="percentiles">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · percentile discipline</span>
+      <h2>The average is the summary that flatters you most <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Latency distributions are not symmetric. They have a long right tail made of cache misses, cold starts, retries, long prompts and unlucky queueing - and the mean sits well to the left of that tail, in a place where nothing bad is visible.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 513" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An illustrative right-skewed distribution of 100 time-to-first-token measurements. The average is 548 milliseconds, p50 is 460, p95 is 1300 and p99 is 1700, so the average passes a one-second SLO that p95 fails.">
+        <style>
+          .pdT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .pdH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .pdX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .pdG { font: 700 11px Inter, sans-serif; fill: #1A4D33; }
+          .pdA { font: 700 11px Inter, sans-serif; fill: #BF6708; }
+          .pdR { font: 700 11px Inter, sans-serif; fill: #991B1B; }
+          .pdK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="32" rx="8" fill="#0E3320"/>
+        <text class="pdT" x="44" y="44">One hour of Beacon support-bot traffic, 100 requests - illustrative distribution</text>
+
+        <text class="pdX" x="44" y="200" text-anchor="middle" transform="rotate(-90 44 200)">requests</text>
+
+        <rect x="100" y="282" width="33" height="18" rx="2" fill="#3D7D5A"/>
+        <rect x="137" y="247" width="33" height="53" rx="2" fill="#3D7D5A"/>
+        <rect x="174" y="175" width="33" height="125" rx="2" fill="#3D7D5A"/>
+        <rect x="211" y="140" width="33" height="160" rx="2" fill="#3D7D5A"/>
+        <rect x="248" y="158" width="33" height="142" rx="2" fill="#3D7D5A"/>
+        <rect x="285" y="193" width="33" height="107" rx="2" fill="#3D7D5A"/>
+        <rect x="322" y="220" width="33" height="80" rx="2" fill="#3D7D5A"/>
+        <rect x="359" y="247" width="33" height="53" rx="2" fill="#3D7D5A"/>
+        <rect x="396" y="264" width="33" height="36" rx="2" fill="#3D7D5A"/>
+        <rect x="433" y="273" width="33" height="27" rx="2" fill="#3D7D5A"/>
+        <rect x="470" y="282" width="33" height="18" rx="2" fill="#3D7D5A"/>
+        <rect x="507" y="282" width="33" height="18" rx="2" fill="#3D7D5A"/>
+        <rect x="544" y="291" width="33" height="9" rx="2" fill="#3D7D5A"/>
+        <rect x="581" y="291" width="33" height="9" rx="2" fill="#BF6708"/>
+        <rect x="618" y="291" width="33" height="9" rx="2" fill="#BF6708"/>
+        <rect x="655" y="291" width="33" height="9" rx="2" fill="#BF6708"/>
+        <rect x="692" y="291" width="33" height="9" rx="2" fill="#BF6708"/>
+        <rect x="803" y="291" width="33" height="9" rx="2" fill="#BF6708"/>
+
+        <line x1="303" y1="88" x2="303" y2="300" stroke="#66736B" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text class="pdX" x="303" y="96" text-anchor="middle">average 548 ms</text>
+        <line x1="270" y1="110" x2="270" y2="300" stroke="#1A4D33" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text class="pdG" x="270" y="118" text-anchor="middle">p50 460 ms</text>
+        <line x1="581" y1="88" x2="581" y2="300" stroke="#BF6708" stroke-width="2" stroke-dasharray="4 4"/>
+        <text class="pdA" x="581" y="96" text-anchor="middle">p95 1,300 ms</text>
+        <line x1="729" y1="110" x2="729" y2="300" stroke="#991B1B" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text class="pdR" x="729" y="118" text-anchor="middle">p99 1,700 ms</text>
+
+        <line x1="96" y1="300" x2="844" y2="300" stroke="#1F2622" stroke-width="1.5"/>
+        <text class="pdX" x="100" y="318" text-anchor="middle">0</text>
+        <text class="pdX" x="285" y="318" text-anchor="middle">500</text>
+        <text class="pdX" x="470" y="318" text-anchor="middle">1,000</text>
+        <text class="pdX" x="655" y="318" text-anchor="middle">1,500</text>
+        <text class="pdX" x="838" y="318" text-anchor="middle">2,000</text>
+        <text class="pdX" x="100" y="338">TTFT in milliseconds. Amber bars are the 5% beyond p95.</text>
+
+        <rect x="24" y="356" width="832" height="100" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="pdH" x="44" y="382">The same 100 requests, four honest summaries</text>
+        <text class="pdX" x="44" y="404">Average 548 ms - comfortably inside a 1 s SLO. p50 460 ms - most people have a fast bot. p95 1,300 ms -</text>
+        <text class="pdX" x="44" y="422">five in every hundred wait more than a second and a third. p99 1,700 ms - one in a hundred waits nearly two</text>
+        <text class="pdX" x="44" y="440">seconds. Only one of those four numbers describes the users who are about to stop using your bot.</text>
+
+        <rect x="24" y="468" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="pdK" x="48" y="480">Report all three. If your dashboard shows one number and it is the mean, you have chosen the summary</text>
+        <text class="pdK" x="48" y="498">that flatters you most. The p95 is the percentile where your unhappiest users live - gate on that one.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one distribution, four summaries, and only one of them is a gate</figcaption>
+    </figure>
+
+    <div class="prompt-box">
+      <span class="label">★ Percentiles, and the row you compute them over</span>
+      <pre style="margin:0;font:inherit;white-space:pre-wrap"><code style="font:inherit;color:inherit">lat = sorted(ttft_ms)          # one row per request, not per session
+def pct(q):  return lat[max(0, ceil(q * len(lat)) - 1)]
+print(mean(lat), pct(.50), pct(.95), pct(.99))   # report all four</code></pre>
+    </div>
+
+    <table class="clean">
+      <tr><th>Metric</th><th>Starting SLO</th><th>Well-tuned target</th><th>Notes</th></tr>
+      <tr><td><strong>TTFT, streamed chat</strong></td><td>p95 under 1 s</td><td>p95 under 500 ms; 200-500 ms achievable</td><td>The number users actually feel. Grows with prompt length and pre-flight guardrails</td></tr>
+      <tr><td><strong>Inter-token latency</strong></td><td>p95 under 50 ms</td><td>Model and serving stack dependent</td><td>Sets the ceiling on how fast an answer can finish. Derive it, do not log per token</td></tr>
+      <tr><td><strong>Full response time</strong></td><td>Report, do not gate</td><td>Falls when the answer gets shorter</td><td>Dominated by output length, so it is really a verbosity metric in disguise</td></tr>
+      <tr><td><strong>Voice round trip</strong></td><td colspan="2">~800 ms end to end for conversational voice</td><td>A different regime. No partial output to look at, so the whole loop is the wait</td></tr>
+    </table>
+
+    <div class="callout warn">
+      <strong>The percentile that hides inside a percentile</strong>
+      A p95 computed over all traffic is still an average across your categories. If 20% of Beacon's traffic is multi-turn conversations with long histories, those requests have systematically longer prompts and therefore systematically worse TTFT - and they can sit entirely inside a healthy-looking global p95. Slice latency by the same categories you used to slice your golden set in b1. The slice that is slow is usually the slice that is also hardest to answer, which means your worst quality and your worst latency land on the same users.
+    </div>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="cost">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the money</span>
+      <h2>Cost per task, and the shift to cost per outcome <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">A cost number is meaningless without a denominator and a comparison. The denominator is the unit somebody actually cares about - a resolved conversation, a completed analysis, a query answered - and the comparison is what that unit costs when a human does it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 501" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cost anchors: a human assisted-channel contact at a Gartner-attributed median of 13.50 US dollars, a chatbot interaction at roughly 50 to 70 cents, Intercom Fin at 0.99 dollars per resolution, and Sierra at about 1.50 dollars per resolution.">
+        <style>
+          .coT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .coS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .coW { font: 700 11px Inter, sans-serif; fill: #FFFFFF; }
+          .coH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .coX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .coK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="32" rx="8" fill="#0E3320"/>
+        <text class="coT" x="44" y="44">The denominator you are compared against, and the numerators you control</text>
+
+        <rect x="24" y="72" width="210" height="48" rx="8" fill="#12241B"/>
+        <text class="coT" x="40" y="94">Human contact</text>
+        <text class="coS" x="40" y="112">Gartner-attributed</text>
+        <rect x="250" y="82" width="568" height="28" rx="5" fill="#0E3320"/>
+        <text class="coW" x="264" y="100">$13.50 median per US assisted-channel contact - secondary</text>
+
+        <rect x="24" y="130" width="210" height="48" rx="8" fill="#3D7D5A"/>
+        <text class="coT" x="40" y="152">Chatbot interaction</text>
+        <text class="coS" x="40" y="170" fill="#EDF6F0">per turn, not per fix</text>
+        <rect x="250" y="140" width="29" height="28" rx="5" fill="#3D7D5A"/>
+        <text class="coX" x="290" y="158">~$0.50-0.70 per interaction - the number vendors quote</text>
+
+        <rect x="24" y="188" width="210" height="48" rx="8" fill="#1A4D33"/>
+        <text class="coT" x="40" y="210">Intercom Fin</text>
+        <text class="coS" x="40" y="228">billed per resolution</text>
+        <rect x="250" y="198" width="42" height="28" rx="5" fill="#1A4D33"/>
+        <text class="coX" x="303" y="216">$0.99 per RESOLVED conversation - you pay when it worked</text>
+
+        <rect x="24" y="246" width="210" height="48" rx="8" fill="#BF6708"/>
+        <text class="coT" x="40" y="268">Sierra</text>
+        <text class="coS" x="40" y="286" fill="#FDF3E3">per outcome (secondary)</text>
+        <rect x="250" y="256" width="63" height="28" rx="5" fill="#BF6708"/>
+        <text class="coX" x="324" y="274">~$1.50 per resolution - another vendor, the same pricing idea</text>
+
+        <line x1="250" y1="304" x2="840" y2="304" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="coX" x="250" y="322" text-anchor="middle">$0</text>
+        <text class="coX" x="334" y="322" text-anchor="middle">$2</text>
+        <text class="coX" x="418" y="322" text-anchor="middle">$4</text>
+        <text class="coX" x="502" y="322" text-anchor="middle">$6</text>
+        <text class="coX" x="586" y="322" text-anchor="middle">$8</text>
+        <text class="coX" x="670" y="322" text-anchor="middle">$10</text>
+        <text class="coX" x="754" y="322" text-anchor="middle">$12</text>
+        <text class="coX" x="838" y="322" text-anchor="middle">$14</text>
+
+        <rect x="24" y="340" width="832" height="98" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="coH" x="44" y="366">The pricing model is moving from per-interaction to per-outcome</text>
+        <text class="coX" x="44" y="388">Billing per resolution only works if resolution is measurable, and the definition is the product. Fin counts a</text>
+        <text class="coX" x="44" y="406">hard resolution on explicit confirmation, a soft one on customer exit plus 24 hours of quiet, and reverses</text>
+        <text class="coX" x="44" y="424">it if the customer comes back to the thread. Your cost metric now depends on your resolution definition.</text>
+
+        <rect x="24" y="456" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="coK" x="48" y="468">Read the two ends together. A human contact costs about $13.50 and a bot interaction about 60 cents, so</text>
+        <text class="coK" x="48" y="486">you can afford roughly twenty bot turns per contact deflected. That is your real retry budget for b8.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four cost anchors on one scale, and the denominator that dwarfs them</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>Label the sourcing, because these numbers do a lot of work in a business case.</strong> The $13.50 median per US assisted-channel contact is Gartner-attributed and reaches us through third parties, and the same is true of the ~$1.50 Sierra figure. Intercom's $0.99 is different in kind: it is a published price on Fin's own billing documentation, which also spells out exactly what counts as a resolution. Treat the first two as order-of-magnitude anchors for an ROI conversation and never as a line item, and be the person in the meeting who says which is which.</p>
+    </div>
+
+    <div class="prompt-box good">
+      <span class="label">★ Cost per outcome, in three lines</span>
+      <pre style="margin:0;font:inherit;white-space:pre-wrap"><code style="font:inherit;color:inherit">cost_turn = (in_tok * price_in + out_tok * price_out) / 1e6
+cost_conv = cost_turn * turns * retry_factor   # retries are not free
+cost_res  = cost_conv / resolution_rate        # the billable unit</code></pre>
+    </div>
+
+    <p>The third line is the one that surprises people. If a conversation costs 30 cents and the bot resolves 50% of them, the cost per <em>resolution</em> is 60 cents, not 30 - you paid for the failures too, and then a human handled them anyway. Improving the resolution rate is therefore a cost lever as much as a quality lever, and halving your unresolved traffic does more for cost per outcome than any amount of prompt trimming.</p>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Retry amplification, and why reliability is a budget line<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Retries are the most common way a cost model goes wrong, because they are usually invisible in the instrumentation. If your agent retries a failed tool call up to three times, your worst-case cost for that task is three times the happy path, and your average sits somewhere between depending on a failure rate you probably have not measured.</p>
+        <p>The metric that governs this is the one b8 builds properly. <strong>pass@k</strong> asks whether at least one of k attempts succeeds, and it is how retries buy you reliability - you pay k times for a better chance of success. <strong>pass^k</strong> asks whether <em>all</em> k attempts succeed, and it is the metric that matches what production actually demands, because the same user asks the same thing again on Tuesday. They pull in opposite directions, and the arithmetic is unforgiving: a task the bot passes 75% of the time succeeds three times running only about 42% of the time.</p>
+        <p>What this means for today's gate: <strong>your cost number must include the retry factor, and your retry factor comes from your reliability, not from your config file.</strong> A budget built on the happy path is a budget that assumes a bot you do not have.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>R-VES: the one published metric that prices correctness by runtime<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Almost every benchmark scores correctness and ignores what the correct answer cost to produce. The text-to-SQL world is the exception: BIRD's official <strong>R-VES</strong> weights execution accuracy by the runtime of the generated query relative to the gold query. A correct query that takes forty seconds where the reference takes two does not score the same as a correct query that takes two.</p>
+        <p>That is worth borrowing even if you never touch SQL, because it encodes the honest position on this whole page: <strong>a right answer that is too slow or too expensive is a partially wrong answer</strong>. Most teams hold quality and efficiency in two separate documents owned by two separate people, and R-VES is the field's clearest example of putting them in one number. Beacon's Analyst Bot inherits it directly in b6; for the other two bots you get the same effect the cruder way, by running a quality gate and a cost gate side by side and refusing to trade them.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Build Beacon's operational table <span class="tag demo">★ 10 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">Same idea as the golden set in b1: one sheet you will keep. Rows are your bots or your traffic slices, columns are the numbers you will gate on in b9. Fill it with real logs if you have them and with honest blanks if you do not - the blanks are the useful part.</p>
+
+    <div class="steps">
+      <div class="step"><p>Make eight columns: <strong>slice · requests · TTFT p50 · TTFT p95 · TTFT p99 · inter-token p95 · cost per task · cost per outcome</strong>. One row per bot to start, then split the busiest bot by the categories you defined in b1.</p></div>
+      <div class="step"><p>Pull one hour of production logs, one row per request. If your logs only have averages, write "average only" in the cell and stop - you have found the most valuable finding of this session and it costs a day of instrumentation to fix.</p></div>
+      <div class="step"><p>Compute the three TTFT percentiles. Then put the <strong>average next to them</strong>, in a column you will delete before anyone else sees the sheet. Look at the gap once. On most real traffic the average sits closer to the p50 than to the p95, which is why it is such a comfortable number to report.</p></div>
+      <div class="step"><p>For cost per task, use the three-line formula above and be honest about <strong>retry_factor</strong>. If you do not know it, put 1.0 and write "unmeasured" beside it. An unmeasured retry factor is a known unknown in your budget rather than a hidden one.</p></div>
+      <div class="step"><p>Now add the row that makes the table an argument rather than a report: <strong>the human baseline</strong>. For Beacon's support bot that is the assisted-channel contact cost. Your cost per outcome is only interesting relative to what the outcome costs today.</p></div>
+      <div class="step"><p>Finally, write the SLO you intend to gate on into the header of each column, before you look at your numbers. Same discipline as the threshold in b1 - nobody ever failed a latency SLO they set after seeing the p95.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Price every quality lever from b2 <span class="tag demo">★ 8 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">This is the exercise that makes b9 make sense. Take the levers you switched on last session for quality reasons, and put a millisecond figure and a cent figure next to each one. Nothing here is free, and most of it is paid for in TTFT.</p>
+
+    <table class="clean">
+      <tr><th>Quality lever from b2</th><th>What it costs in latency</th><th>What it costs in money</th></tr>
+      <tr><td><strong>Retrieve more context for grounding</strong></td><td>TTFT only - a longer prompt to read before the first token</td><td>Input tokens on every single call, including the easy ones</td></tr>
+      <tr><td><strong>Strict claim-level faithfulness checking</strong></td><td>Offline in eval; online it is a second model call on the critical path</td><td>Roughly a second inference per checked response</td></tr>
+      <tr><td><strong>Pre-flight injection or policy guardrail</strong></td><td>Pure TTFT, paid on 100% of traffic to catch a small slice</td><td>Small per call, large in aggregate because it never skips</td></tr>
+      <tr><td><strong>Citations attached to every claim</strong></td><td>Total response time - more output tokens to stream</td><td>Output tokens, the expensive side of the price sheet</td></tr>
+      <tr><td><strong>Retries for reliability</strong></td><td>Only on the retried requests, which is exactly where p99 lives</td><td>Multiplies the whole task cost by the retry factor</td></tr>
+      <tr><td><strong>A larger model for the hard slice</strong></td><td>Both TTFT and inter-token latency get worse together</td><td>The single biggest line, and the easiest to route around</td></tr>
+    </table>
+
+    <div class="steps">
+      <div class="step"><p>Copy that table and fill the two right-hand columns with <strong>your own measured numbers</strong>, by running your eval once with each lever off and once with it on. Ten minutes of work per lever, and the result is the only version of this table anyone should believe.</p></div>
+      <div class="step"><p>Rank the levers by cost per point of quality gained. The ordering is almost never what the team expected, and there is usually one lever that is buying nothing measurable and paying for it on every request.</p></div>
+      <div class="step"><p>Find the levers that only cost you on <strong>part</strong> of the traffic. Routing the easy 70% of turns to a smaller model, or running the strict grounding check only on the policy slice, buys most of the quality for a fraction of the bill. This is the fix behind almost every red cost gate in b9.</p></div>
+      <div class="step"><p>Now switch every quality lever on at once and re-measure p95 TTFT and cost per outcome. Watch both gates go red together. That is the coupling this session exists to teach, and in b9 you will see the same thing happen on the scorecard.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <strong>The trade nobody schedules time for</strong>
+      Teams treat quality work and performance work as sequential: get it right, then make it fast. In practice the quality levers are the reason it is slow and expensive, so the two pieces of work are the same piece of work. If your launch plan has a quality phase and then a performance phase, the second phase will spend its time removing things the first phase added, and somebody will have to decide which quality you are giving back. Decide that consciously now, in this table, rather than under deadline pressure in launch week.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 45-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Instrument the five fields if you do not already have them: ttft_ms, total_ms, input_tokens, output_tokens and attempt number. One row per request. Everything else on this page is derivable from those five, and none of it is recoverable without them.</li>
+      <li>Compute p50, p95 and p99 TTFT for your busiest bot, then compute them again sliced by your golden-set categories. Find the slice with the worst p95 and check whether it is also the slice with the worst pass rate. It usually is, and that overlap is worth a slide of its own.</li>
+      <li>Measure your retry factor for one week. Count attempts, not requests. Then recompute your cost per outcome with the real number and see whether your budget still holds.</li>
+      <li>Take your most verbose bot and cut the average answer in half through prompting alone, then re-measure. Total response time falls, output token cost falls, and if you scored verbosity in b2 that number improves too - one change, three gates. It is the only lever on this page that is free.</li>
+      <li>Write down your latency SLO and your cost-per-outcome budget, today, before b9. Seal them alongside the quality threshold you sealed in b1. In session b9 you find out how many of your three sealed numbers you would have quietly moved.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every figure on this page traces to a primary source or is labelled as secondary where it reaches us through a third party. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">TTFT and inter-token latency as separate measurements, with percentile reporting rather than averages</span><span class="note">Parts 1-2 · inference-latency engineering documentation</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">p95 TTFT under 500 ms as a common interactive target; 200-500 ms achievable when well tuned</span><span class="note">Part 1 · applied as the performance gate in b5 and b9</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Starter SLO: p95 TTFT under 1 s plus p95 inter-token under 50 ms; ~800 ms round trip for conversational voice</span><span class="note">Part 1 · a floor to detect regressions, not a target</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Intercom Fin billed at $0.99 per resolution, with the hard, soft and reversed resolution definitions</span><span class="note">Part 3 · published pricing; the 67% average is secondary</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Cost anchors: median $13.50 per US assisted-channel contact, ~$0.50-0.70 per chatbot interaction, ~$1.50 Sierra per resolution</span><span class="note">Part 3 · Gartner-attributed and third-party, labelled secondary throughout</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">BIRD R-VES: execution accuracy weighted by runtime efficiency against the gold query</span><span class="note">Part 3 self-study · applied to the Analyst Bot in b6</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">pass@k versus pass^k, and the retry arithmetic behind the retry factor</span><span class="note">Named here as a cost multiplier · measured properly in b8</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Cluster standard errors, and why one row per request beats one row per session</span><span class="note">Part 1 self-study · derived in a4</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Vertex pointwise verbosity judge as the quality-side view of the same tokens</span><span class="note">Introduced in b2 · costed here</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · Your dashboard reports an average TTFT of 548 ms against a 1 second SLO, so the gate is green. Why is that not good enough to launch on?</p>
+      <button class="qopt" type="button">A · Because averages are only valid on symmetric distributions and latency is roughly symmetric</button>
+      <button class="qopt" type="button">B · Because the SLO should have been written against total response time instead</button>
+      <button class="qopt" type="button">C · Because a right-skewed latency distribution puts the mean near the middle of the pack while the tail runs far past it - the same traffic can show a 548 ms average and a 1,300 ms p95, so five users in a hundred are already over the SLO</button>
+      <p class="qwhy">The mean is dragged only slightly by a thin tail, so it sits close to the median and reports the experience of your typical user. Your unhappiest users are the tail, and they are the ones who churn, escalate and complain. Report p50, p95 and p99 and gate on p95 - and if you slice by category you will usually find the slow slice is also the slice your bot answers worst.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · You add a retrieval step that pulls twice as much context, purely to improve grounding. Which operational number moves most?</p>
+      <button class="qopt" type="button">A · TTFT - the model has to read a longer prompt before it can emit the first token, and the user is watching a blank screen for all of it</button>
+      <button class="qopt" type="button">B · Inter-token latency, because each token now has more context to attend to at generation time</button>
+      <button class="qopt" type="button">C · Neither - context length is handled before the request is timed</button>
+      <p class="qwhy">The two halves of the timeline fail for different reasons, which is why they need separate gates. Prompt length lands almost entirely on time-to-first-token, while inter-token latency is mostly a property of the model and the serving stack. That makes this a particularly expensive quality lever in UX terms: you pay for it in the one phase where the user has nothing to look at, and you pay it on every request rather than only on the hard ones.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · A conversation costs 30 cents to run and the bot resolves half of them. What is your cost per resolution, and why does it matter?</p>
+      <button class="qopt" type="button">A · 30 cents - unresolved conversations are handled by humans, so they belong in the support budget rather than the bot budget</button>
+      <button class="qopt" type="button">B · 60 cents - you pay for the failures too, so the resolution rate is a cost lever as well as a quality lever, and it is the denominator vendors now bill against</button>
+      <button class="qopt" type="button">C · 15 cents - only the successful half consumes the full conversation cost</button>
+      <p class="qwhy">Cost per outcome divides total spend by successful outcomes, so every failure is paid for twice: once in inference and once by the human who picks it up. This is exactly why the pricing model is shifting from per-interaction to per-outcome - Fin bills $0.99 per resolved conversation and publishes a detailed definition of what resolved means, including reversing a resolution if the customer comes back. If you are going to be billed on an outcome, you had better be measuring the same outcome.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Builder session 3 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>TTFT is what users feel</b><span>When answers stream, the wait ends at the first token. Total response time is real but forgiven.</span></div>
+      <div class="cheat-item"><b>Percentiles or nothing</b><span>Report p50, p95, p99. Gate on p95. The mean sits near the median and hides the entire tail.</span></div>
+      <div class="cheat-item"><b>Starter SLOs</b><span>p95 TTFT under 1 s plus p95 inter-token under 50 ms. Tighter: p95 TTFT under 500 ms; 200-500 ms is achievable.</span></div>
+      <div class="cheat-item"><b>Voice is a different regime</b><span>~800 ms round trip for the whole conversational loop. No partial output, so nothing hides the wait.</span></div>
+      <div class="cheat-item"><b>Prompt length hits TTFT only</b><span>Output length hits total time. A bigger model hits both. Three symptoms, three different fixes.</span></div>
+      <div class="cheat-item"><b>Cost needs a denominator</b><span>Per task, per conversation, per resolution. ~$13.50 per human contact vs ~$0.60 per bot turn (both secondary).</span></div>
+      <div class="cheat-item"><b>Per-outcome pricing</b><span>Fin bills $0.99 per resolved conversation. If you are billed on an outcome, you must measure that outcome.</span></div>
+      <div class="cheat-item"><b>Quality is bought with ms and cents</b><span>Every b2 lever costs both. Retries multiply the bill. Performance and cost go red together in b9.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Builder session 3 of 10 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="b4-llm-as-judge.html">Next: LLM-as-judge →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

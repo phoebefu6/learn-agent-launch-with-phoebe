@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>learn agent launch with phoebe - the launch gate for agentic AI and bots</title>
+<link rel="stylesheet" href="assets/style.css?v=2">
+<style>
+  .stats-row { display: flex; gap: 2.4rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .stat b { display: block; font-size: 2.1rem; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: .72rem; opacity: .85; text-transform: uppercase; letter-spacing: .09em; font-weight: 600; }
+
+  .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .course-card {
+    border: 1px solid var(--hairline);
+    border-top: 4px solid var(--diff, var(--indigo));
+    border-radius: var(--radius);
+    padding: 1.2rem 1.3rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    text-decoration: none;
+    color: var(--ink);
+    background: #fff;
+    transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+    position: relative;
+  }
+  .course-card:hover { border-color: var(--indigo-soft); border-top-color: var(--diff, var(--indigo)); box-shadow: 0 8px 28px rgba(26,77,51,.14); transform: translateY(-3px); }
+  .course-card .cicon { font-size: 1.7rem; line-height: 1; }
+  .course-card .cnum { font-size: .72rem; font-weight: 700; color: var(--indigo); text-transform: uppercase; letter-spacing: .1em; }
+  .course-card h3 { font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
+  .course-card p { font-size: .85rem; color: var(--muted); flex: 1; }
+  .course-card .meta { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+  .diff-legend { display: flex; gap: 1rem; margin-top: 1.6rem; font-size: .74rem; color: var(--muted); font-weight: 600; flex-wrap: wrap; }
+  .diff-legend i { display: inline-block; width: .85rem; height: .35rem; border-radius: 999px; margin-right: .35rem; vertical-align: middle; }
+
+  .paths { margin-top: 2.6rem; }
+  .paths h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .3rem; }
+  .paths .plede { color: var(--muted); font-size: .92rem; margin-bottom: .8rem; }
+  .path { display: flex; gap: .55rem; align-items: center; padding: .75rem 0; border-bottom: .5px solid var(--hairline); flex-wrap: wrap; }
+  .path:last-child { border-bottom: none; }
+  .path b { min-width: 15.5rem; font-size: .9rem; }
+  .path .pstep { background: var(--indigo-50); color: var(--indigo); border-radius: 999px; padding: .16rem .68rem; font-weight: 700; font-size: .8rem; text-decoration: none; transition: all .12s ease; }
+  .path .pstep:hover { background: var(--indigo); color: #fff; }
+  .path .parr { color: var(--faint); font-weight: 700; }
+
+  .mm-section { margin-top: 1.6rem; }
+  .mm-section h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .2rem; }
+  .mm-section .mm-lede { color: var(--muted); font-size: .92rem; margin-bottom: .4rem; }
+  .mm-wrap { border: 1px solid var(--hairline); border-radius: var(--radius); background: linear-gradient(180deg,#fff,#EDF6F0); padding: .6rem; overflow-x: auto; }
+  .mm-svg { width: 100%; height: auto; display: block; max-width: 60rem; margin: 0 auto; min-width: 34rem; }
+  .mm-link { cursor: pointer; text-decoration: none; }
+  .mm-node rect { transition: opacity .15s ease, filter .15s ease; }
+  .mm-node text { pointer-events: none; }
+  .mm-edge { transition: opacity .15s ease; }
+</style>
+</head><body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe</div>
+    <h1>Nineteen out of twenty is not ninety-five percent</h1>
+    <p class="sub">Every AI bot demos well. That is what a demo is for. The hard question comes after: given all these eval numbers, do you actually ship it - and what exactly are you promising when you say you are confident? This course is the launch gate. It assumes you can already compute the metrics (two sibling courses go deep on those) and teaches the decision instead: how to pick criteria per bot archetype, how big a golden set has to be before it proves anything, how to build a six-gate scorecard where quality cannot buy off cost, and how to write a sign-off sentence that survives a hard question. Three real archetypes run through it end to end - a support chatbot with no ground truth, a text-to-query bot whose answers are executable, and an analytics bot where errors compound across a pipeline. At its centre, a live launch gate: toggle levers on a real Wilson confidence interval computed in your browser and watch the number climb from 76.4% - the honest reading of a nineteen-out-of-twenty demo - to 92.5%, where it can be signed. Every metric, threshold and case number on these pages traces to a primary source.</p>
+    <div class="stats-row">
+      <div class="stat"><b data-count="2">2</b><span>tracks</span></div>
+      <div class="stat"><b data-count="16">16</b><span>sessions</span></div>
+      <div class="stat"><b data-count="3">3</b><span>bot archetypes gated</span></div>
+      <div class="stat"><b data-count="6">6</b><span>launch gates</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="section">
+    <div class="callout tip" style="margin-top:0">
+      <strong>Where this sits among its siblings</strong>
+      <a href="https://phoebefu6.github.io/learn-ai-evals-with-phoebe/">Learn Evals</a> owns retrieval and generation metrics. <a href="https://phoebefu6.github.io/learn-model-evaluation-with-phoebe/">Model Evaluation</a> owns the classic and LLM-era metric canon. <a href="https://phoebefu6.github.io/learn-ai-agents-with-phoebe/">AI Agents</a> owns what an agent is and how to build one. This course owns the one thing they all leave open: the go/no-go decision, and the evidence that makes it defensible.
+    </div>
+
+    <div class="paths" style="margin-top:2rem">
+      <h2>The leader track 🎯 <span style="font-size:.85rem;font-weight:600;color:var(--muted)">· for the people who sign off · 6 x 45 min · no tools required</span></h2>
+      <p class="plede">Judgement mode: why bots fail after a good demo, what "good" honestly looks like per archetype, how to read an eval report without being fooled by a definition, what 90% confident actually means, the risk tiers and the gate - ending with the sign-off you can defend and the rollback triggers you set before you need them.</p>
+    </div>
+    <div class="course-grid">
+      <a class="course-card" href="courses/a1-why-bots-fail.html" style="--diff:#34D399">
+        <span class="cicon">📉</span>
+        <span class="cnum">Leader 1 · easy</span>
+        <h3>Why bots fail after launch</h3>
+        <p>The gap between a demo and production, what a wrong launch actually costs, and why the most confident launch stories in the industry were quietly revised a year later.</p>
+        <span class="meta"><span class="pill amber">▶ Leaders start here</span></span>
+      </a>
+      <a class="course-card" href="courses/a2-three-archetypes.html" style="--diff:#34D399">
+        <span class="cicon">🧭</span>
+        <span class="cnum">Leader 2 · easy</span>
+        <h3>Three bot archetypes</h3>
+        <p>Chatbot, text-to-query, analytics - one slide that shows why they need different criteria, and what an honestly good number looks like for each. Hint: it is not 99%.</p>
+        <span class="meta"><span class="pill light">The contrast</span></span>
+      </a>
+      <a class="course-card" href="courses/a3-reading-eval-reports.html" style="--diff:#FBBF24">
+        <span class="cicon">🔎</span>
+        <span class="cnum">Leader 3 · medium</span>
+        <h3>How to read an eval report</h3>
+        <p>The same models score 0.7% or 12% hallucination depending on who is measuring. The questions to ask before you believe a number, and how to spot a cherry-picked set.</p>
+        <span class="meta"><span class="pill light">The grilling kit</span></span>
+      </a>
+      <a class="course-card" href="courses/a4-what-90-percent-means.html" style="--diff:#FBBF24">
+        <span class="cicon">📐</span>
+        <span class="cnum">Leader 4 · medium</span>
+        <h3>What "90% confident" really means</h3>
+        <p>Three different claims hide behind that phrase. The interval table, live: what 20, 200 and 1,000 examples each buy you, and why a demo set can never be evidence.</p>
+        <span class="meta"><span class="pill light">The arithmetic</span></span>
+      </a>
+      <a class="course-card" href="courses/a5-risk-tiers-and-the-gate.html" style="--diff:#FB923C">
+        <span class="cicon">🚦</span>
+        <span class="cnum">Leader 5 · deciding</span>
+        <h3>Risk tiers and the launch gate</h3>
+        <p>Not every bot needs the same bar. Blast-radius tiering, the six conjunctive gates, the staged rollout ladder, who signs what - and the EU rule that lands on every chatbot in Aug 2026.</p>
+        <span class="meta"><span class="pill light">The decision</span></span>
+      </a>
+      <a class="course-card" href="courses/a6-after-launch.html" style="--diff:#FB923C">
+        <span class="cicon">🔁</span>
+        <span class="cnum">Leader 6 · deciding</span>
+        <h3>After GA</h3>
+        <p>The launch number is a snapshot. Drift, online evals, the rollback triggers you set in advance, and the loop that turns every incident into a test that can never fail twice.</p>
+        <span class="meta"><span class="pill light">The long game</span></span>
+      </a>
+    </div>
+
+    <div class="paths">
+      <h2>The builder track 🛠️ <span style="font-size:.85rem;font-weight:600;color:var(--muted)">· for AI engineers, ML engineers &amp; technical PMs · 10 x 45 min · hands-on</span></h2>
+      <p class="plede">Craft mode: the anatomy of a defensible eval, quality and operational metrics with their real formulas, LLM judges and their documented biases, then three full gating exercises - one per archetype - converging on the launch scorecard and the CI pipeline that keeps it honest after you ship.</p>
+    </div>
+    <div class="course-grid">
+      <a class="course-card" href="courses/b1-eval-anatomy.html" style="--diff:#34D399">
+        <span class="cicon">🧱</span>
+        <span class="cnum">Builder 1 · easy</span>
+        <h3>Eval anatomy</h3>
+        <p>The four parts every defensible number has, the grading ladder that says when a rule beats a judge, and why capability and regression suites must never be the same file.</p>
+        <span class="meta"><span class="pill amber">▶ Builders start here</span></span>
+      </a>
+      <a class="course-card" href="courses/b2-quality-metrics.html" style="--diff:#34D399">
+        <span class="cicon">🎯</span>
+        <span class="cnum">Builder 2 · easy</span>
+        <h3>Quality metrics</h3>
+        <p>Groundedness, faithfulness, answer relevancy, hallucination rate - the actual formulas, and the uncomfortable fact that changing the definition moves the number tenfold.</p>
+        <span class="meta"><span class="pill light">What "right" means</span></span>
+      </a>
+      <a class="course-card" href="courses/b3-operational-metrics.html" style="--diff:#FBBF24">
+        <span class="cicon">⏱️</span>
+        <span class="cnum">Builder 3 · medium</span>
+        <h3>Operational metrics</h3>
+        <p>Time-to-first-token, p95 versus the average that hides your unhappiest users, cost per task, and conciseness as the rare metric that is a UX win and a cost win at once.</p>
+        <span class="meta"><span class="pill light">Speed and money</span></span>
+      </a>
+      <a class="course-card" href="courses/b4-llm-as-judge.html" style="--diff:#FBBF24">
+        <span class="cicon">⚖️</span>
+        <span class="cnum">Builder 4 · medium</span>
+        <h3>LLM-as-judge</h3>
+        <p>The four documented biases - position, verbosity, self-enhancement, weak reasoning - and the calibration procedure that turns a judge from an opinion into an instrument.</p>
+        <span class="meta"><span class="pill light">Grading the grader</span></span>
+      </a>
+      <a class="course-card" href="courses/b5-gate-the-chatbot.html" style="--diff:#FBBF24">
+        <span class="cicon">💬</span>
+        <span class="cnum">Builder 5 · medium</span>
+        <h3>Gate the chatbot</h3>
+        <p>No ground truth, so outcome metrics carry the weight. Containment versus resolution, the multi-turn collapse single-turn evals never see, and escalation as a gate.</p>
+        <span class="meta"><span class="pill light">Archetype 1</span></span>
+      </a>
+      <a class="course-card" href="courses/b6-gate-the-text-to-sql-bot.html" style="--diff:#FB923C">
+        <span class="cicon">🗄️</span>
+        <span class="cnum">Builder 6 · hands-on</span>
+        <h3>Gate the text-to-query bot</h3>
+        <p>Executable ground truth changes everything. Execution accuracy, why schema linking causes most failures, abstention as a metric, and read-only rails that beat any score.</p>
+        <span class="meta"><span class="pill light">Archetype 2</span></span>
+      </a>
+      <a class="course-card" href="courses/b7-gate-the-analytics-bot.html" style="--diff:#FB923C">
+        <span class="cicon">📊</span>
+        <span class="cnum">Builder 7 · hands-on</span>
+        <h3>Gate the analytics bot</h3>
+        <p>A pipeline of gates: does the chart render, does it encode the right thing, does the takeaway follow from the numbers - and does the same question give the same answer twice.</p>
+        <span class="meta"><span class="pill light">Archetype 3</span></span>
+      </a>
+      <a class="course-card" href="courses/b8-agent-trajectory-evals.html" style="--diff:#FB923C">
+        <span class="cicon">🧩</span>
+        <span class="cnum">Builder 8 · hands-on</span>
+        <h3>Agent-specific evals</h3>
+        <p>When the bot takes steps, the answer is not the only thing to grade. Trajectory matching, tool-call accuracy, and pass^k - the metric that says capability is not reliability.</p>
+        <span class="meta"><span class="pill light">Grading the path</span></span>
+      </a>
+      <a class="course-card" href="courses/b9-the-launch-gate.html" style="--diff:#F87171">
+        <span class="cicon">🚀</span>
+        <span class="cnum">Builder 9 · hardest</span>
+        <h3>The launch gate</h3>
+        <p>Everything converges. Run all three bots through one live scorecard, watch confidence climb 76.4% to 92.5%, and find out which levers fixed the bot and which only fixed the measurement.</p>
+        <span class="meta"><span class="pill amber">★ The live gate</span></span>
+      </a>
+      <a class="course-card" href="courses/b10-eval-in-production.html" style="--diff:#F87171">
+        <span class="cicon">🔧</span>
+        <span class="cnum">Builder 10 · hardest</span>
+        <h3>Eval as CI/CD and in production</h3>
+        <p>Blocking regression gates, a safety canary that must pass at 100%, online evals on sampled traffic, drift detection, and the refresh cadence that keeps the gate meaningful.</p>
+        <span class="meta"><span class="pill light">Keeping it true</span></span>
+      </a>
+    </div>
+    <div class="diff-legend">
+      <span><i style="background:#34D399"></i>easy - everyone</span>
+      <span><i style="background:#FBBF24"></i>medium</span>
+      <span><i style="background:#FB923C"></i>hands-on / deciding</span>
+      <span><i style="background:#F87171"></i>hardest</span>
+    </div>
+
+    <div class="paths">
+      <h2>Choose your path 🗺️</h2>
+      <p class="plede">Four doors into the same conviction: the number you may promise is the lower bound, not the one you observed.</p>
+      <div class="path"><b>🎯 I sign off on launches</b>
+        <a class="pstep" href="courses/a1-why-bots-fail.html">a1</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a2-three-archetypes.html">a2</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a3-reading-eval-reports.html">a3</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a4-what-90-percent-means.html">a4</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a5-risk-tiers-and-the-gate.html">a5</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a6-after-launch.html">a6</a>
+      </div>
+      <div class="path"><b>🛠️ I build the bots</b>
+        <a class="pstep" href="courses/b1-eval-anatomy.html">b1</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b2-quality-metrics.html">b2</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b3-operational-metrics.html">b3</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b4-llm-as-judge.html">b4</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b5-gate-the-chatbot.html">b5</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b6-gate-the-text-to-sql-bot.html">b6</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b7-gate-the-analytics-bot.html">b7</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b8-agent-trajectory-evals.html">b8</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b9-the-launch-gate.html">b9</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b10-eval-in-production.html">b10</a>
+      </div>
+      <div class="path"><b>⚡ I ship on Friday and need the gate now</b>
+        <a class="pstep" href="courses/a4-what-90-percent-means.html">a4</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a5-risk-tiers-and-the-gate.html">a5</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b9-the-launch-gate.html">b9</a>
+      </div>
+      <div class="path"><b>🚀 Full journey (build AND decide)</b>
+        <a class="pstep" href="courses/a1-why-bots-fail.html">a1-a6</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b1-eval-anatomy.html">b1-b10</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section mm-section">
+    <h2>The knowledge map 🧠</h2>
+    <p class="mm-lede">Both tracks at a glance - hover a session to spotlight its concepts, click any node to jump in.</p>
+    <div class="mm-wrap"><div id="mindmap"></div></div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a> · Neighbours, deliberately not duplicated: Learn Evals owns retrieval and generation metrics, Model Evaluation owns the metric canon, AI Agents owns agent architecture. This course owns the launch decision and the evidence behind it.</span>
+  </footer>
+</main>
+
+<script>
+window.MINDMAP_DATA = {
+  title: "Learn\nAgent Launch",
+  centerColor: "#0E3320",
+  sessions: [
+    { label: "Why bots\nfail", href: "courses/a1-why-bots-fail.html", color: "#34D399",
+      concepts: [
+        { label: "Demo is not evidence", href: "courses/a1-why-bots-fail.html" },
+        { label: "Cost of a wrong launch", href: "courses/a1-why-bots-fail.html" } ] },
+    { label: "Three\narchetypes", href: "courses/a2-three-archetypes.html", color: "#34D399",
+      concepts: [
+        { label: "Judged vs executable", href: "courses/a2-three-archetypes.html" },
+        { label: "What good really is", href: "courses/a2-three-archetypes.html" } ] },
+    { label: "Reading eval\nreports", href: "courses/a3-reading-eval-reports.html", color: "#FBBF24",
+      concepts: [
+        { label: "Definition moves it 10x", href: "courses/a3-reading-eval-reports.html" },
+        { label: "Spot a picked set", href: "courses/a3-reading-eval-reports.html" } ] },
+    { label: "What 90%\nmeans", href: "courses/a4-what-90-percent-means.html", color: "#FBBF24",
+      concepts: [
+        { label: "Wilson interval", href: "courses/a4-what-90-percent-means.html" },
+        { label: "19/20 proves 76%", href: "courses/a4-what-90-percent-means.html" },
+        { label: "Cluster SE gotcha", href: "courses/a4-what-90-percent-means.html" } ] },
+    { label: "Risk tiers\n+ the gate", href: "courses/a5-risk-tiers-and-the-gate.html", color: "#FB923C",
+      concepts: [
+        { label: "T1 to T4 by blast radius", href: "courses/a5-risk-tiers-and-the-gate.html" },
+        { label: "Staged rollout", href: "courses/a5-risk-tiers-and-the-gate.html" } ] },
+    { label: "After\nGA", href: "courses/a6-after-launch.html", color: "#FB923C",
+      concepts: [
+        { label: "Rollback triggers", href: "courses/a6-after-launch.html" },
+        { label: "Incident becomes a test", href: "courses/a6-after-launch.html" } ] },
+    { label: "Eval\nanatomy", href: "courses/b1-eval-anatomy.html", color: "#34D399",
+      concepts: [
+        { label: "Four parts", href: "courses/b1-eval-anatomy.html" },
+        { label: "Grading ladder", href: "courses/b1-eval-anatomy.html" } ] },
+    { label: "Quality\nmetrics", href: "courses/b2-quality-metrics.html", color: "#34D399",
+      concepts: [
+        { label: "Faithfulness formula", href: "courses/b2-quality-metrics.html" },
+        { label: "Hallucination rate", href: "courses/b2-quality-metrics.html" } ] },
+    { label: "Operational\nmetrics", href: "courses/b3-operational-metrics.html", color: "#FBBF24",
+      concepts: [
+        { label: "p95 not average", href: "courses/b3-operational-metrics.html" },
+        { label: "Cost per task", href: "courses/b3-operational-metrics.html" } ] },
+    { label: "LLM-as-\njudge", href: "courses/b4-llm-as-judge.html", color: "#FBBF24",
+      concepts: [
+        { label: "Four biases", href: "courses/b4-llm-as-judge.html" },
+        { label: "Calibrate vs humans", href: "courses/b4-llm-as-judge.html" } ] },
+    { label: "Gate the\nchatbot", href: "courses/b5-gate-the-chatbot.html", color: "#FBBF24",
+      concepts: [
+        { label: "Containment vs resolution", href: "courses/b5-gate-the-chatbot.html" },
+        { label: "Multi-turn collapse", href: "courses/b5-gate-the-chatbot.html" } ] },
+    { label: "Gate the\ntext-to-SQL", href: "courses/b6-gate-the-text-to-sql-bot.html", color: "#FB923C",
+      concepts: [
+        { label: "Execution accuracy", href: "courses/b6-gate-the-text-to-sql-bot.html" },
+        { label: "Schema linking fails", href: "courses/b6-gate-the-text-to-sql-bot.html" },
+        { label: "Read-only rails", href: "courses/b6-gate-the-text-to-sql-bot.html" } ] },
+    { label: "Gate the\nanalytics bot", href: "courses/b7-gate-the-analytics-bot.html", color: "#FB923C",
+      concepts: [
+        { label: "Valid then legal", href: "courses/b7-gate-the-analytics-bot.html" },
+        { label: "Same answer twice", href: "courses/b7-gate-the-analytics-bot.html" } ] },
+    { label: "Trajectory\nevals", href: "courses/b8-agent-trajectory-evals.html", color: "#FB923C",
+      concepts: [
+        { label: "Tool call accuracy", href: "courses/b8-agent-trajectory-evals.html" },
+        { label: "pass^k not pass@k", href: "courses/b8-agent-trajectory-evals.html" } ] },
+    { label: "The launch\ngate", href: "courses/b9-the-launch-gate.html", color: "#F87171",
+      concepts: [
+        { label: "Six conjunctive gates", href: "courses/b9-the-launch-gate.html" },
+        { label: "76.4% to 92.5%", href: "courses/b9-the-launch-gate.html" },
+        { label: "The sign-off sentence", href: "courses/b9-the-launch-gate.html" } ] },
+    { label: "Eval in\nproduction", href: "courses/b10-eval-in-production.html", color: "#F87171",
+      concepts: [
+        { label: "Blocking CI gate", href: "courses/b10-eval-in-production.html" },
+        { label: "Online evals + drift", href: "courses/b10-eval-in-production.html" } ] }
+  ]
+};
+</script>
+<script src="assets/mindmap.js?v=2"></script>
+<script src="assets/app.js?v=2"></script>
+</body>
+</html>

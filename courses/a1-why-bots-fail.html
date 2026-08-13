@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 1 · Why bots fail after launch - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Leader session 1 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Leader track · Session 1 of 6</div>
+    <h1>Why bots fail after launch: <span class="accent">the gap between a demo and a Tuesday</span></h1>
+    <p class="sub">Every bot that failed in public demoed beautifully first. This session is about the gap between those two facts: what a demo can prove, what it cannot, what the industry's most-quoted success story looked like a year later, and what it costs when the decision goes the wrong way. No code and no tools - this is the session where you learn which questions to ask before you sign.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Leader track</span>
+      <span class="chip audience">Heads of product · eng leaders · risk &amp; compliance</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:5">3-24 · The gap, the Klarna arc, the price</span>
+      <span class="a3" style="flex:4">24-40 · Two decisions, out loud</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The leader track, and what it is for</h2>
+    </div>
+    <p class="lede">Six sessions, no code, no tools. The builder track next door measures bots; this track decides about them. The whole course reduces to one question that lands on your desk and nobody else's: <strong>given all these numbers, do you ship?</strong> Today is about why that question is hard, and why the answer that feels obvious in a demo room is so often wrong by the following Tuesday.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      A precise account of what a demo does and does not prove, both halves of the Klarna story rather than the half that gets quoted, the real cost anchors on either side of the decision, and the four questions that turn a launch review from a vibe check into a review.
+    </div>
+    <div class="callout tip">
+      <strong>The running case: Beacon</strong>
+      Beacon is a B2B SaaS company shipping three bots this quarter - a customer-facing support chatbot that can issue refund credits, an internal text-to-query bot over the warehouse, and an analytics bot that writes insight summaries for executives. Same company, same discipline, three completely different gates. Session a2 introduces all three properly; a5 assigns them risk tiers; the builder track gates them one at a time.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="the-gap">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the eval gap</span>
+      <h2>A demo and a Tuesday are different experiments <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">The failure is almost never that somebody lied. The failure is that a demo answers a question nobody in the room realised was different from the question they were asking. Read the two columns below as two experiments with different subjects, different sample sizes and different observers.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 550" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Five-row contrast between demo conditions and production conditions: who picks the questions, how many, how many turns, what is in the set, and who is watching.">
+        <style>
+          .egT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .egX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .egA { font: 400 11px Inter, sans-serif; fill: #3A2A08; }
+          .egH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .egK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="216" y="24" width="316" height="32" rx="8" fill="#1A4D33"/>
+        <text class="egT" x="234" y="45">In the demo</text>
+        <rect x="544" y="24" width="312" height="32" rx="8" fill="#BF6708"/>
+        <text class="egT" x="562" y="45">On a Tuesday in production</text>
+
+        <rect x="24" y="64" width="180" height="56" rx="9" fill="#0E3320"/>
+        <text class="egT" x="42" y="88">Who picks</text>
+        <text class="egT" x="42" y="106">the questions</text>
+        <rect x="216" y="64" width="316" height="56" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="egX" x="234" y="88">The person who built it, choosing</text>
+        <text class="egX" x="234" y="106">the ones they already know work.</text>
+        <rect x="544" y="64" width="312" height="56" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="egA" x="562" y="88">Ten thousand strangers who have</text>
+        <text class="egA" x="562" y="106">never read your documentation.</text>
+
+        <rect x="24" y="124" width="180" height="56" rx="9" fill="#1A4D33"/>
+        <text class="egT" x="42" y="148">How many</text>
+        <text class="egT" x="42" y="166">questions</text>
+        <rect x="216" y="124" width="316" height="56" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="egX" x="234" y="148">Eight to twelve. Enough to fill</text>
+        <text class="egX" x="234" y="166">fifteen minutes of a meeting.</text>
+        <rect x="544" y="124" width="312" height="56" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="egA" x="562" y="148">Thousands a day, including the</text>
+        <text class="egA" x="562" y="166">long tail nobody rehearsed.</text>
+
+        <rect x="24" y="184" width="180" height="56" rx="9" fill="#3D7D5A"/>
+        <text class="egT" x="42" y="208">Turns per</text>
+        <text class="egT" x="42" y="226">conversation</text>
+        <rect x="216" y="184" width="316" height="56" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="egX" x="234" y="208">One. The question is asked once</text>
+        <text class="egX" x="234" y="226">and answered once.</text>
+        <rect x="544" y="184" width="312" height="56" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="egA" x="562" y="208">Five, ten, with the third turn</text>
+        <text class="egA" x="562" y="226">referring back to the first.</text>
+
+        <rect x="24" y="244" width="180" height="56" rx="9" fill="#1A4D33"/>
+        <text class="egT" x="42" y="268">What is in</text>
+        <text class="egT" x="42" y="286">the set</text>
+        <rect x="216" y="244" width="316" height="56" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="egX" x="234" y="268">Answerable questions only. No</text>
+        <text class="egX" x="234" y="286">traps, no injections, no bait.</text>
+        <rect x="544" y="244" width="312" height="56" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="egA" x="562" y="268">Unanswerable questions, typos,</text>
+        <text class="egA" x="562" y="286">abuse, and deliberate attacks.</text>
+
+        <rect x="24" y="304" width="180" height="56" rx="9" fill="#0E3320"/>
+        <text class="egT" x="42" y="328">Who is</text>
+        <text class="egT" x="42" y="346">watching</text>
+        <rect x="216" y="304" width="316" height="56" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="egX" x="234" y="328">A friendly room that wants the</text>
+        <text class="egX" x="234" y="346">project to succeed.</text>
+        <rect x="544" y="304" width="312" height="56" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="egA" x="562" y="328">A customer, a regulator, and</text>
+        <text class="egA" x="562" y="346">a screenshot on social media.</text>
+
+        <rect x="24" y="380" width="832" height="104" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="egH" x="44" y="406">The gap is not the model. It is the conditions.</text>
+        <text class="egX" x="44" y="428">Nothing in the left column is dishonest. A demo is a proof of possibility: the bot can do this at least once.</text>
+        <text class="egX" x="44" y="446">A launch needs a proof of frequency: the bot does this reliably, for people who did not choose the question.</text>
+        <text class="egX" x="44" y="464">Those are different claims, and only one of them survives contact with a Tuesday.</text>
+
+        <rect x="24" y="504" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="egK" x="48" y="516">Every failure in this course lives in the right-hand column. None of them are visible from the left.</text>
+        <text class="egK" x="48" y="534">An eval exists to make that column measurable before your customers measure it for you.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two experiments, two subjects, two very different observers</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The three sentences that get confused in a launch meeting<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Listen for these in your next review. They sound like paraphrases of each other. They are three different claims with three different evidence requirements, and the meeting usually starts with the first and ends by acting on the third.</p>
+        <ul>
+          <li><strong>"It can do this."</strong> A demo proves it. One success is sufficient evidence. This is a real and valuable claim - it is how you decide whether to fund the next quarter.</li>
+          <li><strong>"It does this reliably."</strong> Now you need many attempts, on questions the builder did not choose, and a rate rather than an anecdote.</li>
+          <li><strong>"It does this reliably enough to be safe unattended."</strong> Now you need a rate, an honest error bar around the rate, a threshold agreed before anyone measured, and a plan for the cases in the tail.</li>
+        </ul>
+        <p>Nobody moves between these deliberately. The slide says the first, everyone hears the second, and the launch date is set as though the third had been established.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why multi-turn is the row that catches most teams<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Row three of the diagram is the quietest and the most expensive. Demos are single-turn because a single turn is what fits in a slide. Real support conversations are not: the customer clarifies, contradicts themselves, and refers back to something they said four messages ago.</p>
+        <p>The published gap is large. Across a body of multi-turn benchmark work, models show roughly a <strong>39% average performance drop</strong> moving from single-turn to multi-turn versions of the same tasks, and the research attributes it to unreliability rather than lack of ability - the model can do it, and then on some turns it does not. On MultiChallenge, frontier models sit under 50%, with the best result at 41.4%. Session b5 measures this properly on Beacon's support bot; for now, treat any single-turn number you are shown as an upper bound on the number that matters.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="klarna">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the arc</span>
+      <h2>Klarna, both halves <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">This is the most cited AI support deployment in the world, and it is normally cited at the halfway point. The first half is real. The second half is the lesson, and the two together are worth more than either alone.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The Klarna arc in two acts: the first-month numbers reported in February 2024, and the later partial walk-back toward a human plus AI hybrid.">
+        <style>
+          .klT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .klN { font: 800 17px Inter, sans-serif; fill: #0E3320; }
+          .klL { font: 400 10.5px Inter, sans-serif; fill: #66736B; }
+          .klX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .klA { font: 400 11px Inter, sans-serif; fill: #3A2A08; }
+          .klH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .klK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="34" rx="9" fill="#1A4D33"/>
+        <text class="klT" x="44" y="46">Act 1 · the first month, February 2024 - the numbers everybody quoted</text>
+
+        <rect x="24" y="66" width="132" height="72" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="klN" x="38" y="96">2.3M</text>
+        <text class="klL" x="38" y="116">customer</text>
+        <text class="klL" x="38" y="131">conversations</text>
+
+        <rect x="164" y="66" width="132" height="72" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="klN" x="178" y="96">2 of 3</text>
+        <text class="klL" x="178" y="116">support chats</text>
+        <text class="klL" x="178" y="131">handled by AI</text>
+
+        <rect x="304" y="66" width="132" height="72" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="klN" x="318" y="96">700</text>
+        <text class="klL" x="318" y="116">FTE agents'</text>
+        <text class="klL" x="318" y="131">worth of work</text>
+
+        <rect x="444" y="66" width="132" height="72" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="klN" x="458" y="96">&lt;2 min</text>
+        <text class="klL" x="458" y="116">resolution time</text>
+        <text class="klL" x="458" y="131">vs 11 min before</text>
+
+        <rect x="584" y="66" width="132" height="72" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="klN" x="598" y="96">-25%</text>
+        <text class="klL" x="598" y="116">repeat</text>
+        <text class="klL" x="598" y="131">inquiries</text>
+
+        <rect x="724" y="66" width="132" height="72" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="klN" x="738" y="96">$40M</text>
+        <text class="klL" x="738" y="116">projected 2024</text>
+        <text class="klL" x="738" y="131">profit lift</text>
+
+        <text class="klX" x="24" y="158">CSAT reported on par with human agents. Announced by Klarna, echoed by OpenAI - both parties to the deployment.</text>
+
+        <rect x="24" y="176" width="832" height="34" rx="9" fill="#BF6708"/>
+        <text class="klT" x="44" y="198">Act 2 · later, a partial walk-back toward a human + AI hybrid</text>
+
+        <rect x="24" y="218" width="832" height="100" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="klA" x="44" y="244">Klarna later moved back toward a hybrid model, bringing human agents back into the customer service mix.</text>
+        <text class="klA" x="44" y="262">The first-month numbers were not fabricated. They were real, and they were measured over a short window on a</text>
+        <text class="klA" x="44" y="280">set of conversations the deployment itself had shaped. What the walk-back reveals is not a lie - it is the</text>
+        <text class="klA" x="44" y="298">difference between a launch metric and a metric that holds when the whole customer distribution arrives.</text>
+
+        <rect x="24" y="338" width="832" height="96" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="klH" x="44" y="364">The lesson is the shape of the arc, not the direction of it</text>
+        <text class="klX" x="44" y="386">Almost every widely quoted bot success story has an act 2, and almost nobody in your launch meeting has read it.</text>
+        <text class="klX" x="44" y="404">When you cite a case study, cite the whole arc. When somebody cites one at you, ask what happened in year two.</text>
+        <text class="klX" x="44" y="422">Ask which conversations were counted, over what window, and what the number was after the novelty wore off.</text>
+
+        <rect x="24" y="454" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="klK" x="48" y="466">A launch number measured in month one is a measurement of month one. Nothing more is implied and nothing</text>
+        <text class="klK" x="48" y="484">more should be promised. The gate this course builds tells you which kind of number you are holding.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the half that gets quoted, and the half that teaches</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>What made act 1 hard to argue with, and why that was the problem.</strong> The figures were specific, operational and independently plausible: volume, handle time, repeat-contact rate, a projected profit line. That is a better class of evidence than most launch decks contain. It was still a measurement of a particular month, on a customer mix that a brand-new deployment attracts, judged against a definition of "handled" that the deploying company set. None of those three caveats is a criticism. All three are questions you should be able to ask about your own numbers, out loud, without anybody in the room taking it personally.</p>
+    </div>
+
+    <div class="callout warn">
+      <strong>The case-study trap in your own deck</strong>
+      When a competitor's success story appears in your business case, you are importing their conditions along with their number - their traffic mix, their definition of resolution, their tolerance for a wrong answer, their regulatory exposure. The number is theirs. Only the method transfers. Cite the method.
+    </div>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="the-price">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the price</span>
+      <h2>What a wrong launch costs, and what counts as evidence <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">Two numbers make this decision worth arguing about. The first is how much cheaper a bot interaction is than a human one, which is why the project exists. The second is what the industry has quietly started charging for, which tells you where the risk actually sits.</p>
+
+    <table class="clean">
+      <tr><th>Unit of cost</th><th>Figure</th><th>How solid is it</th></tr>
+      <tr><td>A human-assisted contact, US</td><td>~$13.50 median</td><td>Gartner-attributed and reaching us second hand. Directionally quoted everywhere; treat it as an order of magnitude, not a line item.</td></tr>
+      <tr><td>A bot interaction</td><td>~$0.50 - $0.70</td><td>Widely quoted industry range, secondary. The roughly 20x gap to a human contact is the entire business case, and it is real.</td></tr>
+      <tr><td>Intercom Fin, per resolution</td><td>$0.99</td><td>The vendor's own published pricing. Primary - and notably, the definition of what counts as a resolution is published alongside it.</td></tr>
+      <tr><td>Sierra, per resolution</td><td>~$1.50</td><td>Secondary. Same shape as Fin: you are billed for outcomes, not for conversations.</td></tr>
+      <tr><td>The structural shift</td><td>per interaction → per outcome</td><td>The pricing model moved from charging per interaction to charging per outcome. That only works if the outcome can be measured - which is what this course is about.</td></tr>
+    </table>
+
+    <p>Read the last row twice. When a vendor bills per resolution rather than per conversation, they have taken on the measurement risk and they have had to define resolution precisely enough to invoice against it. Your internal bot has neither of those forcing functions. Nobody sends you a bill that makes you define what "handled" means.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four rungs of evidence strength, from it demoed well up to an interval measured against a pre-agreed bar, plus the Microsoft Bing and PyRIT pre-launch red teaming contrast.">
+        <style>
+          .evT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .evW { font: 700 12.5px Inter, sans-serif; fill: #991B1B; }
+          .evR { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+          .evX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .evA { font: 400 11px Inter, sans-serif; fill: #3A2A08; }
+          .evH { font: 700 13px Inter, sans-serif; fill: #3A2A08; }
+          .evK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="200" height="52" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="evW" x="42" y="46">1 · It demoed well</text>
+        <text class="evR" x="42" y="64">not evidence</text>
+        <rect x="236" y="24" width="620" height="52" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="evR" x="256" y="46">Questions chosen by the builder, one turn each, no traps.</text>
+        <text class="evR" x="256" y="64">It proves possibility, which is worth exactly one round of applause.</text>
+
+        <rect x="24" y="88" width="200" height="52" rx="10" fill="#3D7D5A"/>
+        <text class="evT" x="42" y="110">2 · Own benchmark</text>
+        <text class="evT" x="42" y="128" fill="#EDF6F0">partial evidence</text>
+        <rect x="236" y="88" width="620" height="52" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="evX" x="256" y="110">A set you built, graded by you, against a bar you chose.</text>
+        <text class="evX" x="256" y="128">Real evidence of direction of travel. Weak evidence of an absolute level.</text>
+
+        <rect x="24" y="152" width="200" height="52" rx="10" fill="#1A4D33"/>
+        <text class="evT" x="42" y="174">3 · Adversarial set</text>
+        <text class="evT" x="42" y="192" fill="#A9CDB8">strong evidence</text>
+        <rect x="236" y="152" width="620" height="52" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="evX" x="256" y="174">Cases the bot never saw, including unanswerable questions and attacks.</text>
+        <text class="evX" x="256" y="192">This is where a demo-grade bot stops being impressive, which is the point.</text>
+
+        <rect x="24" y="216" width="200" height="52" rx="10" fill="#0E3320"/>
+        <text class="evT" x="42" y="238">4 · Interval on a bar</text>
+        <text class="evT" x="42" y="256" fill="#A9CDB8">the launch standard</text>
+        <rect x="236" y="216" width="620" height="52" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="evX" x="256" y="238">A threshold agreed in advance, and an honest error bar around the rate.</text>
+        <text class="evX" x="256" y="256">Session a4 does this arithmetic. 19 of 20 reads as 95% and proves rather less.</text>
+
+        <rect x="24" y="286" width="832" height="118" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="evH" x="44" y="312">What rung 3 looks like when somebody actually pays for it</text>
+        <text class="evA" x="44" y="334">Before Bing Chat shipped, Microsoft ran hundreds of hours of expert red teaming against it - people whose</text>
+        <text class="evA" x="44" y="352">whole job was to make it misbehave, working for weeks before a single customer saw it.</text>
+        <text class="evA" x="44" y="370">Microsoft then open-sourced PyRIT, which generates and auto-scores thousands of adversarial prompts,</text>
+        <text class="evA" x="44" y="388">turning work that took weeks into work that takes hours. That is the bar your fifteen-minute demo sits next to.</text>
+
+        <rect x="24" y="424" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="evK" x="48" y="436">The question in a launch review is not whether the demo worked. It is who chose the questions, how many</text>
+        <text class="evK" x="48" y="454">there were, whether anybody was paid to break it, and what the error bar around the result actually is.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four rungs of evidence, and what the top rung costs in practice</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why "it demoed well" survives so long as an argument<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Because it is the only evidence in the room that everybody can personally verify. A confidence interval requires trusting somebody's arithmetic; a demo requires only eyes. That asymmetry is why the weakest rung on the ladder is also the most persuasive one, and why the fix is not a better demo but a better question.</p>
+        <p>There is a second reason, and it is worth naming in front of the team: a demo that fails is embarrassing in a way that a bad eval score is not. So demos get rehearsed, and rehearsal is exactly the thing that destroys their value as evidence. <strong>The more polished the demo, the less it tells you.</strong></p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The cost of being wrong is not symmetric<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Launching too late costs you the difference between roughly $13.50 and roughly $0.60 per contact, multiplied by volume, multiplied by weeks. It is a large, legible, spreadsheet-shaped number, and every finance partner can compute it.</p>
+        <p>Launching too early costs you something that does not fit in the same spreadsheet: a customer who was told the wrong refund policy by a system that sounded certain, a screenshot that outlives the incident, a regulator's question about how the decision was made. Both costs are real. Only one of them has a champion in the room, which is precisely why the launch gate has to be written down in advance rather than debated on the day.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ EXERCISE 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Decision 1 of 2</span>
+      <h2>The demo autopsy <span class="tag demo">★ 9 min · everyone discusses</span></h2>
+    </div>
+    <p class="lede">Take the last bot demo you personally sat through. Not a hypothetical one - a real meeting, with a real date. Work through these five questions in pairs, then compare answers. Most people cannot answer three of them, and that is the finding.</p>
+
+    <div class="steps">
+      <div class="step"><p><strong>Who chose the questions?</strong> Name the person. If it was the person who built the bot, you watched a proof of possibility. That is worth funding a next step and worth nothing as launch evidence.</p></div>
+      <div class="step"><p><strong>How many questions were there, and how many turns each?</strong> Write both numbers down. If you cannot remember, that is your answer - it was few enough that counting felt unnecessary.</p></div>
+      <div class="step"><p><strong>Did anything in the demo fail?</strong> A demo with zero failures was either rehearsed or too easy. Both mean the same thing for your purposes. A demo where one thing went wrong and was handled gracefully is worth more than a flawless one, and almost nobody presents it that way.</p></div>
+      <div class="step"><p><strong>Was there a single question the bot should have refused?</strong> Something outside its knowledge, or a request it is not allowed to fulfil. If not, you have no evidence at all about whether it can say "I do not know" - which is the behaviour that decides whether it is safe.</p></div>
+      <div class="step"><p><strong>What decision did that meeting actually make?</strong> Compare it to what the evidence supported. If a launch date came out of a proof of possibility, you have found the gap this whole course exists to close - and you have found it in your own calendar, not in a case study.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>The tone matters more than the questions</strong>
+      Every one of these can be asked as an accusation or as a standard. Ask them as a standard, every time, on every project including the ones you sponsor, and they stop being a threat within two cycles. Teams start pre-answering them in the deck, which is the actual goal. A launch review where the builder brings the error bar unprompted is a review you no longer have to run.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Decision 2 of 2</span>
+      <h2>Price your own wrong launch <span class="tag demo">★ 7 min · everyone writes</span></h2>
+    </div>
+    <p class="lede">Both sides of the decision have a price. Only one of them usually gets a number. Fill in both columns for a bot in your own organisation, in the next seven minutes, roughly. Precision is not the point; having a number on the right-hand side at all is the point.</p>
+
+    <div class="prompt-box good">
+      <span class="label">★ The two-column estimate - fill in both sides before you argue</span>
+      <p><strong>Cost of launching six weeks late:</strong> contacts per week × (your cost per assisted contact, anchor ~$13.50 in the US) × the share the bot would deflect × 6. Add the competitive or morale cost if it is real, and say so out loud rather than folding it into the arithmetic.</p>
+      <p><strong>Cost of launching six weeks early:</strong> wrong answers per week (volume × your best guess at the error rate) × how many of those are irreversible × what one irreversible wrong answer costs. Then, separately and without a number: what is the worst single sentence this bot could say to a customer, and who would be reading it?</p>
+    </div>
+
+    <div class="steps">
+      <div class="step"><p>Write the left-hand number first. It is easy, and everybody in your organisation already has it. Notice how quickly the room agrees on it.</p></div>
+      <div class="step"><p>Now write the right-hand number. Notice that you had to invent an error rate to do it, because nobody has measured one. <strong>That missing error rate is the whole of session a4</strong>, and it is why a leader track exists at all.</p></div>
+      <div class="step"><p>Finally, name the one irreversible action your bot can take unattended. For Beacon's support bot it is issuing a refund credit. If your bot has one, your launch bar just went up, and session a5 will tell you by how much.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <strong>The asymmetry to watch for in your own meeting</strong>
+      The left-hand number has a sponsor - somebody whose targets improve when the bot ships. The right-hand number usually has nobody, because the person who would own it has not been invited yet. If risk, legal or support is not in the launch review, the decision is being made with one column filled in.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 35-45 min total</span></h2>
+    </div>
+    <ul>
+      <li>Ask your team for the exact list of questions used in the last demo. Not a summary - the list. Count them, count the turns, and count how many the bot should have refused. The gap between what you expected and what you receive is the most useful half hour you will spend this month.</li>
+      <li>Find the case study that appears in your own business case and go looking for its act 2. Search for the same company plus the word "hybrid", or plus a year that is two years after the announcement. If there is no act 2 yet, note the date of act 1 and how recent it is.</li>
+      <li>Fill in the right-hand column of the two-column estimate properly, with the support or risk lead in the room. Bring the number to your next launch review whether or not anybody asked for it.</li>
+      <li>Write down, in one sentence, the worst thing your bot can do unattended. Keep the sentence. Session a5 turns it into a risk tier, and the tier sets your launch bar - so this one sentence quietly determines how much evidence you are about to need.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every figure on this page traces to a primary source catalogued in this course's source map, and secondary claims are labelled as secondary on the page itself rather than only here. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Klarna first-month figures: 2.3M conversations, two-thirds of chats, 700 FTE equivalent, under 2 min vs 11 min, 25% fewer repeat inquiries, $40M projected 2024 profit improvement</span><span class="note">Part 2 · company announcement plus the model vendor, both parties to the deployment</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Klarna's later partial walk-back toward a human + AI hybrid</span><span class="note">Part 2 · the half that is usually left out, and the reason the case is taught here</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Cost anchors: ~$13.50 median US assisted contact, ~$0.50-0.70 per bot interaction, Fin $0.99 per resolution, Sierra ~$1.50, and the per-interaction to per-outcome pricing shift</span><span class="note">Part 3 table · Gartner figures and Sierra pricing reach us second hand and are marked secondary; Fin's price is vendor-published</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft pre-launch red teaming: hundreds of expert hours on Bing Chat, and PyRIT automating thousands of adversarial prompts from weeks into hours</span><span class="note">Part 3 · the contrast case for what rung 3 evidence costs</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Multi-turn degradation: ~39% average single-turn to multi-turn drop; frontier models under 50% on MultiChallenge, best 41.4%</span><span class="note">Named in Part 1 self-study · measured on the support bot in b5</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">The arithmetic behind "19 of 20 reads as 95% and proves rather less"</span><span class="note">Deliberately not computed here · session a4 owns it, with the full interval table</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Risk tiers, the launch bar, and who signs off</span><span class="note">Foreshadowed in Decision 2 · built in a5</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · What is the lesson of the Klarna arc for your own launch decision?</p>
+      <button class="qopt" type="button">A · That the first-month figures were exaggerated and case studies cannot be trusted</button>
+      <button class="qopt" type="button">B · That support bots do not work and a human team is always safer</button>
+      <button class="qopt" type="button">C · That a number measured in month one is a measurement of month one - the figures were real, and what changed was the customer mix, the window and the definition of what counted as handled</button>
+      <p class="qwhy">Both halves are true at once, and that is the point. The first-month numbers were specific, operational and reported by the company that ran the deployment. The later move back toward a human plus AI hybrid does not retract them; it shows what a launch metric is and is not. Ask of any case study, including your own: which conversations were counted, over what window, and against whose definition of success.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">2 · Vendors have moved from charging per interaction to charging per resolution or outcome. Why should that change how you think about your internal bot?</p>
+      <button class="qopt" type="button">A · Because it makes bots cheaper, so the business case is stronger</button>
+      <button class="qopt" type="button">B · Because billing on an outcome forces the outcome to be defined precisely enough to invoice against - a forcing function your internal bot does not have</button>
+      <button class="qopt" type="button">C · Because it means the vendor guarantees accuracy</button>
+      <p class="qwhy">A vendor billing $0.99 per resolution has had to publish what a resolution is, down to whether a customer returning to the thread reverses it. Nobody sends your internal team that invoice, so nothing forces the definition to be written down - and an undefined success metric will drift toward whatever makes the dashboard look good. Per-outcome pricing only works when the outcome is measurable, which is the same requirement a launch gate has.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · A team shows you a flawless fifteen-minute demo. What is the single most useful thing you can ask?</p>
+      <button class="qopt" type="button">A · Who chose these questions, how many were there, and did anybody try to break it</button>
+      <button class="qopt" type="button">B · Which model is behind it, and can we use a bigger one</button>
+      <button class="qopt" type="button">C · How quickly can this be rolled out to all customers</button>
+      <p class="qwhy">A flawless demo is either rehearsed or too easy, and both mean the same thing as evidence. The three sub-questions in option A each attack a different column of the gap: who chose the questions attacks representativeness, how many attacks sample size, and did anyone try to break it attacks the missing adversarial slice. Microsoft ran hundreds of expert hours of red teaming on Bing Chat before launch; the honest comparison is between that and a rehearsed quarter-hour.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 1 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Possibility vs frequency</b><span>A demo proves the bot can do it once. A launch needs proof it does it reliably, for people who did not choose the question.</span></div>
+      <div class="cheat-item"><b>Three sentences, three bars</b><span>"It can do this" · "it does this reliably" · "it is safe unattended". Meetings start at the first and act on the third.</span></div>
+      <div class="cheat-item"><b>The polish paradox</b><span>The more rehearsed the demo, the less it tells you. A demo where one thing failed gracefully is worth more than a flawless one.</span></div>
+      <div class="cheat-item"><b>Cite the whole arc</b><span>Klarna's first month was real. So was the later move back to a human + AI hybrid. When a case study is quoted at you, ask about year two.</span></div>
+      <div class="cheat-item"><b>Only the method transfers</b><span>Someone else's number carries their traffic mix, their definition of handled and their risk tolerance. Import the method, not the figure.</span></div>
+      <div class="cheat-item"><b>The 20x that funds it</b><span>~$13.50 per assisted US contact against ~$0.50-0.70 per bot interaction. Both secondary figures. That gap is the business case.</span></div>
+      <div class="cheat-item"><b>Per outcome, not per interaction</b><span>Fin bills $0.99 per resolution. Billing on outcomes forces you to define the outcome. Your internal bot has no such forcing function.</span></div>
+      <div class="cheat-item"><b>Both columns, or no decision</b><span>Cost of launching late has a sponsor. Cost of launching early usually has nobody in the room. Invite them.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 1 of 6 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="a2-three-archetypes.html">Next: Three bot archetypes →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

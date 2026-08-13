@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 6 · After GA - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Leader session 6 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Leader track · Session 6 of 6</div>
+    <h1>After GA: <span class="accent">the launch number is a snapshot, not a warranty</span></h1>
+    <p class="sub">The scorecard measured one build, on one week's traffic, against one adversarial slice. Every part of that sentence expires. This final leader session covers what decays and why, the three evaluation clocks that run after launch, rollback as a rehearsed procedure rather than a paragraph in a runbook, and the loop that turns every production incident into a permanent test.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Heads of product · eng leaders · risk &amp; compliance</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:5">3-25 · Drift, the three clocks, rollback, the loop</span>
+      <span class="a3" style="flex:4">25-40 · Two decision exercises + handoff</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The gate was true on Tuesday</h2>
+    </div>
+    <p class="lede">Session a5 got you to general availability with six green lights and a signature. This session starts one week later, when nothing has shipped, nobody has changed anything, and the complaints have started. That is not a hypothetical failure mode. It is the normal life cycle of a deployed bot, and it is the part almost no launch process has a plan for.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The four things that decay a passing gate without a single code change, the split between online, scheduled and red-team evaluation and which one gates what, a set of rollback triggers written in advance and tied to specific gates, an ops-maturity rubric that scores you on your weakest section rather than your best, and the incident-to-eval loop that makes your test suite grow by itself.
+    </div>
+    <div class="callout tip">
+      <strong>No tools today</strong>
+      Judgement session, same as the rest of the leader track. Both exercises are documents you write in the room, and both are short enough to finish. The builder track wires all of it up: b10 is the implementation of this page.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="drift">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · decay</span>
+      <h2>Four things change under a frozen deployment <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">"We have not shipped anything" is not an answer to "why did quality drop". Every one of the four causes below happens without you touching the system, and three of them are entirely outside your repository.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 455" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four sources of decay in a deployed bot: the model provider updates, the corpus is edited, the user question mix moves, and the adversarial and regulatory world changes. None requires a code change.">
+        <style>
+          .dfT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .dfS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .dfX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .dfH { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .dfK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="180" height="58" rx="10" fill="#0E3320"/>
+        <text class="dfT" x="40" y="50">1 · The model</text>
+        <text class="dfS" x="40" y="68">provider updates</text>
+        <rect x="216" y="24" width="640" height="58" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="dfX" x="234" y="48">You did not change anything and the number moved. A silent model update, a</text>
+        <text class="dfX" x="234" y="66">changed default, a deprecated snapshot - all of it lands on your gate.</text>
+
+        <rect x="24" y="92" width="180" height="58" rx="10" fill="#1A4D33"/>
+        <text class="dfT" x="40" y="118">2 · The corpus</text>
+        <text class="dfS" x="40" y="136">your own docs change</text>
+        <rect x="216" y="92" width="640" height="58" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="dfX" x="234" y="116">The knowledge base your bot cites is edited by people who have never heard of</text>
+        <text class="dfX" x="234" y="134">your eval. Yesterday's grounded answer cites a paragraph that no longer exists.</text>
+
+        <rect x="24" y="160" width="180" height="58" rx="10" fill="#3D7D5A"/>
+        <text class="dfT" x="40" y="186">3 · The users</text>
+        <text class="dfS" x="40" y="204" fill="#EDF6F0">question mix moves</text>
+        <rect x="216" y="160" width="640" height="58" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="dfX" x="234" y="184">Launch changes who asks. Marketing sends a new segment, a feature ships, and the</text>
+        <text class="dfX" x="234" y="202">category mix your golden set was sampled to match is no longer the mix.</text>
+
+        <rect x="24" y="228" width="180" height="58" rx="10" fill="#BF6708"/>
+        <text class="dfT" x="40" y="254">4 · The world</text>
+        <text class="dfS" x="40" y="272" fill="#FDF3E3">new attacks + rules</text>
+        <rect x="216" y="228" width="640" height="58" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="dfX" x="234" y="252" fill="#3A2A08">A new injection technique circulates. A regulation starts applying. Your rails were</text>
+        <text class="dfX" x="234" y="270" fill="#3A2A08">measured against last quarter's adversarial slice, now a historical document.</text>
+
+        <rect x="24" y="300" width="832" height="94" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="dfH" x="44" y="326">The launch number was a measurement of one week</text>
+        <text class="dfX" x="44" y="348">Everything the gate measured was true on the day it was measured. None of the four rows above needs a</text>
+        <text class="dfX" x="44" y="366">code change to happen, which is why a frozen deployment still drifts, and why "we have not shipped</text>
+        <text class="dfX" x="44" y="384">anything" is not an answer to "why did quality drop".</text>
+
+        <rect x="24" y="410" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="dfK" x="48" y="422">A gate is a snapshot. Online evaluation is the only thing that turns it into a claim about today,</text>
+        <text class="dfK" x="48" y="440">and it is the piece most teams schedule for "after launch" and then never schedule again.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four decay sources, none of which requires you to change a line of code</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the third row is the one that catches good teams<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Rows 1 and 2 are visible if you look. A provider changes a model and there is a changelog; somebody edits the knowledge base and there is a commit. Row 3 has no artefact at all. Nobody sends an email saying "the question mix has moved eleven points toward billing enquiries".</p>
+        <p>And row 3 breaks your evidence rather than your bot. The golden set was sampled to match a traffic distribution, and the whole defensibility of the launch number rested on that match. When the distribution moves, the bot may be performing identically on every category and your headline number is still wrong, because it is a weighted average over the wrong weights. That is the quiet version of this failure and it is invisible from inside the eval.</p>
+        <p>The leadership implication is small and specific: <strong>put a recurring item on somebody's calendar to re-check the category mix against live traffic.</strong> Not to re-run the eval, just to check whether the sampling assumption still holds. It takes twenty minutes and it is the highest-yield recurring task on this page.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="clocks">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the three clocks</span>
+      <h2>Offline evaluation gates. Online evaluation monitors. <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">After GA you are running three different evaluation activities on three different clocks, and the single most common mistake is treating them as one thing that somebody keeps forgetting to do. They answer different questions, run on different data and fail into different actions.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparison of three post-launch evaluation clocks: continuous online evaluation on sampled production traffic, scheduled offline evaluation on a fixed golden set, and scheduled red teaming.">
+        <style>
+          .ckT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .ckS { font: 400 10px Inter, sans-serif; fill: #A9CDB8; }
+          .ckL { font: 700 11px Inter, sans-serif; fill: #1F2622; }
+          .ckX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .ckH { font: 700 12.5px Inter, sans-serif; fill: #3A2A08; }
+          .ckA { font: 400 11px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="150" height="44" rx="9" fill="#12241B"/>
+        <text class="ckT" x="38" y="52">Three clocks</text>
+
+        <rect x="182" y="24" width="216" height="44" rx="9" fill="#0E3320"/>
+        <text class="ckT" x="196" y="46">Online eval</text>
+        <text class="ckS" x="196" y="62">continuous, sampled live</text>
+
+        <rect x="410" y="24" width="216" height="44" rx="9" fill="#1A4D33"/>
+        <text class="ckT" x="424" y="46">Scheduled eval</text>
+        <text class="ckS" x="424" y="62">fixed set, on a cadence</text>
+
+        <rect x="638" y="24" width="216" height="44" rx="9" fill="#BF6708"/>
+        <text class="ckT" x="652" y="46">Scheduled red team</text>
+        <text class="ckS" x="652" y="62" fill="#FDF3E3">adversarial, on a calendar</text>
+
+        <rect x="24" y="78" width="150" height="46" rx="9" fill="#EDF6F0"/>
+        <text class="ckL" x="38" y="106">What it answers</text>
+        <rect x="182" y="78" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="196" y="98">Is production still like</text>
+        <text class="ckX" x="196" y="115">the lab?</text>
+        <rect x="410" y="78" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="424" y="98">Did this change break</text>
+        <text class="ckX" x="424" y="115">what already worked?</text>
+        <rect x="638" y="78" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="652" y="98">Does a new attack get</text>
+        <text class="ckX" x="652" y="115">through the rails?</text>
+
+        <rect x="24" y="130" width="150" height="46" rx="9" fill="#EDF6F0"/>
+        <text class="ckL" x="38" y="158">What it runs on</text>
+        <rect x="182" y="130" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="196" y="150">A sample of real user</text>
+        <text class="ckX" x="196" y="167">traffic, continuously</text>
+        <rect x="410" y="130" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="424" y="150">A fixed golden set that</text>
+        <text class="ckX" x="424" y="167">does not move</text>
+        <rect x="638" y="130" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="652" y="150">Generated adversarial</text>
+        <text class="ckX" x="652" y="167">prompts, fresh each run</text>
+
+        <rect x="24" y="182" width="150" height="46" rx="9" fill="#EDF6F0"/>
+        <text class="ckL" x="38" y="210">Cadence</text>
+        <rect x="182" y="182" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="196" y="202">Always on, on a sample</text>
+        <text class="ckX" x="196" y="219">of live traffic</text>
+        <rect x="410" y="182" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="424" y="202">Per release, plus a</text>
+        <text class="ckX" x="424" y="219">weekly or monthly run</text>
+        <rect x="638" y="182" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="652" y="202">Per release and on a</text>
+        <text class="ckX" x="652" y="219">standing schedule</text>
+
+        <rect x="24" y="234" width="150" height="46" rx="9" fill="#EDF6F0"/>
+        <text class="ckL" x="38" y="262">What it gates</text>
+        <rect x="182" y="234" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="196" y="254">Nothing. It alarms and</text>
+        <text class="ckX" x="196" y="271">triggers rollback</text>
+        <rect x="410" y="234" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="424" y="254">The deploy. This is the</text>
+        <text class="ckX" x="424" y="271">gating clock</text>
+        <rect x="638" y="234" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="652" y="254">The safety gate before</text>
+        <text class="ckX" x="652" y="271">each ramp step</text>
+
+        <rect x="24" y="286" width="150" height="46" rx="9" fill="#EDF6F0"/>
+        <text class="ckL" x="38" y="314">What it catches</text>
+        <rect x="182" y="286" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="196" y="306">Drift, novel inputs, real</text>
+        <text class="ckX" x="196" y="323">user behaviour</text>
+        <rect x="410" y="286" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="424" y="306">Regressions against</text>
+        <text class="ckX" x="424" y="323">known-good behaviour</text>
+        <rect x="638" y="286" width="216" height="46" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="ckX" x="652" y="306">New jailbreaks a frozen</text>
+        <text class="ckX" x="652" y="323">slice cannot find</text>
+
+        <rect x="24" y="346" width="832" height="94" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="ckH" x="44" y="372">Offline gates, online monitors, and they are not interchangeable</text>
+        <text class="ckA" x="44" y="394">Azure AI Foundry's observability guidance splits exactly this way: offline evaluation on fixed datasets</text>
+        <text class="ckA" x="44" y="412">to gate a release, continuous evaluation on sampled production traffic to monitor a running one, and</text>
+        <text class="ckA" x="44" y="430">scheduled red teaming alongside both. A team running only the first has a launch process, not operations.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three clocks, three questions, and only one of them blocks a deploy</figcaption>
+    </figure>
+
+    <div class="callout tip">
+      <strong>The row that surprises people</strong>
+      Online evaluation gates nothing. It cannot: there is no ground truth on live traffic and no held-out set, so it produces a signal rather than a verdict. Its job is to alarm and to fire a rollback trigger. The moment you try to make it a gate, you end up blocking deploys on a noisy judged metric with no reference, and within a month somebody turns it off.
+    </div>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="rollback">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · rollback</span>
+      <h2>Rollback is a procedure you rehearse, not a paragraph you write <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Every gate you set at launch needs a matching trigger that says what would make you undo the launch. Written in advance, a trigger is a decision. Invented during an incident, it is an argument, and the argument always happens at the worst possible moment.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rollback triggers tied to each of the six launch gates, with the action each one fires, plus the rule that you roll back the prompt and model version rather than just code, and that rollback must be rehearsed.">
+        <style>
+          .rbL { font: 700 11px Inter, sans-serif; fill: #FFFFFF; }
+          .rbX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .rbA { font: 400 11px Inter, sans-serif; fill: #1F2622; }
+          .rbH { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .rbW { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+          .rbR { font: 700 11px Inter, sans-serif; fill: #991B1B; }
+          .rbG { font: 700 12.5px Inter, sans-serif; fill: #3A2A08; }
+          .rbK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="170" height="48" rx="9" fill="#0E3320"/>
+        <text class="rbL" x="38" y="53">1 · Quality</text>
+        <rect x="206" y="24" width="360" height="48" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rbX" x="220" y="44">Online judge pass rate on sampled traffic</text>
+        <text class="rbX" x="220" y="61">falls 3 points below the launch figure</text>
+        <rect x="576" y="24" width="280" height="48" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="rbA" x="590" y="44">Halt the ramp. Investigate</text>
+        <text class="rbA" x="590" y="61">before the next step.</text>
+
+        <rect x="24" y="80" width="170" height="48" rx="9" fill="#1A4D33"/>
+        <text class="rbL" x="38" y="109">2 · Safety</text>
+        <rect x="206" y="80" width="360" height="48" rx="9" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="rbW" x="220" y="100">Any rail breach at all on production</text>
+        <text class="rbW" x="220" y="117">traffic, or one canary case fails</text>
+        <rect x="576" y="80" width="280" height="48" rx="9" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="rbR" x="590" y="100">Immediate rollback. This</text>
+        <text class="rbR" x="590" y="117">one has no discussion step.</text>
+
+        <rect x="24" y="136" width="170" height="48" rx="9" fill="#3D7D5A"/>
+        <text class="rbL" x="38" y="165">3 · Performance</text>
+        <rect x="206" y="136" width="360" height="48" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rbX" x="220" y="156">p95 latency exceeds the SLO for a</text>
+        <text class="rbX" x="220" y="173">sustained 15 minutes, not one spike</text>
+        <rect x="576" y="136" width="280" height="48" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="rbA" x="590" y="156">Roll back to the previous</text>
+        <text class="rbA" x="590" y="173">prompt or model version.</text>
+
+        <rect x="24" y="192" width="170" height="48" rx="9" fill="#3D7D5A"/>
+        <text class="rbL" x="38" y="221">4 · Cost</text>
+        <rect x="206" y="192" width="360" height="48" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rbX" x="220" y="212">Cost per completed task exceeds budget</text>
+        <text class="rbX" x="220" y="229">by 25% over a rolling day</text>
+        <rect x="576" y="192" width="280" height="48" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="rbA" x="590" y="212">Halt the ramp. Cost is a</text>
+        <text class="rbA" x="590" y="229">gate, so it is a trigger.</text>
+
+        <rect x="24" y="248" width="170" height="48" rx="9" fill="#1A4D33"/>
+        <text class="rbL" x="38" y="277">5 · UX + oversight</text>
+        <rect x="206" y="248" width="360" height="48" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rbX" x="220" y="268">Escalation rate collapses, or approvers</text>
+        <text class="rbX" x="220" y="285">start approving faster than reading</text>
+        <rect x="576" y="248" width="280" height="48" rx="9" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="rbA" x="590" y="268">Halt. A rubber stamp is</text>
+        <text class="rbA" x="590" y="285">not human oversight.</text>
+
+        <rect x="24" y="304" width="170" height="48" rx="9" fill="#BF6708"/>
+        <text class="rbL" x="38" y="333">6 · Ops readiness</text>
+        <rect x="206" y="304" width="360" height="48" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="rbX" x="220" y="324" fill="#3A2A08">Monitoring stops reporting, or the</text>
+        <text class="rbX" x="220" y="341" fill="#3A2A08">rollback path is found broken</text>
+        <rect x="576" y="304" width="280" height="48" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="rbA" x="590" y="324" fill="#3A2A08">Roll back. You cannot</text>
+        <text class="rbA" x="590" y="341" fill="#3A2A08">operate what you cannot see.</text>
+
+        <rect x="24" y="366" width="404" height="110" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rbH" x="44" y="392">Roll back the version, not just the code</text>
+        <text class="rbX" x="44" y="414">The thing that changed behaviour was probably a</text>
+        <text class="rbX" x="44" y="432">prompt or a model snapshot, and neither of those is</text>
+        <text class="rbX" x="44" y="450">in your git revert. Version them, and make the</text>
+        <text class="rbX" x="44" y="468">rollback path revert them by name.</text>
+
+        <rect x="452" y="366" width="404" height="110" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="rbG" x="472" y="392">Rehearsed, with a stopwatch</text>
+        <text class="rbX" x="472" y="414" fill="#3A2A08">Google's ML Test Score lists safe, fast rollback as</text>
+        <text class="rbX" x="472" y="432" fill="#3A2A08">a production-readiness test and adds that operators</text>
+        <text class="rbX" x="472" y="450" fill="#3A2A08">should practice doing it. A rollback nobody has ever</text>
+        <text class="rbX" x="472" y="468" fill="#3A2A08">run is a plan, not a procedure.</text>
+
+        <rect x="24" y="492" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="rbK" x="48" y="504">Every trigger above was written before launch and tied to a named gate. A trigger invented during an</text>
+        <text class="rbK" x="48" y="522">incident is just an argument, and the argument always happens at the worst possible time.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - six gates, six triggers, and the two things that make a rollback real</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why "roll back the code" is usually the wrong instruction<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Trace a typical regression backwards. Somebody edited a system prompt to fix a tone complaint. Somebody else moved the deployment onto a newer model snapshot because the old one was being deprecated. Retrieval started returning a different top passage because the corpus was reindexed. Not one of those three is a code change, and a git revert undoes none of them.</p>
+        <p>So the rollback path has to name the things that actually determine behaviour: the prompt version, the model or snapshot identifier, the retrieval index version, and the tool or function schema. If those four are not versioned artefacts with names, you do not have a rollback - you have a search through recent changes conducted while the incident is ongoing.</p>
+        <p>The leadership test is a single question to the on-call team: <em>if I asked you to put this bot back to how it behaved on Monday, what would you type?</em> If the answer takes longer than a sentence, that is your ops-readiness gate telling you something.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="loop">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · the loop</span>
+      <h2>Incidents become tests, and the suite grows itself <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">The compounding asset of a deployed bot is not the model and it is not the prompt. It is the regression suite, and it only compounds if every incident is converted into a permanent case before the incident is closed.</p>
+
+    <table class="clean">
+      <tr><th>Stage</th><th>What happens</th><th>The discipline that makes it stick</th></tr>
+      <tr><td><strong>1 · Detect</strong></td><td>Online eval, a rollback trigger, or a human reports a bad output</td><td>The trigger already exists and is tied to a gate, so detection is not a judgement call</td></tr>
+      <tr><td><strong>2 · Contain</strong></td><td>Roll back the prompt or model version, or halt the ramp</td><td>Contain first, diagnose second. The diagnosis is better with the pressure off anyway</td></tr>
+      <tr><td><strong>3 · Convert</strong></td><td>The failing input becomes a frozen regression case with the expected behaviour written observably</td><td><strong>This is the step that gets skipped.</strong> An incident that produced no test case will happen again, and the second time nobody will remember the first</td></tr>
+      <tr><td><strong>4 · Re-gate</strong></td><td>The new case joins the blocking suite, and the fix has to pass it before it ships</td><td>The suite is only worth anything if it blocks. A regression suite that reports and does not block is a dashboard</td></tr>
+      <tr><td><strong>5 · Re-expand</strong></td><td>Ramp back up through the rungs you came down</td><td>Not straight back to 100%. You are re-earning the rungs, on a build nobody has canaried yet</td></tr>
+    </table>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>This loop is OpenAI's stated deployment approach, written as a product process.</strong> Release gradually rather than all at once, pair every release with monitoring and the standing ability to pause or roll back, study the failures that real usage produces, convert those failures into evaluations and safeguards, then expand access again. The important word in that sequence is <em>convert</em>. Every organisation studies its failures; the ones whose bots get durably better are the ones where studying a failure produces an artefact that outlives the person who studied it.</p>
+    </div>
+
+    <h3 style="margin-top:1.8rem">The refresh cadence</h3>
+    <p>The suite decays too. A golden set sampled in March is a March artefact, and by June it is answering questions your users have stopped asking. A workable rhythm, drawn from practitioner guidance rather than from any standard:</p>
+
+    <table class="clean">
+      <tr><th>Trigger or cadence</th><th>What you do</th><th>Why this interval</th></tr>
+      <tr><td><strong>Every significant change</strong></td><td>Error analysis on a fresh batch of traces, not just a re-run of the old suite</td><td>A change moves the failure distribution. Re-running the old set tells you about the old failures</td></tr>
+      <tr><td><strong>Every 2 to 4 weeks</strong></td><td>A review cycle over 100 or more fresh production traces</td><td>The same 100-trace floor that error analysis needs anywhere. Fewer than that and you are reading anecdotes</td></tr>
+      <tr><td><strong>Weekly</strong></td><td>10 to 20 outlier traces: the slowest, the most expensive, the lowest-scored, the escalated</td><td>Cheap enough to actually happen, and outliers surface new failure modes far faster than random sampling</td></tr>
+      <tr><td><strong>Stop condition</strong></td><td>Stop adding failure categories when roughly 20 consecutive traces produce nothing new</td><td>Saturation. Past that point you are labelling for the sake of labelling, and the marginal trace teaches you nothing</td></tr>
+    </table>
+
+    <div class="callout tip">
+      <strong>The rubric that scores you on your weakest section</strong>
+      Google's ML Test Score is the closest thing to a published ops-maturity rubric for this: <strong>28 tests across 4 sections</strong>, and the final score is the <strong>minimum across sections, not the average</strong>. A team with immaculate data tests and no monitoring scores as a team with no monitoring. A result in the (3,5] band is described as appropriate for mission-critical systems. Two numbers from Google's own survey are worth quoting in your next review: <strong>no single test was implemented by more than 80% of teams</strong>, and <strong>Monitor 3, training and serving skew, is one of the least frequently implemented tests of all</strong>. If your team scores badly here, you are in ordinary company - but the scoring rule means the honest number is your worst section, and that is the one to fund.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Discussion 1 of 2</span>
+      <h2>Write six rollback triggers, in the room <span class="tag demo">★ 8 min · everyone writes</span></h2>
+    </div>
+    <p class="lede">One trigger per gate, each with a number and a time window in it. A trigger without a number is a feeling. Take the six gates from a5 and fill them in for a bot you actually run.</p>
+
+    <div class="steps">
+      <div class="step"><p>For each gate, complete the sentence: <strong>"we roll back if [measured thing] crosses [number] for [duration]."</strong> The duration matters as much as the number - "p95 latency over 2 seconds" fires on every traffic spike, while "p95 latency over 2 seconds for fifteen minutes" fires on a real regression.</p></div>
+      <div class="step"><p>Mark which triggers <strong>halt the ramp</strong> and which <strong>roll back immediately</strong>. Safety is the one that should have no discussion step in it. If every trigger on your list ends in "investigate", you have written an alerting policy, not a rollback policy.</p></div>
+      <div class="step"><p>Name who is allowed to fire each trigger at 3am without asking anyone. If that person is you, and you are not on call, the trigger will not fire. Move it to somebody who is awake.</p></div>
+      <div class="step"><p>Now the uncomfortable one: <strong>ask what you would actually type to roll back.</strong> Prompt version, model snapshot, retrieval index, tool schema. If any of those four is not a named artefact you can revert to, write that down as the top item of your ops backlog.</p></div>
+      <div class="step"><p>Schedule the rehearsal. An actual timed revert in staging, with somebody holding a stopwatch, on a date in the next fortnight. Put the elapsed time into your launch documentation. That number is the single most credible thing in a readiness review.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Discussion 2 of 2</span>
+      <h2>Score your operations honestly <span class="tag demo">★ 7 min · self-assessment</span></h2>
+    </div>
+    <p class="lede">Take one deployed bot and answer these five questions with yes, partly, or no. Then apply the ML Test Score rule: your result is your worst answer, not your average one.</p>
+
+    <div class="steps">
+      <div class="step"><p><strong>Is anything evaluating this bot on production traffic right now?</strong> Not "is it logged" and not "could we". Is there a running job that scores a sample of live outputs and would alarm if the rate moved.</p></div>
+      <div class="step"><p><strong>When did the golden set last change?</strong> If the answer is "at launch", your evidence is now a historical document. Check when the category mix was last compared against live traffic.</p></div>
+      <div class="step"><p><strong>Has anybody rehearsed the rollback?</strong> Not read the runbook. Executed it, in staging, timed. If not, gate 6 was green on trust rather than on evidence.</p></div>
+      <div class="step"><p><strong>How many of your last five incidents produced a permanent regression case?</strong> This is the highest-signal question on the list. Anything below five means your suite is not compounding, and the same incident is queued up to happen again.</p></div>
+      <div class="step"><p><strong>Would you know if the model underneath you changed?</strong> A pinned snapshot with a deprecation date in the calendar is a yes. "We use the latest" is a no, and it is row 1 of Part 1 waiting to happen.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <strong>Take the minimum, not the average</strong>
+      Most teams answer yes to two or three of these and feel reasonably good. The scoring rule that Google's rubric uses on purpose, and that the six gates use on purpose, is the same one here: a strong section never compensates for a weak one, because production failures arrive through the weak one. Whichever of the five you answered worst is the honest description of your operations, and it is the only one worth funding this quarter.
+    </div>
+  </section>
+
+  <!-- ============ CLOSING ============ -->
+  <section class="section" id="closing">
+    <div class="section-kicker">
+      <span class="klabel">Closing</span>
+      <h2>Where the leader track ends, and what comes next</h2>
+    </div>
+    <p class="lede">Six sessions ago the question was why bots fail after launching well. The answer turned out to be almost entirely about evidence rather than about models: what a number proves, who set the bar and when, which six things had to be true at once, and what happens on the Tuesday after.</p>
+    <p>You now have the decisions. You do not yet have the instruments, and that is deliberate - the leader track was built so you can chair a gate review, grill an eval report and refuse a launch without ever opening a terminal. The builder track is the other half: the ten sessions that construct the golden set, the metrics, the calibrated judge, the three archetype gates, the scorecard and the CI wiring that make everything on these six pages produce a number rather than an opinion.</p>
+    <div class="callout win">
+      <strong>★ The one thing to take away from the leader track</strong>
+      Every hard question about shipping an agent reduces to the same three: what does the number prove, who wrote the bar down and when, and what would make us undo this. A team that can answer all three has a launch process. A team that can answer none of them has a demo and a date.
+    </div>
+    <div class="callout tip">
+      <strong>Going into the builder track</strong>
+      Start at <a href="b1-eval-anatomy.html">b1, Eval anatomy</a>, even if you never intend to build one yourself. It takes the phrase "it works" apart into the four things it has to contain, and it is the session that makes the rest of the leader track enforceable rather than merely agreed.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 45-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Book the rollback rehearsal. A date, a name, a staging environment and a stopwatch. Write the elapsed time into the launch document for that bot. This is the highest-value item on the page and it takes an hour.</li>
+      <li>Audit your last five incidents against one question: did each one produce a frozen regression case that still runs today. Report the fraction, not the excuse. Anything under five out of five is a leak in the compounding asset.</li>
+      <li>Find out whether anything is currently evaluating any of your bots on production traffic. If the answer is no, you have a launch process and no operations, and that is a one-line finding worth taking to your next review.</li>
+      <li>Compare your golden set's category mix against last month's live traffic. Twenty minutes of work. If the mix has moved, your headline launch number is a weighted average over the wrong weights, and no code change caused it.</li>
+      <li>Pick your worst answer from Discussion 2 and fund exactly that one thing this quarter. Not the average, not the most interesting - the minimum. That is what the rubric says and it is what production does.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every figure and framework on this page traces to a primary source catalogued in this course's source map, verified 13 August 2026. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google ML Test Score: 28 tests, 4 sections, final score is the minimum across sections, (3,5] appropriate for mission-critical systems</span><span class="note">Part 4 · used as the ops-maturity rubric behind Discussion 2</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">ML Test Score Infra 7: rollback is an emergency procedure and operators should practice doing it</span><span class="note">Part 3 · the rehearsal panel and the homework item</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google's own survey: no single test implemented by more than 80% of teams; Monitor 3 training/serving skew among the least frequently implemented</span><span class="note">Part 4 · quoted so teams calibrate their own score honestly</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Azure AI Foundry observability: offline evaluation for gating, continuous evaluation on sampled production traffic for monitoring, scheduled red teaming alongside</span><span class="note">Part 2 · the three-clock split is taken directly from this</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">OpenAI's iterative deployment approach: release gradually, monitor, keep the ability to pause or roll back, convert real failures into evals and safeguards, then re-expand</span><span class="note">Part 4 · the incident-to-eval loop</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Error-analysis cadence: 100+ fresh traces per review cycle, weekly outlier sampling, and stopping at category saturation</span><span class="note">Part 4 · practitioner canon rather than a standard; the 100-trace floor is the sourced figure, the intervals are working guidance</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Drift mechanics, tracing and production monitoring instrumentation</span><span class="note">Named here as causes · Learn Evals goes deep, and b10 wires the pipeline</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Regression gates in CI, canary golden sets at 100%, and online eval implementation</span><span class="note">Not on this page by design · b10 builds all of it</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Your team scores well on the ML Test Score's data and model sections, and badly on monitoring. How does the rubric score you?</p>
+      <button class="qopt" type="button">A · The average across the four sections, so two strong sections pull the result up</button>
+      <button class="qopt" type="button">B · The minimum across the four sections, so a strong section never compensates for a weak one</button>
+      <button class="qopt" type="button">C · The total number of the 28 tests you implement, regardless of which sections they fall in</button>
+      <p class="qwhy">The minimum rule is deliberate, and it is the same rule the six launch gates use. Production failures arrive through your weakest section, so an average would describe a system that does not exist. It is also why the Google survey figures are worth knowing before you score yourself: no single test in that rubric was implemented by more than 80% of teams, and training and serving skew is among the least implemented of all. A low score is normal. Averaging your way out of it is not.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Your bot passed its gate at 92% three months ago. Nothing has been deployed since. Complaints are climbing. What is the most likely explanation?</p>
+      <button class="qopt" type="button">A · Impossible - a frozen deployment cannot drift, so the complaints must be unrelated</button>
+      <button class="qopt" type="button">B · The launch eval was wrong, and the bot was never really at 92%</button>
+      <button class="qopt" type="button">C · Any of four things that need no code change: the model was silently updated, the corpus was edited, the question mix moved, or the adversarial landscape changed</button>
+      <p class="qwhy">A frozen deployment drifts because three of the four inputs to its behaviour live outside your repository. The subtle one is the third: if the user question mix has moved, your bot can be performing identically on every category while your headline number is wrong, because it was a weighted average over a distribution that no longer exists. That is why the launch figure is a snapshot and why continuous evaluation on sampled production traffic is the only thing that turns it back into a claim about today.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Your rollback plan is "revert the last commit and redeploy". What is wrong with it?</p>
+      <button class="qopt" type="button">A · The things that most often changed the behaviour - the prompt version, the model snapshot, the retrieval index - are not in your commit history, so the revert undoes none of them. They have to be versioned artefacts the rollback path reverts by name, and the whole procedure has to have been rehearsed</button>
+      <button class="qopt" type="button">B · Nothing, provided the deploy pipeline is fast enough</button>
+      <button class="qopt" type="button">C · Nothing structural, but you should also write a runbook describing it</button>
+      <p class="qwhy">Trace a regression backwards and it is usually a prompt edit, a model snapshot change, or a reindexed corpus - none of which a git revert touches. Naming those artefacts and versioning them is half the fix. The other half is rehearsal: the ML Test Score rubric lists safe and fast rollback as a production-readiness test and explicitly says operators should practice doing it. A rollback that has never been executed is a plan. The useful leadership question is simply "what would you type", and if the answer takes longer than a sentence, gate 6 was never really green.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 6 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The gate is a snapshot</b><span>It was true for one build, one week of traffic, one adversarial slice. All three expire, and none of the expiries needs a code change.</span></div>
+      <div class="cheat-item"><b>Four decay sources</b><span>The model updates, the corpus is edited, the question mix moves, the world adds new attacks and rules. Three of the four are outside your repo.</span></div>
+      <div class="cheat-item"><b>Offline gates, online monitors</b><span>Fixed sets block deploys. Sampled production traffic alarms and fires rollback triggers. Red teaming runs on its own calendar. Never merge them.</span></div>
+      <div class="cheat-item"><b>Online eval gates nothing</b><span>No ground truth on live traffic means a signal, not a verdict. Try to make it a gate and somebody turns it off within a month.</span></div>
+      <div class="cheat-item"><b>One trigger per gate, with a number</b><span>"[Measured thing] crosses [number] for [duration]." Written in advance it is a decision. Invented mid-incident it is an argument.</span></div>
+      <div class="cheat-item"><b>Roll back the version, not the code</b><span>Prompt, model snapshot, retrieval index, tool schema. If they are not named artefacts, you have a search, not a rollback.</span></div>
+      <div class="cheat-item"><b>Rehearse it with a stopwatch</b><span>ML Test Score calls rollback an emergency procedure operators should practice. The elapsed time is the most credible line in a readiness review.</span></div>
+      <div class="cheat-item"><b>Every incident becomes a case</b><span>Detect, contain, convert, re-gate, re-expand. Step three is the one that gets skipped, and it is the only one that compounds.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 6 of 6 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="b1-eval-anatomy.html">Next: Builder track starts here →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

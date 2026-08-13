@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 2 · Three bot archetypes - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Leader session 2 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Leader track · Session 2 of 6</div>
+    <h1>Three bot archetypes: <span class="accent">why one eval template cannot serve all three</span></h1>
+    <p class="sub">A chatbot, a text-to-query bot and an analytics bot look like three instances of the same thing on an org chart. They are not. They differ in whether ground truth exists at all, which means they differ in what can be measured, what counts as good, how they fail, and what has to be true before they ship. This is the session where you stop asking "how accurate is it" and start asking "accurate at what, graded how, against whose bar".</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Leader track</span>
+      <span class="chip audience">Heads of product · eng leaders · risk &amp; compliance</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:5">3-25 · The contrast, the ceiling, the three bots</span>
+      <span class="a3" style="flex:4">25-40 · Two decisions, out loud</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The one distinction everything else follows from</h2>
+    </div>
+    <p class="lede">Ask of any bot: <strong>can a machine tell whether the answer was right, without asking a person?</strong> For a text-to-query bot, yes - run the query, compare the rows. For a support chatbot, no - correctness is an opinion until a human or a calibrated judge supplies one. For an analytics bot, half and half, and the half that cannot be checked sits on top of the half that can. Everything on this page is a consequence of that one question.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      One slide that separates the three archetypes on five axes, an honest number for what "good" looks like in each - including why 40-70% is a normal support-bot result and 99% is a definition problem - the three converging reasons 80-90% is the real text-to-query ceiling, and the three Beacon bots you will be gating for the rest of this course.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="contrast">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the one slide</span>
+      <h2>Five axes, three answers, no overlap <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">This is the slide to carry into every launch review for the next year. If your organisation has one eval checklist, it was written for one of these three columns and it is blind to the other two.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 614" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Contrast table across chatbot, text-to-query and analytics bots on five axes: ground truth, headline metric, realistic good, signature failure, and unique gate.">
+        <style>
+          .taT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .taX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .taH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .taK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="164" y="24" width="225" height="34" rx="9" fill="#0E3320"/>
+        <text class="taT" x="180" y="46">Chatbot</text>
+        <rect x="397" y="24" width="225" height="34" rx="9" fill="#1A4D33"/>
+        <text class="taT" x="413" y="46">Text-to-query</text>
+        <rect x="630" y="24" width="225" height="34" rx="9" fill="#3D7D5A"/>
+        <text class="taT" x="646" y="46">Analytics bot</text>
+
+        <rect x="24" y="66" width="132" height="70" rx="9" fill="#0E3320"/>
+        <text class="taT" x="40" y="90">Ground</text>
+        <text class="taT" x="40" y="108">truth</text>
+        <rect x="164" y="66" width="225" height="70" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="taX" x="180" y="88">None. Correctness is an</text>
+        <text class="taX" x="180" y="106">opinion until a human or</text>
+        <text class="taX" x="180" y="124">judge supplies one.</text>
+        <rect x="397" y="66" width="225" height="70" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="taX" x="413" y="88">Executable. Run both</text>
+        <text class="taX" x="413" y="106">queries, compare the rows.</text>
+        <rect x="630" y="66" width="225" height="70" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="taX" x="646" y="88">Mixed. The numbers are</text>
+        <text class="taX" x="646" y="106">checkable, the narrative</text>
+        <text class="taX" x="646" y="124">around them is not.</text>
+
+        <rect x="24" y="140" width="132" height="70" rx="9" fill="#1A4D33"/>
+        <text class="taT" x="40" y="164">Headline</text>
+        <text class="taT" x="40" y="182">metric</text>
+        <rect x="164" y="140" width="225" height="70" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="taX" x="180" y="162">Resolution rate - and the</text>
+        <text class="taX" x="180" y="180">definition of resolution</text>
+        <text class="taX" x="180" y="198">is the whole argument.</text>
+        <rect x="397" y="140" width="225" height="70" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="taX" x="413" y="162">Execution accuracy (EX).</text>
+        <text class="taX" x="413" y="180">Exact-string match is</text>
+        <text class="taX" x="413" y="198">deprecated.</text>
+        <rect x="630" y="140" width="225" height="70" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="taX" x="646" y="162">Task pass rate through a</text>
+        <text class="taX" x="646" y="180">cascade: valid, then legal,</text>
+        <text class="taX" x="646" y="198">then faithful.</text>
+
+        <rect x="24" y="214" width="132" height="70" rx="9" fill="#3D7D5A"/>
+        <text class="taT" x="40" y="238">Realistic</text>
+        <text class="taT" x="40" y="256">good</text>
+        <rect x="164" y="214" width="225" height="70" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="taX" x="180" y="236" fill="#3A2A08">40-70% resolution. A</text>
+        <text class="taX" x="180" y="254" fill="#3A2A08">well-configured RAG bot</text>
+        <text class="taX" x="180" y="272" fill="#3A2A08">sits around 40-65%.</text>
+        <rect x="397" y="214" width="225" height="70" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="taX" x="413" y="236" fill="#3A2A08">80-90% EX ceiling on</text>
+        <text class="taX" x="413" y="254" fill="#3A2A08">clean, well-modelled</text>
+        <text class="taX" x="413" y="272" fill="#3A2A08">schemas.</text>
+        <rect x="630" y="214" width="225" height="70" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="taX" x="646" y="236" fill="#3A2A08">~75% chart pass rate for</text>
+        <text class="taX" x="646" y="254" fill="#3A2A08">a GPT-4-class model on</text>
+        <text class="taX" x="646" y="272" fill="#3A2A08">matplotlib.</text>
+
+        <rect x="24" y="288" width="132" height="70" rx="9" fill="#1A4D33"/>
+        <text class="taT" x="40" y="312">Signature</text>
+        <text class="taT" x="40" y="330">failure</text>
+        <rect x="164" y="288" width="225" height="70" rx="9" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="taX" x="180" y="310" fill="#991B1B">Ungrounded answer: an</text>
+        <text class="taX" x="180" y="328" fill="#991B1B">invented policy stated</text>
+        <text class="taX" x="180" y="346" fill="#991B1B">with total confidence.</text>
+        <rect x="397" y="288" width="225" height="70" rx="9" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="taX" x="413" y="310" fill="#991B1B">Schema linking - 37% of</text>
+        <text class="taX" x="413" y="328" fill="#991B1B">errors on BIRD, up to</text>
+        <text class="taX" x="413" y="346" fill="#991B1B">68% across many DBs.</text>
+        <rect x="630" y="288" width="225" height="70" rx="9" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="taX" x="646" y="310" fill="#991B1B">A legal-looking wrong</text>
+        <text class="taX" x="646" y="328" fill="#991B1B">chart. 21.44% illegal</text>
+        <text class="taX" x="646" y="346" fill="#991B1B">rate even on matplotlib.</text>
+
+        <rect x="24" y="362" width="132" height="70" rx="9" fill="#0E3320"/>
+        <text class="taT" x="40" y="386">Unique</text>
+        <text class="taT" x="40" y="404">gate</text>
+        <rect x="164" y="362" width="225" height="70" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="taX" x="180" y="384">Safety red team. It talks</text>
+        <text class="taX" x="180" y="402">to customers, so somebody</text>
+        <text class="taX" x="180" y="420">will try to break it.</text>
+        <rect x="397" y="362" width="225" height="70" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="taX" x="413" y="384">Read-only rails plus</text>
+        <text class="taX" x="413" y="402">abstention - it must be</text>
+        <text class="taX" x="413" y="420">able to refuse.</text>
+        <rect x="630" y="362" width="225" height="70" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="taX" x="646" y="384">Numeric reproducibility:</text>
+        <text class="taX" x="646" y="402">the same question twice</text>
+        <text class="taX" x="646" y="420">must give the same number.</text>
+
+        <rect x="24" y="452" width="832" height="96" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="taH" x="44" y="478">Read down the columns, not across the rows</text>
+        <text class="taX" x="44" y="500">Nothing in this table transfers. A resolution-rate template applied to a text-to-query bot measures the wrong</text>
+        <text class="taX" x="44" y="518">thing with the wrong grader against the wrong bar - and it will pass, because the bar was set for a different</text>
+        <text class="taX" x="44" y="536">problem. One eval template for the whole company is the most expensive shortcut in this course.</text>
+
+        <rect x="24" y="568" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="taK" x="48" y="580">The bars are honest numbers from published benchmarks, not guarantees. They tell you what to expect</text>
+        <text class="taK" x="48" y="598">before you measure, and what to be suspicious of after. A support bot claiming 99% is defining it wrong.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - five axes, three archetypes, and not one shared answer</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why 40-70% is a good support-bot number and 99% is a definition problem<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Resolution rate has no natural definition, so the number moves enormously with the choice - which makes it the single most gameable figure in this whole course. Intercom publishes theirs, and reading it is instructive precisely because most vendors do not:</p>
+        <ul>
+          <li><strong>Hard resolution</strong> means the customer explicitly confirmed they were helped. <strong>Soft resolution</strong> means the customer left and did not come back within 24 hours.</li>
+          <li>A soft resolution is <strong>reversed</strong> if the customer returns to the same thread. A greeting-only conversation never counts at all.</li>
+          <li>Across their reported base of 7,000+ customers and 40M+ conversations, production resolution runs <strong>38-72%</strong> with an average around <strong>67%</strong>. That average is a secondary claim reaching us through third parties, so treat the range as the more useful figure.</li>
+        </ul>
+        <p>Separately, containment rate - the share of conversations never handed to a human - is commonly cited as 20-40% early, 70-90% at maturity, with a well-configured RAG chatbot around 40-65%. Those figures are Gartner-attributed and also secondary. Both metrics point the same way: <strong>somewhere between four and seven in ten is what a working support bot looks like.</strong> When somebody presents 99%, they have not built a better bot; they have counted greetings, or they have counted "the bot replied" as a resolution.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The analytics column is the other two stacked<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>An analytics bot runs a query and then writes a sentence about the result. The query half has executable ground truth. The sentence half does not. Errors compound across the join: a correct number described wrongly and a wrong number described convincingly both leave the building as an insight.</p>
+        <p>The published cascade for chart generation makes this concrete. In Microsoft's VisEval work, GPT-4 produced invalid code 3.29% of the time with matplotlib and <strong>25.41% with seaborn</strong> - so validity itself depends on which library you asked for. Past validity comes legality: an <strong>illegal rate of 21.44%</strong> even on matplotlib, meaning code that runs cleanly and produces a chart that does not answer the question asked. Overall pass rate landed at <strong>75.27%</strong> for GPT-4, 61.79% for GPT-3.5 and 51.59% for Gemini-Pro, with readability around 3.80 out of 5. A chart that renders is not a chart that is right, and a chart that is right is not an insight that follows.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="ceiling">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the ceiling</span>
+      <h2>Why 80-90% is the honest text-to-query number <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">Of the three archetypes this one has real, machine-checkable ground truth, which should make it the easy case. It is instead the archetype where the loudest accuracy claims are made, because a runnable answer is easy to score and easy to score generously. Three independent pieces of evidence converge on the same ceiling.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 492" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three converging pieces of evidence for the 80 to 90 percent text-to-SQL ceiling: the BIRD human-performance gap, the gold-annotation error audit, and Snowflake's internal claim with its method disclosed.">
+        <style>
+          .ceB { font: 800 20px Inter, sans-serif; fill: #FFFFFF; }
+          .ceH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .ceX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .ceA { font: 400 11px Inter, sans-serif; fill: #3A2A08; }
+          .ceJ { font: 700 13px Inter, sans-serif; fill: #3A2A08; }
+          .ceK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="44" height="86" rx="10" fill="#0E3320"/>
+        <text class="ceB" x="37" y="76">1</text>
+        <rect x="80" y="24" width="776" height="86" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="ceH" x="100" y="48">The benchmark itself says humans are still better</text>
+        <text class="ceX" x="100" y="70">On BIRD, the standard text-to-SQL benchmark, human performance is 92.96% and state of the art sits around</text>
+        <text class="ceX" x="100" y="88">81.95% on the test split. The gap has been the story of the field: the last ten points are the hard ones.</text>
+
+        <rect x="24" y="122" width="44" height="86" rx="10" fill="#1A4D33"/>
+        <text class="ceB" x="37" y="174">2</text>
+        <rect x="80" y="122" width="776" height="86" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="ceH" x="100" y="146">The gold answers themselves are wrong often enough to move rankings</text>
+        <text class="ceX" x="100" y="168">An audit of gold annotations found error rates of 52.8% on BIRD Mini-Dev and 62.8% on Spider 2.0-Snow.</text>
+        <text class="ceX" x="100" y="186">Re-scoring 16 agents on corrected data moved scores by -7 to +31 points and rankings by up to nine places.</text>
+
+        <rect x="24" y="220" width="44" height="86" rx="10" fill="#3D7D5A"/>
+        <text class="ceB" x="37" y="272">3</text>
+        <rect x="80" y="220" width="776" height="86" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="ceH" x="100" y="244">The vendor number that beats the ceiling needed a lot of help to get there</text>
+        <text class="ceX" x="100" y="266">Snowflake reports 90%+ on an internal 150-question set, with a semantic model, agentic retries and lenient</text>
+        <text class="ceX" x="100" y="284">multi-gold scoring. Single-shot GPT-4o scored 51% on the same set. Internal, not independently verified.</text>
+
+        <rect x="24" y="330" width="832" height="96" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="ceJ" x="44" y="356">What the three together actually license you to say</text>
+        <text class="ceA" x="44" y="378">80-90% execution accuracy on a clean, well-modelled schema is a good result. Above it, ask what was added:</text>
+        <text class="ceA" x="44" y="396">a semantic layer, retries, a lenient grader, or an easier set. Below it, on messy enterprise schemas, is normal -</text>
+        <text class="ceA" x="44" y="414">on Spider 2.0's enterprise workflows o1-preview scored 17.0%, against 91.2% on the older Spider 1.0.</text>
+
+        <rect x="24" y="446" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="ceK" x="48" y="458">None of the three is an opinion. Two are published audits and one is a vendor disclosing its own method.</text>
+        <text class="ceK" x="48" y="476">That is the standard to hold any accuracy claim to, including the ones your own team brings you.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three independent lines of evidence, one ceiling</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The Snowflake disclosure is the most useful of the three, and it is the one people skip.</strong> A vendor reporting 90%+ could have stopped at the headline. Instead the method is published: an internal 150-question benchmark, a hand-built semantic model over the schema, agentic retries, and lenient scoring that accepts more than one correct answer. The same blog reports that single-shot GPT-4o managed 51% on that identical set. Read those two numbers together and you learn the thing that matters for your own project - <strong>most of the distance between 51% and 90% was bought with engineering around the model and generosity in the grader, not with the model itself.</strong> That is a genuinely encouraging finding, and it is also the reason you cannot take 90% into your own launch review as an expectation. It is internal and not independently verified; say so when you cite it.</p>
+    </div>
+
+    <div class="callout warn">
+      <strong>Why schema linking is the failure to ask about</strong>
+      When a text-to-query bot is wrong, it is usually not because it wrote bad SQL. It is because it picked the wrong table or the wrong column - 37% of BIRD errors by one analysis, with JOIN errors adding another 36%, and above 60% in large multi-database settings. That failure is invisible in the output: the query runs, returns rows, and the rows are wrong. It is also the failure your data model can fix without touching the model at all, which makes it the cheapest lever available to you as a leader. Session b6 measures it.
+    </div>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="beacon">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the running case</span>
+      <h2>Meet the three Beacon bots <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">Beacon is shipping all three archetypes this quarter, out of one engineering organisation, under one set of standards. Every remaining session in this course returns to these three, and the contrast between them is the spine of the whole thing.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 466" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The three Beacon bots: support bot at tier T3, analyst bot at tier T1 to T2, and insight bot at tier T2, each with archetype, cost of a wrong answer, and its deciding gate.">
+        <style>
+          .bbT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .bbS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .bbL { font: 700 11px Inter, sans-serif; fill: #1A4D33; }
+          .bbX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .bbH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .bbK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="260" height="52" rx="10" fill="#0E3320"/>
+        <text class="bbT" x="40" y="46">Beacon Support Bot</text>
+        <text class="bbS" x="40" y="64">customer-facing · tier T3</text>
+        <rect x="24" y="80" width="260" height="222" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="bbL" x="40" y="104">Archetype</text>
+        <text class="bbX" x="40" y="122">Chatbot. No ground truth -</text>
+        <text class="bbX" x="40" y="140">correctness is an opinion.</text>
+        <text class="bbL" x="40" y="168">A wrong answer</text>
+        <text class="bbX" x="40" y="186">It issues a refund credit</text>
+        <text class="bbX" x="40" y="204">that cannot be undone.</text>
+        <text class="bbL" x="40" y="232">The gate that decides it</text>
+        <text class="bbX" x="40" y="250">Groundedness and a safety</text>
+        <text class="bbX" x="40" y="268">red team at a T3 bar, with</text>
+        <text class="bbX" x="40" y="286">human approval on refunds.</text>
+
+        <rect x="308" y="24" width="260" height="52" rx="10" fill="#1A4D33"/>
+        <text class="bbT" x="324" y="46">Beacon Analyst Bot</text>
+        <text class="bbS" x="324" y="64">internal · tier T1-T2</text>
+        <rect x="308" y="80" width="260" height="222" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="bbL" x="324" y="104">Archetype</text>
+        <text class="bbX" x="324" y="122">Text-to-query. Executable</text>
+        <text class="bbX" x="324" y="140">ground truth - run the SQL.</text>
+        <text class="bbL" x="324" y="168">A wrong answer</text>
+        <text class="bbX" x="324" y="186">A plausible number in a</text>
+        <text class="bbX" x="324" y="204">board deck, unnoticed.</text>
+        <text class="bbL" x="324" y="232">The gate that decides it</text>
+        <text class="bbX" x="324" y="250">Execution accuracy on a</text>
+        <text class="bbX" x="324" y="268">held-out set, read-only</text>
+        <text class="bbX" x="324" y="286">rails, and abstention.</text>
+
+        <rect x="592" y="24" width="260" height="52" rx="10" fill="#3D7D5A"/>
+        <text class="bbT" x="608" y="46">Beacon Insight Bot</text>
+        <text class="bbS" x="608" y="64" fill="#EDF6F0">exec-facing · tier T2</text>
+        <rect x="592" y="80" width="260" height="222" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="bbL" x="608" y="104">Archetype</text>
+        <text class="bbX" x="608" y="122">Analytics. Executable inner</text>
+        <text class="bbX" x="608" y="140">stage, judged narrative.</text>
+        <text class="bbL" x="608" y="168">A wrong answer</text>
+        <text class="bbX" x="608" y="186">A confident insight that</text>
+        <text class="bbX" x="608" y="204">the data does not support.</text>
+        <text class="bbL" x="608" y="232">The gate that decides it</text>
+        <text class="bbX" x="608" y="250">Validity, then legality,</text>
+        <text class="bbX" x="608" y="268">then faithfulness - plus</text>
+        <text class="bbX" x="608" y="286">numeric reproducibility.</text>
+
+        <rect x="24" y="322" width="832" height="78" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="bbH" x="44" y="348">Same company, same discipline, three different gates</text>
+        <text class="bbX" x="44" y="370">One eval team, one set of standards, and three completely different definitions of ready. The support bot has</text>
+        <text class="bbX" x="44" y="388">the lowest honest accuracy of the three and the highest bar, because it is the only one that can move money.</text>
+
+        <rect x="24" y="420" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="bbK" x="48" y="432">If your company has one launch checklist for all bots, it fits exactly one of them and is blind to</text>
+        <text class="bbK" x="48" y="450">the rest. Sessions a3 to a5 build the version that flexes by archetype and by risk tier.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three bots, one quarter, three definitions of ready</figcaption>
+    </figure>
+
+    <div class="callout tip">
+      <strong>The counter-intuitive line to remember</strong>
+      Beacon's support bot will report the lowest number of the three and carry the highest bar. That is not a contradiction - accuracy and stakes are set by different things. Accuracy is set by whether ground truth exists; the bar is set by what happens when the answer is wrong. Any framework that ties them together will either over-gate the analyst bot or under-gate the support bot, and in practice it does both at once.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Decision 1 of 2</span>
+      <h2>Classify your own portfolio <span class="tag demo">★ 8 min · everyone writes</span></h2>
+    </div>
+    <p class="lede">List every bot, assistant or agent live or planned in your organisation. Then run each one down the five axes. The exercise takes eight minutes and usually produces two surprises.</p>
+
+    <div class="steps">
+      <div class="step"><p><strong>Assign an archetype to each</strong> using only the ground-truth question: can a machine tell whether the answer was right without asking a person? Yes means text-to-query. No means chatbot. Partly means analytics, and partly is more common than people expect.</p></div>
+      <div class="step"><p><strong>Write down the headline metric each one currently reports.</strong> Then check it against the second row of the table. A support bot reporting execution accuracy, or a query bot reporting a judge score, has borrowed the wrong template - and that borrowing is almost always invisible until you write the two side by side.</p></div>
+      <div class="step"><p><strong>Write down what each one currently claims as its accuracy.</strong> Compare against row three. Anything meaningfully above the realistic band is a definition question, not an achievement, and you now know exactly which definition to ask about.</p></div>
+      <div class="step"><p><strong>Circle the unique gate each one is missing.</strong> Most organisations run one gate - usually a quality number - across the whole portfolio. The safety red team, the read-only rail and the reproducibility check tend to be missing entirely, because they belong to only one column each.</p></div>
+      <div class="step"><p><strong>Find the mismatch.</strong> Two surprises show up reliably: a bot everyone calls a chatbot that is really a text-to-query bot with a chat window on it, and a bot everyone calls an analytics tool that is generating narrative nobody is grading. Name both out loud.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <strong>The hybrid nobody classifies</strong>
+      A support bot that can look up your order status is two archetypes in one conversation: a chatbot wrapped around a query. The retrieval half has executable ground truth and should be graded there; the conversational half does not and cannot. Teams grade the whole thing with a judge because the outside is a chat window - and throw away the cheapest, most truthful signal they have. Ask where the executable half of your chatbot is.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Decision 2 of 2</span>
+      <h2>The 96% in the room <span class="tag demo">★ 7 min · everyone discusses</span></h2>
+    </div>
+    <p class="lede">A vendor presents a text-to-query product at 96% accuracy. Your own team's internal prototype is at 74% and everybody in the room has just become quiet. Work out, in pairs, what you would ask - then compare against the list below.</p>
+
+    <div class="prompt-box good">
+      <span class="label">★ The four questions, in the order that saves the most time</span>
+      <p><strong>1 · On whose data?</strong> A published leaderboard number, an internal set, or your schema? Enterprise workflows crater results: 17.0% on Spider 2.0 against 91.2% on the older, cleaner Spider 1.0, from the same class of model.</p>
+      <p><strong>2 · Who wrote the correct answers, and were they audited?</strong> Gold-annotation error rates of 52.8% and 62.8% have been measured on two widely used splits, and correcting them shifted rankings by up to nine positions. A number scored against unaudited gold answers is a number with a wide unlabelled error bar.</p>
+      <p><strong>3 · What was added around the model?</strong> A semantic layer, retries, multi-gold lenient scoring - all legitimate engineering, and all of it yours to build and maintain. Single-shot with none of it can be half the headline figure.</p>
+      <p><strong>4 · What does it do when it does not know?</strong> A model with no abstention path can score worse than useless once you penalise confident wrong answers, which is exactly what a reliability-scored benchmark does. Ask to see a question it refuses.</p>
+    </div>
+
+    <div class="callout tip">
+      <strong>What you are actually deciding</strong>
+      Not whether 96% is true - it may well be, on the set it was measured on. You are deciding whether that measurement transfers to your schema, your questions and your grader. The honest answer is usually "some of it does", and the four questions tell you which part. The version of this conversation that goes badly is the one where nobody asks, the number is believed, and the gap is discovered in production by an analyst who trusted a plausible-looking figure.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 40-50 min total</span></h2>
+    </div>
+    <ul>
+      <li>Finish the portfolio classification for every bot in your organisation, including the ones in other teams. Send the table round. The value is less in the classification than in the argument it starts about which metric each one should be reporting.</li>
+      <li>For your customer-facing bot, get the written definition of resolution or containment in your own words from whoever owns the number. If nobody can produce one, you have found your first real finding of this course, and it is a bigger one than any accuracy figure.</li>
+      <li>For your text-to-query bot, ask which questions in the eval set were written by the same person who built the schema. Then ask what happens when a question needs a JOIN across two domains nobody owns.</li>
+      <li>Take one accuracy claim you currently believe - vendor or internal - and run the four questions from Decision 2 against it. Write down which of the four you cannot answer. That list is what you take into session a3, which is entirely about reading eval reports.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every figure on this page traces to a primary source catalogued in this course's source map, and secondary or internal claims are labelled as such on the page rather than only here. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Chatbot reality band: Fin production resolution 38-72% across 7,000+ customers and 40M+ conversations, ~67% average; containment 20-40% early, 70-90% mature, 40-65% for a well-configured RAG bot</span><span class="note">Part 1 · the 67% average and the containment figures are secondary and are marked so on the page; the resolution definition itself is vendor-published</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Text-to-query ceiling: BIRD human performance 92.96% vs SOTA ~81.95%; Spider 2.0 enterprise workflows at 17.0% vs 91.2% on Spider 1.0</span><span class="note">Part 1 and Part 2 · execution accuracy as the metric, exact-set-match deprecated</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Gold-annotation audit: 52.8% error rate on BIRD Mini-Dev, 62.8% on Spider 2.0-Snow; re-scoring 16 agents moved results -7 to +31 points and rankings by up to nine positions</span><span class="note">Part 2 evidence 2 · the reason a leaderboard number carries an unlabelled error bar</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Snowflake Cortex Analyst 90%+ on an internal 150-question set with semantic model, agentic retries and lenient multi-gold scoring; single-shot GPT-4o 51% on the same set</span><span class="note">Part 2 evidence 3 · internal and not independently verified, stated as such on the page</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Schema linking as the dominant failure: 37% of BIRD errors plus 36% JOIN errors; above 60% in large multi-database settings</span><span class="note">Part 2 callout · measured in b6</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">VisEval cascade: GPT-4 invalid code 3.29% matplotlib vs 25.41% seaborn, illegal rate 21.44%, overall pass 75.27% (GPT-3.5 61.79%, Gemini-Pro 51.59%), readability 3.80/5</span><span class="note">Part 1 self-study and the contrast table · full cascade in b7</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Abstention and reliability scoring, where a model without a refusal path can score negative</span><span class="note">Named in Decision 2 · measured in b6</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Risk tiers T1-T4 and the launch bar attached to each</span><span class="note">Used loosely on the Beacon cards · defined properly in a5</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · A team reports 99% resolution on your customer support bot. What have you most likely been shown?</p>
+      <button class="qopt" type="button">A · An unusually strong bot, worth studying so the method can be copied</button>
+      <button class="qopt" type="button">B · A model upgrade that has pushed past the normal industry range</button>
+      <button class="qopt" type="button">C · A definition problem - production resolution runs roughly 38-72% for a mature product, so 99% almost certainly counts greetings, or counts "the bot replied" as resolved</button>
+      <p class="qwhy">Resolution has no natural definition, which makes it the most gameable number in the course. Intercom's published rules are worth borrowing precisely because they are strict: hard resolution needs explicit confirmation, soft resolution needs the customer to stay away for 24 hours, a soft resolution is reversed if they come back, and greeting-only conversations never count. Under rules like those, production runs 38-72%. Ask for the definition before you argue about the number.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · Why is 80-90% treated as the honest ceiling for text-to-query accuracy rather than a target to be beaten?</p>
+      <button class="qopt" type="button">A · Three independent lines converge on it: reported human performance on BIRD is 92.96% against ~81.95% SOTA, an audit found 52.8% and 62.8% gold-annotation error rates that shift rankings by up to nine places, and the one vendor claiming 90%+ discloses it needed a semantic model, retries and lenient scoring to get there from a single-shot 51%</button>
+      <button class="qopt" type="button">B · Because SQL generation is fundamentally unsolvable above 90%</button>
+      <button class="qopt" type="button">C · Because execution accuracy is a stricter metric than exact-string matching</button>
+      <p class="qwhy">The ceiling is empirical, not theoretical. Each of the three pieces would be arguable alone; together they say the same thing from a benchmark's own human baseline, from an independent audit of the answer key, and from a vendor's own account of its method. Note what the third one actually shows: most of the distance from 51% to 90% was bought with engineering around the model and generosity in the grader, and both of those are things you would have to build and maintain yourself.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · Your organisation has one eval checklist used for all three bots. What goes wrong?</p>
+      <button class="qopt" type="button">A · Nothing serious - a shared checklist is a reasonable simplification that saves review time</button>
+      <button class="qopt" type="button">B · It was written for one archetype, so it measures the wrong thing with the wrong grader against the wrong bar for the other two - and they pass, because the bar was set for a different problem</button>
+      <button class="qopt" type="button">C · It will be too strict for all three bots and block every launch</button>
+      <p class="qwhy">The dangerous outcome is not a false alarm, it is a silent pass. Every axis differs: ground truth exists for one and not the others, the headline metric is different, the honest band for good is different, the signature failure is different, and each has a unique gate the others do not need. A checklist built around resolution rate will never ask a text-to-query bot whether it can refuse, and will never ask an analytics bot whether the same question twice gives the same number.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 2 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The one sorting question</b><span>Can a machine tell whether the answer was right without asking a person? No = chatbot. Yes = text-to-query. Partly = analytics.</span></div>
+      <div class="cheat-item"><b>Five axes, no overlap</b><span>Ground truth · headline metric · realistic good · signature failure · unique gate. Read down the columns, never across.</span></div>
+      <div class="cheat-item"><b>40-70% is a working support bot</b><span>Production resolution runs 38-72%, average around 67% (secondary). A 99% claim is a definition, not an achievement.</span></div>
+      <div class="cheat-item"><b>80-90% is the query ceiling</b><span>BIRD human 92.96% vs SOTA ~81.95%; audits found 52.8% and 62.8% bad gold answers; the 90%+ vendor claim is internal and heavily assisted.</span></div>
+      <div class="cheat-item"><b>~75% is a good chart bot</b><span>GPT-4-class pass rate 75.27% on VisEval, with a 21.44% illegal rate even on matplotlib. A chart that renders is not a chart that is right.</span></div>
+      <div class="cheat-item"><b>Accuracy and stakes are set separately</b><span>Ground truth sets how accurate you can be. Blast radius sets how accurate you must be. Beacon's support bot is lowest on one and highest on the other.</span></div>
+      <div class="cheat-item"><b>Schema linking is the cheap lever</b><span>37% of BIRD errors, above 60% across many databases. Fixed by the data model, not the model - and it is your call, not the vendor's.</span></div>
+      <div class="cheat-item"><b>The four questions for any claim</b><span>On whose data · who wrote the gold answers · what was added around the model · what does it do when it does not know.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 2 of 6 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="a3-reading-eval-reports.html">Next: How to read an eval report →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

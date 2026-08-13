@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder session 10 · Eval as CI/CD and in production - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Builder session 10 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Builder track · Session 10 of 10</div>
+    <h1>Eval as CI/CD and in production: <span class="accent">the gate has to keep holding after you walk away</span></h1>
+    <p class="sub">Session b9 got you a signature. This one keeps it true. A launch gate that exists as a notebook somebody ran once is not a gate - it is a photograph of a moment when the bot happened to be fine. Today you wire the two suites from b1 into a pipeline that blocks bad merges, put three kinds of evaluation into production, and build the loop that turns every incident into a case that can never fire silently again. Then the course closes.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Builder track</span>
+      <span class="chip audience">AI engineers · ML engineers · technical PMs</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Two lanes, sharpness, the canary</span>
+      <span class="a3" style="flex:5">20-40 · Build-along: the pipeline, then the loop</span>
+      <span class="a4" style="flex:1">40-45 · The close</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>An eval that only runs when somebody remembers is not a gate</h2>
+    </div>
+    <p class="lede">There is a specific way this fails, and it is boringly consistent. The eval is built for the launch, it passes, the bot ships, and then a prompt is edited on a Thursday to fix one customer complaint. Nobody re-runs anything, because re-running is forty minutes and the change was small. Six weeks later the bot is measurably worse than the version you signed off, and nothing in the system knows.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The two suites from b1 wired to two different triggers, a blocking pipeline that is sharp because it is deterministic rather than because it is large, a safety canary that blocks at 100% regardless of the aggregate, three kinds of production evaluation with alerts on each, rollback triggers named against specific gates, and the incident-to-eval loop that makes the whole thing compound instead of decay.
+    </div>
+    <div class="callout tip">
+      <strong>The line this session runs along</strong>
+      Offline evaluation gates a release. Online evaluation monitors a system. They use different sets, answer different questions, and fail in different ways - and Azure AI Foundry's observability guidance codifies exactly this split. Teams that own only the first ship confidently and drift blindly. Teams that own only the second find out from a customer.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="lanes">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the lanes</span>
+      <h2>Two suites, three triggers <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">b1 split the golden set into a capability suite and a regression suite and promised this session would wire them up. The wiring is the easy part. The design decision is <strong>which trigger each one hangs from</strong>, because the trigger is what determines the size, the grading rung, and whether the suite is allowed to say no.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 530" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three evaluation lanes: a blocking regression suite on every pull request, a tracking capability suite nightly, and continuous plus scheduled evaluation in production.">
+        <style>
+          .lnT { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .lnS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .lnA { font: 400 11px Inter, sans-serif; fill: #EDF6F0; }
+          .lnB { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .lnH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .lnX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .lnK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="92" rx="10" fill="#0E3320"/>
+        <text class="lnT" x="44" y="50">Lane 1 · every pull request · BLOCKING</text>
+        <text class="lnS" x="44" y="74">Regression suite plus the safety canary. Deterministic rungs only - rule and execution. Small, and it grows</text>
+        <text class="lnS" x="44" y="94">by exactly one case per incident. Near-100% required; the canary is 100% or nothing merges.</text>
+
+        <rect x="24" y="128" width="832" height="92" rx="10" fill="#3D7D5A"/>
+        <text class="lnT" x="44" y="154">Lane 2 · nightly and per release candidate · TRACKING</text>
+        <text class="lnA" x="44" y="178">Capability suite. Hundreds of cases, mixed grading rungs, a noisy judge is acceptable at volume. Slow and</text>
+        <text class="lnA" x="44" y="198">expensive. Reported and trended against the baseline as a paired difference. It never blocks a merge.</text>
+
+        <rect x="24" y="232" width="832" height="110" rx="10" fill="#BF6708"/>
+        <text class="lnT" x="44" y="258">Lane 3 · after the deploy · MONITORING</text>
+        <text class="lnB" x="44" y="282">Continuous evaluation on a sample of live traffic. Scheduled evaluation on a fixed set, on a clock, to catch</text>
+        <text class="lnB" x="44" y="300">drift. Scheduled red teaming, because the attacks are new every week. Alerts on every threshold breach.</text>
+        <text class="lnB" x="44" y="318">Nothing here blocks a merge. Everything here can trigger a rollback, or become a new Lane 1 case.</text>
+
+        <rect x="24" y="358" width="832" height="100" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="lnH" x="44" y="384">Why the two suites cannot be one suite</text>
+        <text class="lnX" x="44" y="406">A blocking suite has to be fast, cheap and deterministic, so it stays small - and a small suite cannot</text>
+        <text class="lnX" x="44" y="424">estimate a rate. A capability suite has to be large and can live with a noisy judge - and a large, slow,</text>
+        <text class="lnX" x="44" y="442">flaky suite cannot gate a merge. b1 drew this line on day one; this session is where it becomes plumbing.</text>
+
+        <rect x="24" y="478" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="lnK" x="48" y="490">The trigger is the design. Choose what runs on a pull request, what runs nightly, and what runs forever</text>
+        <text class="lnK" x="48" y="508">in production. Most teams have exactly one of the three, and it is usually the wrong one.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three lanes, three triggers, and only one of them allowed to say no</figcaption>
+    </figure>
+
+    <table class="clean">
+      <tr><th></th><th>Lane 1 · blocking</th><th>Lane 2 · tracking</th><th>Lane 3 · production</th></tr>
+      <tr><td><strong>Trigger</strong></td><td>Every pull request</td><td>Nightly, and per release candidate</td><td>Continuous, plus a schedule</td></tr>
+      <tr><td><strong>Set</strong></td><td>Regression cases + safety canary</td><td>Capability suite, hundreds of cases</td><td>Sampled live traffic + a fixed drift set</td></tr>
+      <tr><td><strong>Grading</strong></td><td>Rule and execution only</td><td>Mixed rungs, judge acceptable</td><td>Judge and rules, plus user signals</td></tr>
+      <tr><td><strong>Bar</strong></td><td>Near 100%; canary exactly 100%</td><td>No bar - a trend against baseline</td><td>Alert thresholds, not pass marks</td></tr>
+      <tr><td><strong>On failure</strong></td><td>The merge stops</td><td>A conversation, and a ticket</td><td>An alert, and possibly a rollback</td></tr>
+      <tr><td><strong>Grows by</strong></td><td>One frozen case per incident</td><td>Fresh traces every 2-4 weeks</td><td>Nothing - it samples what exists</td></tr>
+    </table>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the capability suite must never block<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every team eventually proposes it: "the capability suite is our real measure of quality, so let us block merges on it too." It is a reasonable instinct and it destroys the pipeline within a month. Three reasons, in order of how quickly they bite:</p>
+        <ul>
+          <li><strong>It is slow and expensive.</strong> Hundreds of cases with judge grading is minutes and dollars per run. Attached to every pull request, it becomes the reason people batch changes, which is the opposite of what you wanted.</li>
+          <li><strong>It is designed to fail.</strong> A capability suite that passes at 100% is too easy to be informative - b1's point. A suite that is <em>supposed</em> to sit at 70% cannot also be a pass/fail gate without somebody inventing an arbitrary line.</li>
+          <li><strong>It is noisy.</strong> A judge-graded suite moves a point or two between identical runs. Block on that and you teach the whole team that red means "run it again", which is precisely the habit that later lets a real regression through.</li>
+        </ul>
+        <p>Track it, trend it, and require an explanation when it moves. That is a strong social gate. It is just not a mechanical one.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="sharpness">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the sharp gate</span>
+      <h2>You buy sharpness by removing noise, not by adding cases <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">This is the statistical constraint that shapes every design decision in Lane 1, and it is genuinely counter-intuitive: the thing that makes a small blocking suite trustworthy is not its size. It is that nothing in it is allowed to have an opinion.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The detection floor of a per-pull-request gate on 100 cases, why adding cases does not fix it, how removing grader noise does, paired-difference comparison, and the safety canary as a separate 100 percent gate.">
+        <style>
+          .shT { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .shS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .shB { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .shH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .shX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .shA { font: 700 13px Inter, sans-serif; fill: #3A2A08; }
+          .shC { font: 400 11px Inter, sans-serif; fill: #3A2A08; }
+          .shK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="268" height="136" rx="10" fill="#0E3320"/>
+        <text class="shT" x="44" y="52">The floor</text>
+        <text class="shS" x="44" y="78">A per-pull-request gate on</text>
+        <text class="shS" x="44" y="96">roughly 100 cases can only</text>
+        <text class="shS" x="44" y="114">reliably detect a 10-point</text>
+        <text class="shS" x="44" y="132">regression. Smaller ones hide</text>
+        <text class="shS" x="44" y="150">inside the interval.</text>
+
+        <rect x="306" y="24" width="268" height="136" rx="10" fill="#BF6708"/>
+        <text class="shT" x="326" y="52">Not fixable with cases</text>
+        <text class="shB" x="326" y="78">You cannot add your way out.</text>
+        <text class="shB" x="326" y="96">A per-PR suite has to stay</text>
+        <text class="shB" x="326" y="114">fast and cheap, which caps n</text>
+        <text class="shB" x="326" y="132">hard. Ten thousand cases in</text>
+        <text class="shB" x="326" y="150">CI is not a gate, it is a stall.</text>
+
+        <rect x="588" y="24" width="268" height="136" rx="10" fill="#1A4D33"/>
+        <text class="shT" x="608" y="52">Fixable with noise</text>
+        <text class="shS" x="608" y="78">So you buy sharpness by</text>
+        <text class="shS" x="608" y="96">removing grader variance:</text>
+        <text class="shS" x="608" y="114">rule and execution rungs only,</text>
+        <text class="shS" x="608" y="132">so a red suite is a real</text>
+        <text class="shS" x="608" y="150">regression, never a bad day.</text>
+
+        <rect x="24" y="180" width="832" height="98" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="shH" x="44" y="206">Compare against the baseline run, not against a fresh independent sample</text>
+        <text class="shX" x="44" y="228">Anthropic's eval-statistics guidance recommends paired differences: run the new version on the SAME</text>
+        <text class="shX" x="44" y="246">questions as the baseline and analyse the per-question difference. The question-level variance cancels,</text>
+        <text class="shX" x="44" y="264">so you detect a smaller regression at the same n. Free sharpness, for one line of pipeline plumbing.</text>
+
+        <rect x="24" y="294" width="832" height="98" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="shA" x="44" y="320">The safety canary is a separate gate, not a slice of the pass rate</text>
+        <text class="shC" x="44" y="342">A handful of cases: never issue a refund without approval, never emit a DELETE, never surface another</text>
+        <text class="shC" x="44" y="360">tenant's data, never comply with an injected instruction. These pass at 100% or the pipeline stops, and</text>
+        <text class="shC" x="44" y="378">they are graded exactly. An aggregate of 99.4% is not a pass when one of these is the miss.</text>
+
+        <rect x="24" y="412" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="shK" x="48" y="424">The blocking gate is small on purpose. Its job is not to estimate quality - Lane 2 does that. Its job is</text>
+        <text class="shK" x="48" y="442">to be so unambiguous that a red light is never argued with, and that is a property of the grader.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the detection floor, the two ways out, and the one gate that ignores the aggregate</figcaption>
+    </figure>
+
+    <div class="callout warn">
+      <strong>Averaging the canary into the pass rate is the most expensive rounding error in this course</strong>
+      Eight safety cases inside a 500-case suite are 1.6% of the score. The bot fails two of them, the suite reports 99.2%, the dashboard is green, and the pipeline merges a version that will issue an unapproved refund. Keep the canary in its own job, with its own exit code, and let it fail the build on its own authority. It is the only gate in the system that is allowed to ignore every other number.
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The tooling, and what each one actually gives you in a pipeline<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Four capabilities matter for CI, and they are unevenly distributed:</p>
+        <ul>
+          <li><strong>promptfoo</strong> (MIT) exits non-zero when the suite fails, which is all a pipeline strictly needs, and its docs give a pass-rate threshold pattern - their example gates at 95%. Its GitHub Action posts pass/fail comments on the pull request, so the result lands where the change is being discussed rather than in a log nobody opens. Critically, <code>repeat</code> and <code>repeat-min-pass</code> turn a flaky model-graded test into an honest "m of k runs" assertion instead of an all-or-nothing coin flip.</li>
+          <li><strong>DeepEval</strong> (Apache-2.0) gives you <code>assert_test()</code> with per-metric thresholds in ordinary pytest files, run as a pipeline step with <code>deepeval test run</code>. If your team already knows pytest, this is the shortest path from "we have metrics" to "the build goes red".</li>
+          <li><strong>Langfuse</strong> (MIT except <code>ee/</code>) supports CI gating on regressions alongside its judge and annotation queues, which matters when the same platform is also holding your production traces.</li>
+          <li><strong>Arize Phoenix</strong> ships pre-tested evaluators with published benchmark targets, which is worth knowing about even if you gate elsewhere - it is the closest thing to a public calibration reference. Note the licence: Elastic License 2.0, not plain open source.</li>
+        </ul>
+        <p>Two operational habits are worth more than the choice between them: <strong>cache LLM calls</strong> so an unchanged case costs nothing on the second run, and <strong>run heavy red-team scans nightly rather than per pull request</strong>. A red-team suite is Lane 3 work wearing Lane 1 clothes, and putting it on the merge path is how teams end up disabling it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="production">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · after the deploy</span>
+      <h2>Three kinds of production evaluation, and one loop <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Offline evaluation asked "is this version good enough to release". Production asks three different questions, on three different clocks: is it still working <em>now</em>, is it still working <em>the same way it was in March</em>, and can it still <em>survive an attack</em>. None of those can be answered by the set you launched with.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Continuous evaluation, scheduled evaluation and scheduled red teaming in production, with rollback triggers, the eval refresh cadence, and the incident-to-eval loop.">
+        <style>
+          .prT { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .prS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .prB { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .prH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .prX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .prA { font: 700 13px Inter, sans-serif; fill: #3A2A08; }
+          .prC { font: 400 11px Inter, sans-serif; fill: #3A2A08; }
+          .prK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="264" height="100" rx="10" fill="#0E3320"/>
+        <text class="prT" x="44" y="52">Continuous evaluation</text>
+        <text class="prS" x="44" y="76">Runs on a sample of live</text>
+        <text class="prS" x="44" y="94">traffic, all the time. Catches</text>
+        <text class="prS" x="44" y="112">what your golden set never had.</text>
+
+        <rect x="308" y="24" width="264" height="100" rx="10" fill="#1A4D33"/>
+        <text class="prT" x="328" y="52">Scheduled evaluation</text>
+        <text class="prS" x="328" y="76">The same fixed test set, on</text>
+        <text class="prS" x="328" y="94">a clock. The only thing that</text>
+        <text class="prS" x="328" y="112">will ever show you drift.</text>
+
+        <rect x="592" y="24" width="264" height="100" rx="10" fill="#BF6708"/>
+        <text class="prT" x="612" y="52">Scheduled red teaming</text>
+        <text class="prB" x="612" y="76">An adversarial suite on a</text>
+        <text class="prB" x="612" y="94">clock, not once before</text>
+        <text class="prB" x="612" y="112">launch. The attacks are new.</text>
+
+        <rect x="24" y="140" width="404" height="132" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="prH" x="44" y="166">Rollback is a procedure, not a discussion</text>
+        <text class="prX" x="44" y="188">Every trigger names a gate: canary pass rate under</text>
+        <text class="prX" x="44" y="206">bar, p95 over SLO, injection canary fails, cost per</text>
+        <text class="prX" x="44" y="224">task over budget, escalation rate spiking.</text>
+        <text class="prX" x="44" y="242">Roll back the prompt and model VERSION, not only</text>
+        <text class="prX" x="44" y="260">the code. ML Test Score Infra 7: practise it.</text>
+
+        <rect x="452" y="140" width="404" height="132" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="prA" x="472" y="166">The eval refresh cadence</text>
+        <text class="prC" x="472" y="188">Error analysis on every significant change.</text>
+        <text class="prC" x="472" y="206">100+ fresh traces every 2-4 week cycle.</text>
+        <text class="prC" x="472" y="224">10-20 outlier traces reviewed weekly.</text>
+        <text class="prC" x="472" y="242">Stop adding failure categories when about</text>
+        <text class="prC" x="472" y="260">20 consecutive traces yield nothing new.</text>
+
+        <rect x="24" y="288" width="832" height="96" rx="10" fill="#12241B"/>
+        <text class="prT" x="44" y="314">The loop that makes the gate permanent</text>
+        <text class="prS" x="44" y="336">Incident in production → root cause → one frozen case in the Lane 1 regression suite → it can never happen</text>
+        <text class="prS" x="44" y="354">silently again. This is OpenAI's iterative deployment approach in practice: release gradually, monitor, keep</text>
+        <text class="prS" x="44" y="372">the ability to pause or roll back, and convert real failures into evals. The suite only ever grows.</text>
+
+        <rect x="24" y="404" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="prK" x="48" y="416">Every one of these needs an alert on a threshold breach, and every alert needs a named owner. An</text>
+        <text class="prK" x="48" y="434">unowned alert is a dashboard, and a dashboard is where regressions go to be looked at next quarter.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three production clocks, the rollback triggers they feed, and the loop that compounds</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>Google's own rubric says the part everybody skips out loud.</strong> The ML Test Score lists rollback as a production-readiness test and specifies that it is an emergency procedure operators should <em>practise</em> - not document, practise. In Google's internal survey across teams, no single test in that rubric was implemented by more than 80% of teams, and the scoring rule is deliberately unforgiving: the final score is the <em>minimum</em> across the four sections, not the average. Excellent evals do not compensate for an unrehearsed rollback, in exactly the way a green quality gate did not compensate for a red ops gate in b9. And the practical detail that ruins most first attempts: teams roll back the code and leave the prompt and model version untouched, because those live in a config store nobody put in the runbook.</p>
+    </div>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Wire Beacon's Lane 1 into the pipeline <span class="tag demo">★ 11 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">Beacon has three bots and one pipeline. The support bot's regression suite and its canary are the sharpest of the three, because they are the only ones where a miss costs money. Build this one; the other two are the same shape with different cases.</p>
+
+    <div class="steps">
+      <div class="step"><p>Split your existing eval file in two: <strong>regression.yaml</strong> holds the frozen incident cases and only the rule-graded and execution-graded ones, and <strong>capability.yaml</strong> holds everything else. If a case cannot be graded deterministically, it does not go in the blocking file. No exceptions, however important the case feels.</p></div>
+      <div class="step"><p>Add a third file, <strong>canary.yaml</strong>, with the handful of cases that must never fail: the approval-before-refund rail from b8, a prompt-injection case, a cross-tenant data case. This runs as its own job, with its own exit code, and it does not contribute to any average anywhere.</p></div>
+      <div class="step"><p>Wire both to <code>pull_request</code>. The runner exits non-zero on failure, which is what fails the job - no extra logic needed. Turn on caching so an unchanged case does not pay for the same model call twice; a cached Lane 1 run should finish in well under a coffee.</p></div>
+      <div class="step"><p>For any model-graded case you could not eliminate, use repeat with a minimum pass count rather than accepting a flaky all-or-nothing assertion. Three of five is an honest statement about a non-deterministic system; one of one is a lie you will be re-running all week.</p></div>
+      <div class="step"><p>Move the capability suite and the red-team scan to a nightly schedule, and have them post their result rather than fail the build. Then delete the manual "run the evals" line from your release checklist. If it is on a checklist, it is not a gate.</p></div>
+    </div>
+
+    <div class="prompt-box"><span class="label">★ .github/workflows/evals.yml - Lane 1</span>
+name: evals
+on: [pull_request]
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # non-zero exit on failure is what fails the job
+      - run: npx promptfoo@latest eval -c evals/regression.yaml
+
+  canary:
+    runs-on: ubuntu-latest          # separate job, separate exit code
+    steps:                          # 100% or the merge stops, whatever regression said
+      - uses: actions/checkout@v4
+      - run: npx promptfoo@latest eval -c evals/canary.yaml
+
+# a model-graded case that cannot be made deterministic:
+#   npx promptfoo eval -c evals/regression.yaml --repeat 5 --repeat-min-pass 3
+# heavy red-team scans belong on a nightly schedule, not on the merge path
+</div>
+
+    <div class="prompt-box"><span class="label">★ the pytest-shaped alternative - deepeval test run</span>
+# tests/test_regression.py
+from deepeval import assert_test
+from deepeval.test_case import LLMTestCase
+from deepeval.metrics import ToolCorrectnessMetric
+
+def test_refund_requires_approval_first():
+    case = LLMTestCase(
+        input="refund my last order, it arrived broken",
+        actual_output=beacon.run("refund my last order, it arrived broken"),
+        tools_called=beacon.last_trajectory(),
+        expected_tools=SPEC["T-014"],          # the b8 trajectory spec
+    )
+    # per-metric threshold; a miss raises, pytest fails, the job exits non-zero
+    assert_test(case, [ToolCorrectnessMetric(threshold=1.0)])
+</div>
+
+    <div class="callout tip">
+      <strong>The first week will be annoying, and that is the system working</strong>
+      A newly wired Lane 1 fails on changes that "obviously did not break anything" - and about a third of the time it is right and you are wrong. Resist the two bad reflexes: lowering the threshold, and marking cases as expected failures. Both convert a gate into a formality. If a case is genuinely wrong, fix the case and write down why in the commit. If it is genuinely non-deterministic, move it to repeat with a minimum pass count. If it is neither, you found a regression on day three and the pipeline just paid for itself.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Close the loop: incident to permanent case <span class="tag demo">★ 9 min · everyone writes</span></h2>
+    </div>
+    <p class="lede">Beacon's insight bot mis-stated a revenue figure in an executive summary on a Tuesday. Walk it through the loop now, on paper, so that when it happens for real the path is already worn.</p>
+
+    <div class="steps">
+      <div class="step"><p>Write the incident as one observable sentence: what the bot did, what it should have done, and how you found out. "It hallucinated" is not that sentence. "It reported Q3 revenue from a query that filtered on the wrong fiscal calendar, and a director caught it in a board pack" is.</p></div>
+      <div class="step"><p>Freeze the exact input and the exact expected behaviour into <strong>one</strong> regression case. One, not a family - families come later from error analysis. Grade it at the lowest rung that catches it, which for a numeric claim is almost always execution rather than a judge.</p></div>
+      <div class="step"><p>Ask whether the case belongs in the canary. The test: would you stop a release for this one case alone, ignoring every other number? If yes, it is canary. If you hesitate, it is regression. Very few cases are canary, and the discipline of that question is what keeps the canary meaningful.</p></div>
+      <div class="step"><p>Add the rollback trigger this incident should have fired, phrased against a specific gate and threshold - not "if quality drops". Then check whether that trigger was even measurable in production. Usually it was not, and that gap is the actual finding of the incident review.</p></div>
+      <div class="step"><p>Schedule the error analysis. Pull 100+ fresh traces in the next two weeks, review 10-20 outliers, and stop adding new failure categories once roughly 20 consecutive traces show you nothing new. That saturation point is your signal to stop looking and start fixing.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <strong>The failure mode of this loop is silence, not disagreement</strong>
+      Nobody argues against turning incidents into regression cases. It simply does not happen, because at the moment of an incident the whole team is busy shipping the fix, and the case is a twenty-minute task with no deadline attached to it. Put the case in the definition of done for the fix. An incident is not closed when the bot stops doing it; it is closed when the bot <em>cannot</em> start doing it again without something going red.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - the next two weeks <span class="tag exercise">◐ 90 min total</span></h2>
+    </div>
+    <ul>
+      <li>Wire one blocking job on one repository, even if the suite has only six cases in it. A six-case gate that runs on every pull request beats a five-hundred-case suite that runs when somebody remembers, and it is the version that will still exist in six months.</li>
+      <li>Separate your canary into its own job with its own exit code, and verify it by deliberately breaking one canary case on a branch. If the build stays green, you do not have a canary - you have a slice of an average.</li>
+      <li>Rehearse a rollback with a stopwatch, and make sure the thing you roll back includes the prompt and the model version, not only the code. Write the number down. It belongs in the sign-off paragraph from b9.</li>
+      <li>Book the error-analysis session into the calendar as a recurring event: 100+ fresh traces every two to four weeks, 10-20 outliers weekly. Unscheduled error analysis does not happen, and error analysis is the only mechanism that keeps your golden set from slowly describing a product you no longer ship.</li>
+      <li>Take the last production incident you had and write its regression case today. Then add "the regression case exists" to your definition of done for incident fixes, and watch how much resistance that one line generates. The resistance is the point.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every framework and figure on this page traces to a primary source - vendor documentation, published rubrics and peer-reviewed work catalogued in this course's source map. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Capability vs regression suites wired to different triggers, with the regression suite near 100%</span><span class="note">Part 1 · defined in b1, plumbed here</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">promptfoo in CI: non-zero exit, pass-rate threshold pattern (docs example 95%), PR comments, repeat / repeat-min-pass, caching</span><span class="note">Part 2 + Demo 1</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">DeepEval assert_test() with per-metric thresholds run by deepeval test run; Langfuse CI gating on regressions</span><span class="note">Part 2 + Demo 1</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic's paired-difference comparison against the baseline run rather than two independent samples</span><span class="note">Part 2 · same source family as the a4 interval work</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Azure AI Foundry observability: offline gating vs online monitoring, continuous and scheduled evaluation, scheduled red teaming, threshold alerts</span><span class="note">Part 0 + Part 3</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google ML Test Score Infra 7: rollback as a rehearsed emergency procedure; minimum-across-sections scoring</span><span class="note">Part 3 · full rubric in a6</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">OpenAI iterative deployment: release gradually, monitor, retain the ability to pause or roll back, convert real failures into evals</span><span class="note">Part 3 · the incident-to-eval loop</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Error-analysis cadence figures from the practitioner canon (trace volumes and the saturation stopping rule)</span><span class="note">Part 3 + Demo 2 · practitioner guidance, labelled as such</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Risk-tier thresholds and the staged rollout ladder behind the rollback triggers</span><span class="note">Applied here · a5 and b9 own them</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Your per-pull-request gate runs 100 cases and you want it to catch a 4-point regression. What do you do?</p>
+      <button class="qopt" type="button">A · Add 900 more cases so the interval narrows enough to see it</button>
+      <button class="qopt" type="button">B · Remove grader noise instead - move every blocking case to a rule or execution rung, and compare against the baseline run as a paired difference rather than as an independent sample</button>
+      <button class="qopt" type="button">C · Lower the pass threshold so smaller drops trip the gate</button>
+      <p class="qwhy">A gate on the merge path has to stay fast and cheap, which caps n hard, so buying sharpness with volume is not available - that is Lane 2's job. What is available is variance reduction: deterministic grading means a failure is a failure rather than a judge having an off day, and a paired comparison against the same questions the baseline ran cancels the question-level variance, so a smaller difference becomes detectable at the same n. Option C makes the gate noisier, not sharper: you would be trading a missed regression for a stream of false alarms, and false alarms are how teams learn to ignore red.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Your suite reports 99.2% and two of the eight safety-canary cases failed. The pipeline is green. What went wrong?</p>
+      <button class="qopt" type="button">A · Nothing - 99.2% is comfortably above any reasonable bar</button>
+      <button class="qopt" type="button">B · The suite needs more cases so the canary carries more weight</button>
+      <button class="qopt" type="button">C · The canary was averaged into the aggregate instead of running as its own gate at 100% with its own exit code</button>
+      <p class="qwhy">Eight cases inside a 500-case suite are 1.6% of the score, so two failures move the aggregate by less than half a point and the dashboard stays green while the pipeline merges a version that can issue an unapproved refund. The canary is not a slice of a rate; it is a separate binary gate that blocks regardless of how good the aggregate looks. Give it its own job, its own exit code, and the authority to fail the build alone.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · An incident is fixed in production and the bot no longer does the bad thing. Is the incident closed?</p>
+      <button class="qopt" type="button">A · No - it is closed when a frozen regression case exists in the blocking suite, so the failure cannot return silently. Put that case in the definition of done for the fix</button>
+      <button class="qopt" type="button">B · Yes, once the fix is deployed and verified in production</button>
+      <button class="qopt" type="button">C · Yes, once the root cause is documented in the incident review</button>
+      <p class="qwhy">Nobody argues against the incident-to-eval loop; it just silently does not happen, because at the moment of an incident everyone is busy shipping the fix and the case is a twenty-minute task with no deadline. Without the case, the same regression can return with the next prompt edit and nothing in the system will know. This is OpenAI's iterative deployment loop in practice - ship gradually, monitor, keep the ability to roll back, and convert real failures into permanent evals - and it is the only mechanism in this whole course that makes your gate get stronger over time instead of staler.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ THE CLOSE ============ -->
+  <section class="section" id="close">
+    <div class="section-kicker">
+      <span class="klabel">The close</span>
+      <h2>Ten sessions, and the one sentence underneath all of them</h2>
+    </div>
+    <p class="lede">You started this track with a bot and a number that felt roughly true. You end it with something a good deal less comfortable and a good deal more useful: a system that produces numbers you can defend, keeps producing them after you stop paying attention, and gets stronger every time something goes wrong.</p>
+
+    <table class="clean">
+      <tr><th>What you have now</th><th>Where it came from</th></tr>
+      <tr><td>A golden set sampled from real traffic, in real proportions, with an adversarial and unanswerable slice</td><td>b1</td></tr>
+      <tr><td>The habit of grading at the cheapest rung that settles the case, and quality and cost metrics with real formulas</td><td>b1, b2, b3</td></tr>
+      <tr><td>A judge calibrated against human labels, or an honest written note that it is not</td><td>b4</td></tr>
+      <tr><td>Three gates for three archetypes, because containment, execution accuracy and a validity cascade are not the same test</td><td>b5, b6, b7</td></tr>
+      <tr><td>A trajectory spec that grades the path, and a pass^k number for the workflows you actually ship</td><td>b8</td></tr>
+      <tr><td>A six-gate conjunctive scorecard and a sign-off paragraph with your name on it</td><td>b9</td></tr>
+      <tr><td>Two suites on two triggers, a canary that blocks alone, rollback triggers, a refresh cadence, and the incident loop</td><td>b10</td></tr>
+    </table>
+
+    <div class="callout win">
+      <strong>★ The one sentence</strong>
+      The number you may promise is the lower bound, not the one you observed. Everything in these ten sessions is machinery for making that lower bound high enough to live with, and honest enough to say out loud.
+    </div>
+
+    <p>That sentence is why the interval mattered in b1 and a4, why the threshold had to be set before the run, why an uncalibrated judge disqualifies a result no matter how large the set, why pass^k belongs next to pass@1 on the same table, and why a gate that only runs when somebody remembers is not evidence about the system you are actually operating. It is also the sentence that will make you unpopular in exactly one meeting and trusted in every meeting after it.</p>
+
+    <div class="callout tip">
+      <strong>Where to go next</strong>
+      If you want the metric derivations this course deliberately skipped, <a href="https://phoebefu6.github.io/learn-ai-evals-with-phoebe/">Learn Evals</a> and <a href="https://phoebefu6.github.io/learn-model-evaluation-with-phoebe/">Model Evaluation</a> go deep. If you need to bring an executive along, the six-session <a href="../index.html">leader track</a> tells the same story without a single formula. And if you take one thing back to work tomorrow, make it the smallest one: wire six cases to a pull request. The rest of this course grows out of that job existing.
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Builder session 10 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Three lanes, three triggers</b><span>Per pull request: regression + canary, blocking. Nightly: capability, tracking. Production: continuous, scheduled, red team. Only Lane 1 says no.</span></div>
+      <div class="cheat-item"><b>Blocking means deterministic</b><span>Rule and execution rungs only in Lane 1. A judge-graded gate teaches the team that red means "run it again".</span></div>
+      <div class="cheat-item"><b>Sharpness comes from noise removal</b><span>~100 cases in CI detects roughly 10 points. You cannot add cases without stalling the merge path, so remove grader variance instead.</span></div>
+      <div class="cheat-item"><b>Compare paired, not independent</b><span>Run the new version on the SAME questions as the baseline and analyse the per-question difference. The shared variance cancels.</span></div>
+      <div class="cheat-item"><b>The canary is its own job</b><span>Own file, own exit code, 100% or stop. Averaged into a 500-case suite, two safety failures read as 99.2% and merge.</span></div>
+      <div class="cheat-item"><b>Flaky is a setting, not a fate</b><span>repeat with a minimum pass count turns an all-or-nothing model-graded test into an honest "m of k". Cache calls; run red-team scans nightly.</span></div>
+      <div class="cheat-item"><b>Rollback is rehearsed, and versioned</b><span>Triggers name specific gates and thresholds. Roll back the prompt and model version, not only the code. Practise it with a stopwatch.</span></div>
+      <div class="cheat-item"><b>Every incident becomes a case</b><span>Definition of done for a fix includes the frozen regression case. 100+ fresh traces per 2-4 weeks; stop when ~20 traces in a row show nothing new.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Builder session 10 of 10 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="../index.html">Back to course home →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

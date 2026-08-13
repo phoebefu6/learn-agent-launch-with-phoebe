@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder session 5 · Gate the chatbot - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Builder session 5 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Builder track · Session 5 of 10</div>
+    <h1>Gate the chatbot: <span class="accent">no ground truth, so the outcome is the metric</span></h1>
+    <p class="sub">A support chatbot has no executable ground truth. Nothing compiles, nothing returns rows, and "correct" stays an opinion until a calibrated judge or a person supplies one. So its gate is built from two families of number at once - judged quality on the answers, outcome metrics on the business. The hardest work of this session is not measuring the outcome. It is writing down what the outcome means, because everyone else in your market has quietly written a different definition.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Builder track</span>
+      <span class="chip audience">AI engineers · ML engineers · technical PMs</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Containment, resolution, multi-turn</span>
+      <span class="a3" style="flex:5">18-40 · Build-along: the board, then the definition</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The first of three archetype gates</h2>
+    </div>
+    <p class="lede">Sessions b5, b6 and b7 gate the same company's three bots, one at a time, with the same discipline and three completely different answers. This is the first, and it is the hardest to measure, because it is the only one of the three where nothing can be run. The Analyst Bot's SQL executes. The Insight Bot's chart renders. A support answer just sits there, fluent and confident, being either true or not.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      A written resolution definition for your own bot with the reversal rule in it, the containment-versus-resolution distinction you can defend to a vendor, the multi-turn slice your single-turn suite has been hiding from you, escalation correctness as a gate rather than a nicety, and the Beacon support-bot board taken to all-green with the minimum lever set written down.
+    </div>
+    <div class="callout tip">
+      <strong>Beacon's support bot is T3, and one capability is why</strong>
+      It can issue refund credits. That single ability makes a wrong action financial and irreversible, which puts it in tier T3: the bar rises to roughly 90%, human approval is required on the action itself, and the kill switch has to be drilled rather than documented. Everything on this page is calibrated to that tier. If your support bot only reads, you are at T1 or T2 and your bar is lower - but read session b9 before you assume so, because "it can only read" is a claim about today's tool list.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="two-families">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · two families of number</span>
+      <h2>Judged quality answers a different question from outcome <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">The mistake that makes chatbot evals useless is picking one family. Quality-only teams ship a bot that is grounded, polite and does not actually get anyone's problem solved. Outcome-only teams ship a bot with a beautiful containment rate that contains people inside a conversation they eventually abandon. You need both, and they fail in opposite directions.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two families of chatbot metric: judged quality metrics about the answer, and outcome metrics about the business. Each family fails in the opposite direction to the other.">
+        <style>
+          .tfT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .tfL { font: 700 11px Inter, sans-serif; fill: #1F2622; }
+          .tfX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .tfH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .tfK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="404" height="228" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <rect x="24" y="24" width="404" height="40" rx="10" fill="#1A4D33"/>
+        <rect x="24" y="52" width="404" height="12" fill="#1A4D33"/>
+        <text class="tfT" x="44" y="50">Quality - what the answer was like</text>
+        <text class="tfL" x="44" y="90">Groundedness</text>
+        <text class="tfX" x="44" y="108">claims trace to the policy page, not to memory</text>
+        <text class="tfL" x="44" y="136">Answer relevancy</text>
+        <text class="tfX" x="44" y="154">it answers the question that was actually asked</text>
+        <text class="tfL" x="44" y="182">Multi-turn coherence</text>
+        <text class="tfX" x="44" y="200">turn 6 still knows what turn 2 established</text>
+        <text class="tfL" x="44" y="228">Tone and refusal quality</text>
+        <text class="tfX" x="44" y="246">a warm no with a next step, not a policy recital</text>
+
+        <rect x="452" y="24" width="404" height="228" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <rect x="452" y="24" width="404" height="40" rx="10" fill="#BF6708"/>
+        <rect x="452" y="52" width="404" height="12" fill="#BF6708"/>
+        <text class="tfT" x="472" y="50">Outcome - what the business got</text>
+        <text class="tfL" x="472" y="90">Containment rate</text>
+        <text class="tfX" x="472" y="108">handled in channel, no human agent touched it</text>
+        <text class="tfL" x="472" y="136">Resolution rate</text>
+        <text class="tfX" x="472" y="154">the problem went away, by a written definition</text>
+        <text class="tfL" x="472" y="182">Escalation correctness</text>
+        <text class="tfX" x="472" y="200">handed off exactly when it should, and only then</text>
+        <text class="tfL" x="472" y="228">Satisfaction proxy</text>
+        <text class="tfX" x="472" y="246">estimated on all traffic, not on the few who reply</text>
+
+        <rect x="24" y="272" width="832" height="98" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tfH" x="44" y="298">Each family hides the other family's failure</text>
+        <text class="tfX" x="44" y="322">Quality without outcome: every answer is grounded and relevant, containment is 22%, and the support queue did</text>
+        <text class="tfX" x="44" y="340">not move. Outcome without quality: containment is 78% because the bot answers everything, including the things</text>
+        <text class="tfX" x="44" y="358">it should have escalated, and the cost lands three weeks later as refunds, complaints and churn.</text>
+
+        <rect x="24" y="386" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="tfK" x="48" y="398">Because nothing here can be executed, every quality metric on the left is a rung-4 judge call.</text>
+        <text class="tfK" x="48" y="416">The calibration number from b4 is therefore a precondition for this gate, not a nice-to-have.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - judged quality on the left, business outcome on the right, and why one alone lies</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Escalation correctness is a gate, not a courtesy<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Most teams treat escalation as the sad path and never grade it. For a T3 bot it is the safety valve, and a safety valve is graded like a safety valve - both directions, separately, because the two failures cost completely different things.</p>
+        <ul>
+          <li><strong>Missed escalation</strong> - the bot should have handed off and did not. It invented a policy, or attempted an action outside its remit. This is the expensive direction, and it is the failure the unanswerable slice of your golden set exists to catch.</li>
+          <li><strong>Over-escalation</strong> - the bot handed off something it could have handled. Cheap per incident, but it is the direction a nervous team over-corrects into, and it destroys containment quietly while every quality metric stays green.</li>
+          <li><strong>Handoff quality</strong> - did the human inherit a usable summary and the conversation so far, or start cold while the customer repeats themselves? This one is gradeable at rung 1: either a summary was attached or it was not.</li>
+        </ul>
+        <p>Grade all three. A single "escalation rate" number averages the expensive failure with the cheap one and hides both.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="containment">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the definition is the artifact</span>
+      <h2>Containment is not resolution, and resolution is whatever you wrote down <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">These two words get used interchangeably in vendor decks and they measure different things. Containment asks whether a human was involved. Resolution asks whether the customer's problem went away. A bot can contain a conversation perfectly and resolve nothing, and the gap between those two numbers is where every uncomfortable support conversation lives.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 486" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Containment versus resolution, and the four rules of a strict resolution definition: hard resolution by explicit confirmation, soft resolution by exit plus 24 hours, greeting-only never counts, and resolution reversed if the customer returns.">
+        <style>
+          .cvT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .cvS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .cvF { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .cvB { font: 700 11px Inter, sans-serif; fill: #FFFFFF; }
+          .cvX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .cvH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .cvA { font: 400 11px Inter, sans-serif; fill: #3A2A08; }
+          .cvK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="404" height="96" rx="10" fill="#1A4D33"/>
+        <text class="cvT" x="44" y="50">Containment</text>
+        <text class="cvS" x="44" y="72">Sessions fully resolved in the channel, with</text>
+        <text class="cvS" x="44" y="90">no human agent involved. A channel measure.</text>
+        <text class="cvS" x="44" y="108">Published ranges are SECONDARY - see the table.</text>
+
+        <rect x="452" y="24" width="404" height="96" rx="10" fill="#BF6708"/>
+        <text class="cvT" x="472" y="50">Resolution</text>
+        <text class="cvF" x="472" y="72">The customer's problem went away, under a</text>
+        <text class="cvF" x="472" y="90">written definition. Stricter, and billable:</text>
+        <text class="cvF" x="472" y="108">Intercom Fin charges $0.99 per resolution.</text>
+
+        <rect x="24" y="144" width="832" height="38" rx="8" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <rect x="40" y="152" width="124" height="22" rx="6" fill="#0E3320"/>
+        <text class="cvB" x="52" y="167">Hard resolution</text>
+        <text class="cvX" x="180" y="167">The customer explicitly confirms the answer solved it. The strongest and rarest signal.</text>
+
+        <rect x="24" y="188" width="832" height="38" rx="8" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <rect x="40" y="196" width="124" height="22" rx="6" fill="#3D7D5A"/>
+        <text class="cvB" x="52" y="211">Soft resolution</text>
+        <text class="cvX" x="180" y="211">The customer exits and does not come back within 24 hours. Inferred, not stated.</text>
+
+        <rect x="24" y="232" width="832" height="38" rx="8" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <rect x="40" y="240" width="124" height="22" rx="6" fill="#66736B"/>
+        <text class="cvB" x="52" y="255">Never counts</text>
+        <text class="cvX" x="180" y="255">A greeting-only exchange. The bot said hello, nothing was resolved, nothing is billed.</text>
+
+        <rect x="24" y="276" width="832" height="38" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <rect x="40" y="284" width="124" height="22" rx="6" fill="#991B1B"/>
+        <text class="cvB" x="52" y="299">Reversed</text>
+        <text class="cvX" x="180" y="299">If the customer returns to the thread, a counted resolution is taken back. Rare and honest.</text>
+
+        <rect x="24" y="336" width="832" height="98" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="cvH" x="44" y="362">A vendor billing per outcome designs the outcome definition</text>
+        <text class="cvA" x="44" y="386">That is not an accusation, it is an incentive structure worth reading carefully. Per-outcome pricing only works if</text>
+        <text class="cvA" x="44" y="404">the outcome is measurable, so the definition gets written with unusual precision - including a reversal rule that</text>
+        <text class="cvA" x="44" y="422">costs the vendor money. Steal the precision. Then check which way each clause moves the number for you.</text>
+
+        <rect x="24" y="450" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="cvK" x="48" y="462">Two teams quoting "68% resolution" can be four points apart or thirty, depending only on whether</text>
+        <text class="cvK" x="48" y="480">soft resolutions count and whether returns reverse them. Read the definition before the number.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two words, four rules, and why the definition arrives before the number</figcaption>
+    </figure>
+
+    <p>The published numbers, with their source status attached. Nothing here is a target for your bot - they are anchors for what a normal range looks like, and every one of them depends on a definition you did not write.</p>
+
+    <table class="clean">
+      <tr><th>Figure</th><th>What it refers to</th><th>Source status</th></tr>
+      <tr><td><strong>20-40%</strong></td><td>Containment at the start of a deployment</td><td>Gartner-attributed · <strong>SECONDARY</strong></td></tr>
+      <tr><td><strong>70-90%</strong></td><td>Containment for a mature deployment</td><td>Gartner-attributed · <strong>SECONDARY</strong></td></tr>
+      <tr><td><strong>40-65%</strong></td><td>Containment for a well-configured RAG chatbot</td><td>Gartner-attributed · <strong>SECONDARY</strong></td></tr>
+      <tr><td><strong>38-72%</strong></td><td>Intercom Fin's reported production resolution range</td><td>Vendor-reported · <strong>SECONDARY</strong></td></tr>
+      <tr><td><strong>~67%</strong></td><td>Fin's reported average across 7,000+ customers and 40M+ conversations</td><td>Vendor-reported · <strong>SECONDARY</strong></td></tr>
+      <tr><td><strong>$0.99</strong></td><td>Price per resolution under that definition</td><td>Vendor documentation</td></tr>
+    </table>
+
+    <div class="callout warn">
+      <strong>The number a room will quote at you</strong>
+      Somebody will say "the market is at 67%, why are we at 44%". The correct response is not a defence of 44%. It is: is that 67% counting soft resolutions? Does it reverse when a customer comes back? Does it exclude greeting-only sessions? Is it measured on all traffic or on the traffic routed to the bot? Four questions, and each one can move a resolution rate by ten points or more in either direction. A comparison across two definitions is not a comparison.
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why resolution is the stricter number, and what that costs you<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Containment is easy to instrument: did a human agent touch this session? One boolean, available from your routing logs today. Resolution needs a judgement about a customer's state of mind, which is why the strict definitions reach for proxies - an explicit confirmation, or an exit followed by silence.</p>
+        <p>The consequence is that <strong>containment is always the larger number</strong>, and a team under pressure will drift toward reporting it. Watch for the drift. A rising containment rate with a flat resolution rate means the bot is getting better at keeping people in the channel and no better at helping them - and the first place that shows up is not your dashboard, it is your repeat-contact rate.</p>
+        <p>The reversal clause is the honest part of the strict definition and the part you should copy first. A resolution that gets taken back when the customer returns is the only version of the metric that cannot be gamed by a confident wrong answer, because a confident wrong answer produces exactly that return.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="multi-turn">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the collapse</span>
+      <h2>What a single-turn eval never sees <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Almost every golden set is a list of questions with a list of expected answers. Almost every real support session is six turns long. The gap between those two facts is the largest measured blind spot in chatbot evaluation, and the numbers are worse than most teams guess.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 412" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The multi-turn collapse: an average 39 percent performance drop from single-turn to multi-turn, frontier models under 50 percent on MultiChallenge with the best at 41.4 percent, and three named multi-turn failure modes.">
+        <style>
+          .mtH { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .mtI { font: 700 11px Inter, sans-serif; fill: #FFFFFF; }
+          .mtX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .mtR { font: 700 12.5px Inter, sans-serif; fill: #991B1B; }
+          .mtW { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+          .mtC { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .mtK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <text class="mtH" x="24" y="40">What a single-turn suite measures</text>
+        <rect x="24" y="52" width="832" height="26" rx="6" fill="#1A4D33"/>
+        <text class="mtI" x="42" y="70">one question, one answer, graded in isolation - the number on your dashboard</text>
+
+        <text class="mtH" x="24" y="110">What the same models do once a conversation is involved</text>
+        <rect x="24" y="122" width="340" height="26" rx="6" fill="#BF6708"/>
+        <text class="mtI" x="42" y="140">an average 39% performance drop</text>
+        <text class="mtX" x="380" y="140">driven by increased unreliability, not by lost aptitude</text>
+
+        <rect x="24" y="172" width="832" height="76" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="mtR" x="44" y="198">MultiChallenge: frontier models score under 50%, with the best at 41.4%</text>
+        <text class="mtW" x="44" y="220">These are the same models your single-turn suite scored in the nineties. Nothing about them got worse. You</text>
+        <text class="mtW" x="44" y="238">simply started asking them to remember, to stay consistent, and to not quietly change their mind.</text>
+
+        <rect x="24" y="272" width="264" height="82" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="mtC" x="42" y="298">Instruction drift</text>
+        <text class="mtX" x="42" y="320">Turn 2 said "in euros". Turn 6</text>
+        <text class="mtX" x="42" y="338">answers in dollars, confidently.</text>
+
+        <rect x="308" y="272" width="264" height="82" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="mtC" x="326" y="298">Self-contradiction</text>
+        <text class="mtX" x="326" y="320">Turn 3 quoted a 30-day window.</text>
+        <text class="mtX" x="326" y="338">Turn 7 says 14, unprompted.</text>
+
+        <rect x="592" y="272" width="264" height="82" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="mtC" x="610" y="298">Re-asking</text>
+        <text class="mtX" x="610" y="320">Asks for the order number the</text>
+        <text class="mtX" x="610" y="338">customer supplied two turns ago.</text>
+
+        <rect x="24" y="368" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="mtK" x="48" y="380">Unreliability, not aptitude, is the mechanism - so the fix is not a bigger model. It is memory,</text>
+        <text class="mtK" x="48" y="398">state and multi-turn cases in the golden set, graded on the whole session rather than a turn.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the drop, the benchmark, and the three shapes it takes in a real session</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>This is why the Beacon golden set puts 20% of its weight on multi-turn cases.</strong> Session b1 set that share deliberately: multi-turn questions that refer back to earlier turns are the second-largest category in the set, ahead of the unanswerable and adversarial slices. It looked like an odd allocation at the time. It is the direct consequence of a measured average 39% drop between single-turn and multi-turn performance - if a fifth of your traffic is conversational and your suite has none of it, your headline number is describing a bot nobody uses.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Grading the session, not the turn<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Once a case is a conversation rather than a question, the unit of grading has to change with it. Three rules that make multi-turn cases workable:</p>
+        <ul>
+          <li><strong>The case passes only if the whole session passes.</strong> A six-turn session where turn 4 contradicts turn 2 is a failed case, even though five turns were individually fine. Averaging turn scores is how the collapse stays invisible.</li>
+          <li><strong>Script the user side.</strong> Fixed customer turns, so the only thing varying between runs is the bot. A conversation driven by an improvising simulated user gives you a different case every run, which is a grader problem wearing a case's clothes.</li>
+          <li><strong>Include one instruction that must survive.</strong> A currency, a timezone, an account, a constraint stated in turn 2 that turn 6 depends on. That single planted fact turns a pleasant chat into a test.</li>
+        </ul>
+        <p>These sessions are expensive to run - six model calls per case rather than one - which is a real argument for keeping the multi-turn slice proportionate rather than dominant, and for grading it nightly instead of per pull request.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Satisfaction proxies, safety and tone, and the latency number<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>The satisfaction proxy.</strong> Human CSAT surveys have two problems for a launch gate: only a small and self-selecting minority of customers ever answer one, and the answers arrive after the launch decision. The working pattern is an AI-estimated satisfaction score computed over <em>all</em> traffic, validated against the survey responses you do have. Treat it exactly like the judge in b4 - it is a rung-4 grader, and it needs the same calibration against a human-labelled slice before it is allowed near a gate.</p>
+        <p><strong>Safety and tone red-teaming.</strong> The adversarial slice in your golden set is a fixed list, and a fixed list is a floor rather than a test. Automated red-teaming is what raises it: Microsoft's PyRIT generates and auto-scores thousands of adversarial prompts, taking the work "in hours instead of weeks". For a T3 customer-facing bot the target is not a score, it is coverage - injection attempts hidden in pasted ticket text, attempts to talk the bot into a refund, and tone failures on customers who are already angry. Every genuine finding becomes a permanent regression case, per b1's split.</p>
+        <p><strong>Latency.</strong> Chat is the one archetype where the p95 latency number is a product requirement rather than an efficiency concern - a customer watching a blank box for two seconds has already formed an opinion. The common interactive target is <strong>p95 time-to-first-token under 500ms</strong>, with 200-500ms considered well-tuned; a looser starting SLO used by teams still tuning is p95 TTFT under 1s with p95 inter-token latency under 50ms. Beacon's board below is set at 800ms, which sits deliberately between the two while the bot is in canary. Percentiles, never averages - session b3 explains why the average is the number that hides your worst conversations.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Take Beacon's support bot to all-green <span class="tag demo">★ 12 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">This is the same board b9 uses to run all three bots, pinned here to the chatbot at tier T3. Work it in the order below rather than switching everything on at once - the order is where the lesson is, and two of the moves make the number worse on purpose.</p>
+
+    <div class="glbox" data-bot="chatbot" data-tier="t3"></div>
+
+    <div class="steps">
+      <div class="step"><p>Touch nothing and press <strong>Ship anyway</strong>. Read the incident list. Every entry is a failure this session has a metric for, and none of them are visible from the pass rate you just shipped on.</p></div>
+      <div class="step"><p>Now switch on the three measurement levers only - <strong>golden set sampled from real traffic</strong>, <strong>adversarial and unanswerable slice</strong>, <strong>judge calibrated vs human labels</strong>. The number falls hard. Nothing about the bot changed; you stopped flattering it and you plugged in the b4 calibration.</p></div>
+      <div class="step"><p>Add <strong>cite-or-abstain grounding</strong> and <strong>retrieval / conversation context</strong>. These are the two biggest categories in a support set - the policy-citation cases and the multi-turn cases from Part 3 - and they move together.</p></div>
+      <div class="step"><p>Add <strong>abstention policy</strong> and <strong>action rails</strong>. Abstention is escalation correctness in lever form; rails are what stops an instruction pasted inside a customer ticket from becoming an action. Notice that <strong>output verification</strong> stays dimmed for this bot, and read why - there is nothing to execute, which is the whole premise of this session.</p></div>
+      <div class="step"><p>Bring the last gates green: <strong>human approval on irreversible actions</strong> (mandatory at T3, because of the refund credit), <strong>latency and cost engineering</strong> to pay for everything you just switched on, and the <strong>regression suite and canary in CI</strong>. Then push n to 500 and watch the confidence figure, not the pass rate.</p></div>
+      <div class="step"><p>Write down your <strong>minimum lever set</strong> - the smallest combination that holds all six gates green. Keep it. In b6 and b7 you will build the same list for the other two bots, and the three lists barely overlap. That difference is the entire argument for gating per archetype instead of running one company-wide eval template.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>Read the honesty rail under the board</strong>
+      The per-category pass rates are a teaching model of a bot with realistic failure modes - they are modelled, not measured. The statistics are not modelled: the confidence figure is a real 95% Wilson interval lower bound, computed live in your browser from the successes and the n shown, and you can check it against the table in session a4.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Write Beacon's resolution definition, then price the clauses <span class="tag demo">★ 10 min · everyone writes</span></h2>
+    </div>
+    <p class="lede">The artifact this session is really about. Six sentences, written before anyone measures anything, and every one of them moves the headline number. Write yours now, on the bot you own, and then find out what each clause costs.</p>
+
+    <div class="prompt-box good"><span class="label">★ Beacon resolution definition v1 - fill in your own and keep it under ten lines</span>A conversation counts as RESOLVED when:
+  hard  - the customer explicitly confirms the answer solved their problem, OR
+  soft  - the customer leaves and does not return to the thread within 24 hours.
+
+It NEVER counts when:
+  - the exchange was greeting-only, or ended before a question was asked
+  - the conversation was handed to a human agent at any point.
+
+It is REVERSED when:
+  - the customer returns to the same thread within 7 days about the same issue.
+
+Reported alongside, never instead of:
+  containment rate, escalation correctness (both directions), satisfaction proxy.</div>
+
+    <div class="steps">
+      <div class="step"><p>Write the <strong>hard</strong> clause first, because it is the only one that is not an inference. If your product has no way for a customer to confirm anything, you have just discovered a product gap that is cheaper to fix than any eval on this page.</p></div>
+      <div class="step"><p>Decide whether <strong>soft</strong> resolutions count, and set the window explicitly. Then run the number both ways on last month's logs. The gap between the two is the size of the argument you will otherwise have in a launch meeting.</p></div>
+      <div class="step"><p>Write the <strong>reversal</strong> clause and set its window. This is the clause that costs you the most and protects you the most - it is the only rule that stops a confident wrong answer from counting as a success, because a confident wrong answer produces exactly the return it detects.</p></div>
+      <div class="step"><p>List what <strong>never counts</strong>. Greeting-only sessions first, then anything a human touched. Both are places where a resolution rate quietly inflates while nobody is being dishonest.</p></div>
+      <div class="step"><p>Now build the multi-turn slice this definition needs: take five real sessions from your logs, script the customer turns verbatim, plant one instruction in turn 2 that turn 5 depends on, and grade each session as a single pass or fail. Five cases is enough to see the Part 3 collapse in your own product.</p></div>
+      <div class="step"><p>Finally, price the clauses. Recompute your resolution rate under strict rules and under loose ones, and put <strong>both numbers</strong> on the launch slide with the definitions underneath. The room will trust the strict number far more than it would have trusted a single unexplained one.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <strong>The definition is written before the measurement, for the same reason the threshold is</strong>
+      Session b1's third part said a threshold decided after the run is not a threshold. A metric definition decided after the run is the same failure wearing different clothes, and it is easier to commit because it feels like methodology rather than goalpost-moving. Every clause above has a defensible version and a flattering version. Choose them now, in writing, while you still have no idea which way they will cut.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 50-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Write your resolution definition and circulate it to support ops before you circulate any number. If the two teams disagree about what resolved means, you have found the reason your dashboards have never agreed with each other.</li>
+      <li>Compute containment and resolution separately on the same month of traffic. If containment is far ahead of resolution, that gap is your actual backlog - the bot is keeping people in the channel without helping them, and no quality metric on your board will say so.</li>
+      <li>Build five multi-turn cases from real sessions, with a planted instruction in turn 2 and a whole-session pass rule. Run them. Nearly every team finds at least one failure the single-turn suite has been passing for months.</li>
+      <li>Grade escalation in both directions for a week. Count missed escalations and over-escalations separately, and put the two counts side by side. Whichever number is larger tells you which way your bot is nervous, and they need opposite fixes.</li>
+      <li>Take one adversarial pattern - an instruction pasted inside customer ticket text - and generate twenty variants of it rather than testing the one you thought of. Every variant that lands becomes a permanent regression case.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every figure on this page traces to a source catalogued in this course's source map, with secondary claims labelled as secondary rather than presented as measurement. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Containment ranges: 20-40% early, 70-90% mature, 40-65% for a well-configured RAG chatbot</span><span class="note">Part 2 table · Gartner-attributed, SECONDARY, labelled as such on the page</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Intercom Fin: 38-72% production range, ~67% average across 7,000+ customers and 40M+ conversations</span><span class="note">Part 2 table · vendor-reported, SECONDARY</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Fin's resolution definition: hard confirmation, soft exit plus 24h, greeting-only excluded, reversed on return, billed $0.99</span><span class="note">Part 2 diagram · the definition is the transferable artifact, not the rate</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">MultiChallenge: frontier models under 50%, best at 41.4%</span><span class="note">Part 3 · the benchmark behind the collapse</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Average 39% performance drop from single-turn to multi-turn, driven by unreliability rather than lost aptitude</span><span class="note">Part 3 · the mechanism decides the fix</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Latency: p95 TTFT under 500ms as the common interactive target, 200-500ms well-tuned, looser starting SLO of 1s plus 50ms inter-token</span><span class="note">Part 3 self-study · percentile discipline in b3</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft PyRIT: thousands of adversarial prompts generated and auto-scored in hours instead of weeks</span><span class="note">Part 3 self-study · findings become regression cases</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Judge calibration against a human-labelled slice, which every quality metric here depends on</span><span class="note">Assumed here · built in b4</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Wilson interval behind the board's confidence figure, and the T1-T4 tier bars</span><span class="note">Used here · derived in a4, tiers set in a5</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · A vendor quotes a 67% resolution rate and asks why yours is 44%. What is the first thing to establish?</p>
+      <button class="qopt" type="button">A · Which model they use, since that is what accounts for a 23-point difference</button>
+      <button class="qopt" type="button">B · Nothing - a vendor average across many customers is the right benchmark for a single deployment</button>
+      <button class="qopt" type="button">C · Their definition: whether soft resolutions count, whether returns reverse a resolution, whether greeting-only sessions are excluded, and whether it is measured on all traffic</button>
+      <p class="qwhy">Resolution is not a standard quantity, it is whatever the definition says. Counting soft resolutions, dropping the reversal clause, or measuring only bot-routed traffic each move the number by a large margin, so two rates computed under different definitions are not comparable at all. The published range for that same vendor spans 38-72% across customers, which tells you the deployment matters as much as the definition - and both of those figures are vendor-reported, secondary claims rather than independent measurement.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · Your single-turn golden set scores 94%. What should you expect from real six-turn sessions, and why?</p>
+      <button class="qopt" type="button">A · Substantially worse - a measured average 39% drop from single-turn to multi-turn, caused by increased unreliability rather than by lost capability, so the fix is memory and state rather than a bigger model</button>
+      <button class="qopt" type="button">B · About the same, since each turn is just another single-turn question</button>
+      <button class="qopt" type="button">C · Better, because the extra turns give the model more context to work with</button>
+      <p class="qwhy">The drop is measured and it is large, and the mechanism matters more than the size: models do not become less capable across turns, they become less reliable - forgetting a constraint stated earlier, contradicting themselves, re-asking for something already supplied. That diagnosis points at conversation memory, state handling and multi-turn cases graded on the whole session. It does not point at a model upgrade, which is the expensive thing teams reach for first.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · Beacon's support bot can issue refund credits. What does that one capability do to this gate?</p>
+      <button class="qopt" type="button">A · Nothing, as long as the refund amounts are capped at a low value</button>
+      <button class="qopt" type="button">B · It makes a wrong action financial and irreversible, which puts the bot at T3 - so the bar rises, human approval on the action itself becomes mandatory, and the kill switch has to be drilled</button>
+      <button class="qopt" type="button">C · It raises the containment rate, since more issues can be closed in channel</button>
+      <p class="qwhy">Tier follows blast radius, and blast radius follows the action space rather than the answer quality. A bot that can move money has an irreversible failure mode, which is what T3 encodes: a higher bar, a person committing the action, and a rehearsed kill switch. It is also the reason session b9 asks the uncomfortable question about whether the refund capability needs to exist at all - removing it drops the tier, the bar and the approval requirement in one move, and it is almost never proposed.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Builder session 5 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>No ground truth, two families</b><span>Judged quality on the answer plus outcome metrics on the business. Either family alone hides the other's failure.</span></div>
+      <div class="cheat-item"><b>Containment is not resolution</b><span>Containment asks whether a human was involved. Resolution asks whether the problem went away. Containment is always the larger number.</span></div>
+      <div class="cheat-item"><b>The definition is the artifact</b><span>Hard vs soft, the reversal clause, what never counts. Write it before you measure, for the same reason you set the threshold first.</span></div>
+      <div class="cheat-item"><b>Reversal is the honest clause</b><span>A resolution taken back when the customer returns is the only version a confident wrong answer cannot game.</span></div>
+      <div class="cheat-item"><b>Read the definition before the number</b><span>A vendor billing per outcome designs the outcome. Steal the precision, then check which way each clause cuts for you.</span></div>
+      <div class="cheat-item"><b>The multi-turn collapse</b><span>Average 39% drop single-turn to multi-turn; frontier models under 50% on MultiChallenge, best 41.4%. Unreliability, not aptitude.</span></div>
+      <div class="cheat-item"><b>Grade the session, not the turn</b><span>Whole-session pass or fail, scripted customer turns, one planted instruction that must survive to the end.</span></div>
+      <div class="cheat-item"><b>Escalation is two metrics</b><span>Missed escalation is the expensive direction, over-escalation is the quiet one. Never average them into one rate.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Builder session 5 of 10 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="b6-gate-the-text-to-sql-bot.html">Next: Gate the text-to-query bot →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/gate-live.js?v=2"></script>
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

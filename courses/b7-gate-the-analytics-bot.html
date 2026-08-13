@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder session 7 · Gate the analytics bot - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Builder session 7 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Builder track · Session 7 of 10</div>
+    <h1>Gate the analytics bot: <span class="accent">a pipeline of gates, because errors compound</span></h1>
+    <p class="sub">The third and hardest archetype, because it is the other two stacked. An executable inner stage where a query runs and a number is computed, then a judged outer stage where a chart is drawn and a takeaway is written. Errors do not average across those stages, they multiply - and the last stage produces a confident English sentence that an executive will read as fact.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Builder track</span>
+      <span class="chip audience">AI engineers · ML engineers · technical PMs</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Compounding, the cascade, the four things you score</span>
+      <span class="a3" style="flex:5">20-40 · Build-along: the Insight Bot's pipeline and gate</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The archetype that inherits both problems</h2>
+    </div>
+    <p class="lede">Beacon's Insight Bot takes a question from an executive, writes a query, computes a figure, draws a chart, and writes a paragraph explaining what it means. Sessions b5 and b6 gated the two halves of that separately. This session gates them together, which is a harder problem than the sum of the two - because a single end-to-end pass rate tells you the pipeline broke without telling you where.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      Per-stage gates instead of one end-to-end number, the validity-legality-readability cascade with the real figures behind it, four things worth scoring that are not accuracy, reproducibility as a metric this archetype uniquely needs, and a gate board on the Insight Bot that only clears with every quality lever on.
+    </div>
+    <div class="callout tip">
+      <strong>The running case: Beacon Insight Bot</strong>
+      Analytics bot for executives. Question in, chart and written takeaway out. It cannot send anything by itself, so tier T2 and a bar of 85%. Its blast radius is a sentence in a board pack that nothing in the data supports - and unlike a wrong SQL result, that sentence arrives already argued for.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="compounding">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · why it is the hard one</span>
+      <h2>Four stages, four graders, and multiplication <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">The instinct is to score the finished answer, because that is what the user sees. The instinct is wrong on this archetype for one arithmetic reason: an end-to-end number is a product of four stage numbers, and a product tells you nothing about its factors.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The analytics pipeline has four stages - query, compute, chart, takeaway - each owned by a different grading rung, and stage accuracies multiply rather than average.">
+        <style>
+          .cpT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .cpS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .cpA { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .cpX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .cpH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .cpK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="196" height="88" rx="10" fill="#0E3320"/>
+        <text class="cpT" x="42" y="48">1 · Query</text>
+        <text class="cpS" x="42" y="68">right rows from the</text>
+        <text class="cpS" x="42" y="86">right tables</text>
+
+        <rect x="236" y="24" width="196" height="88" rx="10" fill="#1A4D33"/>
+        <text class="cpT" x="254" y="48">2 · Compute</text>
+        <text class="cpS" x="254" y="68">right denominator,</text>
+        <text class="cpS" x="254" y="86">right time window</text>
+
+        <rect x="448" y="24" width="196" height="88" rx="10" fill="#3D7D5A"/>
+        <text class="cpT" x="466" y="48">3 · Chart</text>
+        <text class="cpS" x="466" y="68" fill="#EDF6F0">renders, and encodes</text>
+        <text class="cpS" x="466" y="86" fill="#EDF6F0">the right thing</text>
+
+        <rect x="660" y="24" width="196" height="88" rx="10" fill="#BF6708"/>
+        <text class="cpT" x="678" y="48">4 · Takeaway</text>
+        <text class="cpA" x="678" y="68">the sentence follows</text>
+        <text class="cpA" x="678" y="86">from the numbers</text>
+
+        <rect x="24" y="124" width="196" height="64" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="cpX" x="42" y="148">Execution rung:</text>
+        <text class="cpX" x="42" y="166">run it, compare rows</text>
+
+        <rect x="236" y="124" width="196" height="64" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="cpX" x="254" y="148">Rule rung: recompute</text>
+        <text class="cpX" x="254" y="166">it deterministically</text>
+
+        <rect x="448" y="124" width="196" height="64" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="cpX" x="466" y="148">Rule, then judge: it</text>
+        <text class="cpX" x="466" y="166">renders, but legally?</text>
+
+        <rect x="660" y="124" width="196" height="64" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="cpX" x="678" y="148">Judge rung only. No</text>
+        <text class="cpX" x="678" y="166">rule reads a claim.</text>
+
+        <rect x="24" y="210" width="832" height="80" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="cpH" x="44" y="236">Errors compound, they do not average</text>
+        <text class="cpX" x="44" y="258">Four stages at 95% each is 0.95^4 = 81% end to end. Grade the stages separately or you will keep tuning the</text>
+        <text class="cpX" x="44" y="276">wrong one. A pipeline number tells you it broke; a per-stage number tells you where it broke.</text>
+
+        <rect x="24" y="306" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="cpK" x="48" y="318">The first three stages are machine-checkable, so most of this eval belongs on the cheap rungs. Only the</text>
+        <text class="cpK" x="48" y="336">last one needs a judge - and the judge is the biased, expensive rung, so keep its share of the set small.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four stages, four graders, and the multiplication that makes 95% into 81%</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why one end-to-end number is the wrong instrument here<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Suppose Beacon's Insight Bot reports 81% end to end. That single figure is compatible with wildly different products:</p>
+        <ul>
+          <li><strong>95 / 95 / 95 / 95</strong> - a balanced pipeline with no obvious weak spot, where the next improvement is expensive and spread across four teams.</li>
+          <li><strong>99 / 99 / 84 / 99</strong> - a chart-encoding problem and nothing else. One afternoon of work on the chart-spec validator, and the number moves nine points.</li>
+          <li><strong>99 / 99 / 99 / 84</strong> - the narrative stage inventing causes. A rail on the takeaway prompt fixes most of it, and no amount of query tuning touches it.</li>
+        </ul>
+        <p>The end-to-end number is identical in all three cases. This is the whole argument for staged grading: <strong>the aggregate is the thing you report and the per-stage numbers are the thing you act on</strong>. Beacon's team ran the aggregate for two quarters and spent both of them optimising the query stage, because that was the stage they understood.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The one thing this archetype inherits from neither parent<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The text-to-query bot returns rows. The chatbot returns prose. The analytics bot returns rows, a picture <em>and</em> prose, and the failure that matters most is a mismatch <em>between</em> them. The chart shows a 4% dip; the takeaway says "sharp decline driven by pricing". Both halves pass their own stage gate. The pair is a lie.</p>
+        <p>You cannot catch that by grading the chart or by grading the sentence. You catch it by grading the sentence <em>against the numbers actually plotted</em>, which is a groundedness question with the chart data as the source passage. That is exactly the faithfulness metric from b2, pointed at a table instead of a document, and it is the single highest-value judge call on this archetype.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="cascade">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the cascade</span>
+      <h2>Validity, then legality, then readability <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">VisEval's contribution is an ordering, not a score. A chart that does not render cannot be illegal. A chart that encodes the wrong thing does not deserve a readability review. Ask the three questions in order and you stop wasting judge calls on outputs that a rule already disqualified.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The VisEval cascade: validity (does the code run), legality (does it encode the right thing), readability (can a human read it), with GPT-4 invalid-code rates of 3.29 percent on matplotlib versus 25.41 percent on seaborn and an illegal rate of 21.44 percent.">
+        <style>
+          .vsT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .vsS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .vsX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .vsW { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+          .vsK { font: 700 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="20" width="832" height="44" rx="10" fill="#0E3320"/>
+        <text class="vsT" x="44" y="48">Three gates in order. A chart must clear each one before the next is worth asking.</text>
+
+        <rect x="24" y="80" width="200" height="56" rx="10" fill="#0E3320"/>
+        <text class="vsT" x="42" y="102">1 · Validity</text>
+        <text class="vsS" x="42" y="120">does the code run</text>
+        <rect x="232" y="80" width="624" height="56" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="vsX" x="252" y="102">GPT-4 invalid-code rate is 3.29% with matplotlib but 25.41% with seaborn.</text>
+        <text class="vsX" x="252" y="120">Validity is LIBRARY-DEPENDENT. Evaluate in your own chart stack, not theirs.</text>
+
+        <rect x="24" y="148" width="200" height="56" rx="10" fill="#1A4D33"/>
+        <text class="vsT" x="42" y="170">2 · Legality</text>
+        <text class="vsS" x="42" y="188">does it encode right</text>
+        <rect x="232" y="148" width="624" height="56" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="vsW" x="252" y="170">Illegal rate 21.44% even on matplotlib. The chart renders beautifully and</text>
+        <text class="vsW" x="252" y="188">encodes the wrong thing. Dominant failure class, and completely silent.</text>
+
+        <rect x="24" y="216" width="200" height="56" rx="10" fill="#3D7D5A"/>
+        <text class="vsT" x="42" y="238">3 · Readability</text>
+        <text class="vsS" x="42" y="256" fill="#EDF6F0">can a human read it</text>
+        <rect x="232" y="216" width="624" height="56" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="vsX" x="252" y="238">Judged 3.80 out of 5, and only on outputs already valid and legal. This is</text>
+        <text class="vsX" x="252" y="256">a polish score. Never let it stand in for a correctness score.</text>
+
+        <rect x="24" y="288" width="832" height="84" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="vsK" x="44" y="314">The overall numbers, and the two gaps inside them</text>
+        <text class="vsX" x="44" y="336">Overall VisEval pass rate: GPT-4 75.27%, GPT-3.5 61.79%, Gemini-Pro 51.59%. The gap between models is</text>
+        <text class="vsX" x="44" y="354">wide, and the gap between chart libraries inside one model is wide too. Both are yours to control.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three gates in order, and the silent middle one that does the damage</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>Legality is the failure nobody photographs.</strong> Beacon's Insight Bot drew a legal-looking line chart of a categorical breakdown, with the axis unsorted. It rendered. It looked professional. It connected six unordered product categories with a line, implying a trend across things that have no order. The validity gate passed it, the readability judge scored it well because the labels were clean, and it went into a quarterly review. An illegal rate of 21.44% <em>on the safest library</em> is the published figure, and the reason a rule-based spec check belongs between the two.</p>
+    </div>
+
+    <div class="prompt-box good">
+      <span class="label">★ The legality check is a rule, not a judge call</span>
+# the model proposes a spec; a rule decides whether the spec is legal
+spec = {
+  "mark": "line",
+  "encoding": {
+    "x": {"field": "category", "type": "nominal"},
+    "y": {"field": "revenue",  "type": "quantitative"}
+  }
+}
+
+assert spec["mark"] in ALLOWED_MARKS[question_type]     # line over nominal: illegal
+assert spec["encoding"]["x"]["field"] == expected_x     # wrong field: illegal
+assert spec["encoding"]["y"]["field"] == expected_y
+# only what survives this gets sent to the readability judge
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the library gap is the most actionable number on this page<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The same model, the same tasks, the same prompts: <strong>3.29% invalid code with matplotlib, 25.41% with seaborn</strong>. Nearly an eightfold difference in the raw failure rate, produced by a choice your team makes for reasons that have nothing to do with evals - somebody preferred seaborn's defaults.</p>
+        <p>Two consequences. First, <strong>published validity figures do not transfer</strong>: a paper's number is a number about the library that paper used, and if your stack is plotly or ECharts or a Vega-Lite spec you know nothing yet. Second, and more usefully, <strong>the chart library is a lever</strong>. It sits in the same family as switching an LLM judge for a rule: a change that removes failures rather than measuring them, available for the cost of a refactor, and never on anyone's eval roadmap because it does not look like eval work.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="four-things">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · what else you score</span>
+      <h2>Numbers, insights, refusals, and the same answer twice <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">The chart cascade covers one stage. Three more criteria sit around it, and the fourth of them is unique to this archetype: an executive who gets two different numbers for the same question on two different days stops using the bot, whatever your accuracy figure says.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 515" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four things to score beyond the chart cascade: numeric correctness, insight faithfulness, refusal correctness, and reproducibility - plus why temperature zero does not give determinism and how to test for it.">
+        <style>
+          .rpH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .rpW { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .rpR { font: 700 13px Inter, sans-serif; fill: #991B1B; }
+          .rpX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .rpS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .rpA { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .rpE { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+        </style>
+
+        <rect x="24" y="24" width="406" height="124" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="rpH" x="44" y="50">Numeric correctness</text>
+        <text class="rpX" x="44" y="72">DABstep's pattern: 450+ real analysis tasks drawn</text>
+        <text class="rpX" x="44" y="90">from operational workloads, scored as binary</text>
+        <text class="rpX" x="44" y="108">factoids with format-tolerant matching, so "1,240"</text>
+        <text class="rpX" x="44" y="126">and "1240" both pass. The cheapest rung available.</text>
+
+        <rect x="450" y="24" width="406" height="124" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="rpH" x="470" y="50">Insight faithfulness</text>
+        <text class="rpX" x="470" y="72">InsightBench's pattern: 100 end-to-end analytics</text>
+        <text class="rpX" x="470" y="90">cases where the generated insight is judged</text>
+        <text class="rpX" x="470" y="108">against ground-truth insights. This is the rung-4</text>
+        <text class="rpX" x="470" y="126">job - no rule reads whether a takeaway follows.</text>
+
+        <rect x="24" y="164" width="406" height="124" rx="10" fill="#12241B"/>
+        <text class="rpW" x="44" y="190">Refusal correctness</text>
+        <text class="rpS" x="44" y="212">Fabricating a trend from three points is the</text>
+        <text class="rpS" x="44" y="230">analytics version of hallucination. Seed the set</text>
+        <text class="rpS" x="44" y="248">with unanswerable and insufficient-data cases</text>
+        <text class="rpS" x="44" y="266">and score abstain against fabricate, explicitly.</text>
+
+        <rect x="450" y="164" width="406" height="124" rx="10" fill="#BF6708"/>
+        <text class="rpW" x="470" y="190">Reproducibility</text>
+        <text class="rpA" x="470" y="212">Unique to this archetype. Ask twice, get the same</text>
+        <text class="rpA" x="470" y="230">number, or the executive stops trusting the tool.</text>
+        <text class="rpA" x="470" y="248">It is a metric you measure, not a property you</text>
+        <text class="rpA" x="470" y="266">assume - and temperature 0 does not supply it.</text>
+
+        <rect x="24" y="304" width="832" height="104" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="rpR" x="44" y="330">Why temperature 0 is not determinism</text>
+        <text class="rpE" x="44" y="352">GPU floating-point addition is not associative, so batching and mixture-of-experts routing change the order of</text>
+        <text class="rpE" x="44" y="370">operations run to run. OpenAI documents its seed parameter as best-effort; vLLM documents the same caveat.</text>
+        <text class="rpE" x="44" y="388">You cannot fix this in the sampler. You fix it by moving the computation out of the model entirely.</text>
+
+        <rect x="24" y="424" width="832" height="76" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rpH" x="44" y="450">The mitigation, and how to test that it worked</text>
+        <text class="rpX" x="44" y="472">Push every computation into deterministic SQL or pandas and keep the LLM to orchestration and prose. Then test</text>
+        <text class="rpX" x="44" y="490">it: run each case N times and require identical NUMBERS, while allowing the prose to vary. Prose drift is fine.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four criteria, one of which no other archetype needs</figcaption>
+    </figure>
+
+    <table class="clean">
+      <tr><th>Criterion</th><th>Grading rung</th><th>What a miss looks like in production</th></tr>
+      <tr><td><strong>Numeric correctness</strong></td><td>Rule: recompute deterministically, format-tolerant match</td><td>The revenue figure in the deck is off by the wrong denominator at step two</td></tr>
+      <tr><td><strong>Chart validity</strong></td><td>Execution: render the spec, catch the exception</td><td>A broken image in a board pack. Loud, cheap, embarrassing, harmless</td></tr>
+      <tr><td><strong>Chart legality</strong></td><td>Rule on the spec, before any judge sees it</td><td>A line chart through six unordered categories, implying a trend that cannot exist</td></tr>
+      <tr><td><strong>Insight faithfulness</strong></td><td>Judge, calibrated against human labels (b4)</td><td>"Sharp decline driven by pricing" under a chart that shows a 4% dip and says nothing about pricing</td></tr>
+      <tr><td><strong>Refusal correctness</strong></td><td>Rule on the expected behaviour: abstain or answer</td><td>Three data points, an arrow, and the word "trend"</td></tr>
+      <tr><td><strong>Reproducibility</strong></td><td>Rule: N runs, identical numbers required</td><td>Two executives quote two different figures for the same question in the same meeting</td></tr>
+    </table>
+
+    <div class="callout warn">
+      <strong>Readability is not a correctness metric, and it is the one people report</strong>
+      A 3.80 out of 5 readability score is easy to produce, easy to put on a slide, and says nothing about whether the chart encodes the right thing - because it is only ever measured on outputs that already passed validity and legality. If the only chart number in your eval report is a readability score, your report is silent on the dominant failure class of this archetype.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Build the Insight Bot's staged harness <span class="tag demo">★ 12 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">Instrument the pipeline so every stage reports its own number. This is more plumbing than modelling, and it is the work that makes every later decision cheap.</p>
+
+    <div class="steps">
+      <div class="step"><p>Split the run into four recorded artifacts per case: the <strong>query</strong>, the <strong>computed figures</strong>, the <strong>chart spec</strong>, and the <strong>takeaway text</strong>. Store all four, always, including on passes. You cannot grade a stage whose output you threw away, and you will want last month's artifacts the first time a number is disputed.</p></div>
+      <div class="step"><p>Grade stages 1 and 2 with rules. Execution accuracy on the query as in b6, then recompute the figures independently in SQL or pandas and compare with format-tolerant matching, following DABstep's binary-factoid pattern so that "1,240" and "1240" are the same answer.</p></div>
+      <div class="step"><p>Grade stage 3 as a cascade, in this order: render the spec and catch exceptions (<strong>validity</strong>), assert mark and encoded fields against what the question requires (<strong>legality</strong>), and only then send survivors to a judge for <strong>readability</strong>. Measure validity in your own chart library - a published rate of 3.29% belongs to matplotlib, and seaborn's was 25.41%.</p></div>
+      <div class="step"><p>Grade stage 4 with a calibrated judge, using the <em>plotted numbers</em> as the source passage. The question is faithfulness, not fluency: does every claim in the takeaway trace to a figure that is actually on the chart? InsightBench's pattern of judging the generated insight against a ground-truth insight is the reference to copy.</p></div>
+      <div class="step"><p>Add the insufficient-data slice by hand: three-point series, a cohort with n=4, a question about a segment your warehouse does not track. Expected behaviour is a refusal with a stated reason. Score abstain against fabricate, and treat a fabricated trend exactly as you would treat a hallucinated policy in b5.</p></div>
+      <div class="step"><p>Finally, run twenty cases twenty times each and diff the <strong>numbers</strong> across runs. Prose is allowed to vary. Numbers are not. Any case where the figures move is a case where computation is still happening inside the model, and it is a bug you can locate exactly.</p></div>
+    </div>
+
+    <div class="prompt-box good">
+      <span class="label">★ The number is computed here, not generated - and the test that proves it</span>
+# stage 2: deterministic, outside the model
+monthly = (orders
+    .assign(month=orders["placed_at"].dt.to_period("M"))
+    .groupby("month")["amount"]
+    .sum()
+    .round(2))
+
+# the reproducibility test: numbers must be identical, prose may vary
+runs = [answer(question) for _ in range(20)]
+assert len({tuple(r.figures) for r in runs}) == 1
+    </div>
+
+    <div class="callout tip">
+      <strong>Why the seed does not save you</strong>
+      Setting temperature to 0 constrains the sampler, not the arithmetic. GPU floating-point addition is not associative, so batching and mixture-of-experts routing change the order of operations between runs and the logits move. OpenAI documents its seed parameter as best-effort and vLLM documents the same caveat. The only reliable fix is architectural: every number an executive will quote is computed by SQL or pandas, and the model's job is to decide what to compute and how to describe it.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Take the Insight Bot to all green <span class="tag demo">★ 10 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">The compound archetype on the same board. Work it to six green lights and count the levers it took, then compare that count with what the Analyst Bot needed in b6.</p>
+
+    <div class="glbox" data-bot="analytics" data-tier="t2"></div>
+
+    <div class="steps">
+      <div class="step"><p>Switch on the quality levers one at a time and watch which category each one rescues. <strong>Output verification</strong> takes the chart category; <strong>retrieval context</strong> takes the multi-step cohort category; <strong>abstention</strong> takes the three-points-is-not-a-trend category; <strong>grounding</strong> takes the written takeaway; <strong>action rails</strong> take the instruction sitting in a spreadsheet cell.</p></div>
+      <div class="step"><p>Now the point of the exercise: this is the <strong>only bot on the board that needs all five quality levers</strong> to clear its bar. The chatbot did not. The Analyst Bot did not. That is what "the other two stacked" means as a number rather than a phrase - every failure class from both parents is present, so every defence has to be present too.</p></div>
+      <div class="step"><p>With everything on, drop the golden set to <strong>n=100</strong>. It still clears the T2 bar of 85%. Now imagine the same bot at T3, where the bar is 90%: the same evidence misses. Same bot, same run, same number - a different tier gives a different answer, which is why the tier is decided before the run and not after.</p></div>
+      <div class="step"><p>Last, switch <strong>latency and cost engineering</strong> off with every quality lever still on. Performance and cost go red together, and harder here than on either other archetype, because verification on this pipeline means running a query and rendering a chart before you answer.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>Read the honesty rail under the board</strong>
+      The per-category pass rates are a teaching model of a bot with realistic failure modes - chart legality dominates, because that is what the published analysis shows - and they are not a measurement of any real product. The statistics are not a model: the confidence figure is the lower bound of a real 95% Wilson interval, computed live in your browser from the successes and n shown. Change n and check it against the table in Leader session 4.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Take your analytics bot's end-to-end pass rate and decompose it into per-stage rates. If you cannot, that is the finding: you are reporting a product of four numbers and acting as if it were one.</li>
+      <li>Measure your invalid-code rate in the chart library you actually ship. The published spread runs from 3.29% on matplotlib to 25.41% on seaborn for the same model, so a number from a paper tells you nothing about your stack.</li>
+      <li>Write a legality rule for your three most common question types: which marks are allowed, which fields must be encoded on which axis. Run it over last month's generated charts and count how many rendered perfectly while encoding the wrong thing.</li>
+      <li>Add ten insufficient-data cases where the correct answer is a refusal. Score abstain against fabricate. A bot that puts an arrow on three points is doing the analytics version of inventing a refund policy.</li>
+      <li>Run one real question twenty times and diff the numbers. If they move, find which stage is still computing inside the model and move that computation into SQL or pandas. Then re-run the test as proof rather than as hope.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every figure on this page traces to a primary source - peer-reviewed benchmarks and vendor documentation catalogued in this course's source map, dated 2026-08-13. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">VisEval cascade: validity → legality → readability, as an ordering rather than three separate scores</span><span class="note">Part 2 · the ordering is the contribution</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">GPT-4 invalid-code rate 3.29% with matplotlib vs 25.41% with seaborn - validity is library-dependent</span><span class="note">Part 2 · the most actionable number on the page</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Illegal rate 21.44% even on matplotlib: renders fine, encodes the wrong thing</span><span class="note">Part 2 · the dominant and silent failure class</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Overall VisEval pass rates: GPT-4 75.27%, GPT-3.5 61.79%, Gemini-Pro 51.59%; readability 3.80/5 on valid outputs</span><span class="note">Part 2 · readability is a polish score, stated as one</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">DABstep pattern for numeric correctness: 450+ real analysis tasks, binary factoid scoring with format-tolerant matching</span><span class="note">Part 3 + Demo 1 · copied as a pattern, not as a leaderboard</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">InsightBench pattern for insight faithfulness: 100 end-to-end cases judged against ground-truth insights</span><span class="note">Part 3 + Demo 1 · the one genuine judge call here</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Reproducibility: temperature 0 is not determinism (GPU float non-associativity, MoE routing, batching); OpenAI's seed is best-effort and vLLM documents the same</span><span class="note">Part 3 + Demo 1 · mitigation is architectural, then tested</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Judge calibration against 100+ human labels, position swapping, rubric design</span><span class="note">Used on stage 4 here · built properly in b4</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Faithfulness as supported claims over total claims</span><span class="note">Pointed at plotted numbers here · formula in b2</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Wilson interval arithmetic behind the confidence figure in Demo 2</span><span class="note">Used here, derived in a4</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · The same model produces 3.29% invalid chart code with matplotlib and 25.41% with seaborn. What follows for your eval?</p>
+      <button class="qopt" type="button">A · Use matplotlib, since it is measurably the more reliable target</button>
+      <button class="qopt" type="button">B · Nothing much - validity is the cheapest gate and a broken chart is caught immediately anyway</button>
+      <button class="qopt" type="button">C · Validity is library-dependent, so a published rate tells you nothing about your stack and you must measure it in the chart library you actually ship</button>
+      <p class="qwhy">A near eightfold difference in failure rate produced by a library choice means the number is a property of the pair, not of the model. Option A is a reasonable engineering move and the library genuinely is a lever - but it is a fix, not a finding, and it does not excuse you from measuring your own stack. Option B is the trap: validity is indeed cheap to catch, which is exactly why the interesting failure is the next gate down, legality, where the chart renders perfectly and encodes the wrong thing 21.44% of the time.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · Your analytics bot reports 81% end to end. Why is that number the wrong instrument for deciding what to fix?</p>
+      <button class="qopt" type="button">A · Because it is a product of four stage rates, and 95/95/95/95 and 99/99/84/99 both come to roughly 81% while needing completely different work</button>
+      <button class="qopt" type="button">B · Because 81% is below any reasonable launch bar, so the number is moot</button>
+      <button class="qopt" type="button">C · Because end-to-end evaluation cannot be automated for analytics tasks</button>
+      <p class="qwhy">Errors compound across query, compute, chart and takeaway rather than averaging, so the aggregate is a product and a product hides its factors. A balanced pipeline and a single broken chart stage look identical from outside. The aggregate is what you report; the per-stage rates are what you act on. Beacon's team spent two quarters optimising the query stage on the strength of an aggregate, because the query stage was the one they understood.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · You set temperature to 0 and the bot still returns different numbers for the same question. What is going on?</p>
+      <button class="qopt" type="button">A · Temperature 0 was not applied - check the API call</button>
+      <button class="qopt" type="button">B · Temperature 0 constrains the sampler, not the arithmetic: GPU floating-point addition is not associative, and batching and mixture-of-experts routing change the operation order between runs. Seeds are documented as best-effort</button>
+      <button class="qopt" type="button">C · The underlying data changed between runs</button>
+      <p class="qwhy">Determinism is not something the sampler can give you. Floating-point addition on a GPU is not associative, so changes in batching and expert routing shift the logits run to run; OpenAI documents its seed parameter as best-effort and vLLM documents the same caveat. Option C is worth ruling out with a frozen snapshot, but it is not the cause here. The fix is architectural rather than parametric: push every quotable number into deterministic SQL or pandas, keep the model on orchestration and prose, then run each case N times and require identical numbers while letting the prose vary.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Builder session 7 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The other two stacked</b><span>Executable inner stages, judged outer narrative. Every failure class from both parents, so every defence has to be present.</span></div>
+      <div class="cheat-item"><b>Errors compound</b><span>0.95^4 = 81%. Grade query, compute, chart and takeaway separately, or you will keep tuning the stage you understand best.</span></div>
+      <div class="cheat-item"><b>Validity → legality → readability</b><span>Ask them in that order. A chart that does not render cannot be illegal; an illegal chart does not deserve a readability review.</span></div>
+      <div class="cheat-item"><b>Validity is library-dependent</b><span>3.29% invalid on matplotlib, 25.41% on seaborn, same model. Measure it in your own chart stack. The library is a lever.</span></div>
+      <div class="cheat-item"><b>Legality is the silent killer</b><span>21.44% illegal even on matplotlib. Renders beautifully, encodes the wrong thing. Catch it with a rule on the spec, not a judge.</span></div>
+      <div class="cheat-item"><b>Faithfulness against the plotted numbers</b><span>The chart says 4% dip, the takeaway says "sharp decline driven by pricing". Both stages pass; the pair is a lie.</span></div>
+      <div class="cheat-item"><b>Refusal is a scored case</b><span>Three points and an arrow is the analytics hallucination. Seed the set with insufficient-data cases and score abstain vs fabricate.</span></div>
+      <div class="cheat-item"><b>Reproducibility is a metric</b><span>Temperature 0 is not determinism. Push computation into SQL or pandas, then run N times and require identical numbers, prose free to vary.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Builder session 7 of 10 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="b8-agent-trajectory-evals.html">Next: Agent trajectory evals →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/gate-live.js?v=2"></script>
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder session 1 · Eval anatomy - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Builder session 1 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Builder track · Session 1 of 10</div>
+    <h1>Eval anatomy: <span class="accent">the four parts of a number you can defend</span></h1>
+    <p class="sub">Every launch argument eventually reduces to one sentence: "it works." This session takes that sentence apart into the four things it must contain to survive a hard question - a set of cases, a way to grade them, a threshold agreed in advance, and an honest interval around the result. You will build the skeleton of Beacon's golden set today, and every later session fills a part of it in.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Builder track</span>
+      <span class="chip audience">AI engineers · ML engineers · technical PMs</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The four parts + the grading ladder</span>
+      <span class="a3" style="flex:5">18-40 · Build-along: Beacon's golden set skeleton</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>What this course is, and what it is not</h2>
+    </div>
+    <p class="lede">This is not a course about eval metrics. Two of its siblings already do that job properly: <a href="https://phoebefu6.github.io/learn-ai-evals-with-phoebe/">Learn Evals</a> goes deep on retrieval and generation metrics, and <a href="https://phoebefu6.github.io/learn-model-evaluation-with-phoebe/">Model Evaluation</a> covers the classic and LLM-era metric canon side by side. This course assumes those exist and asks the one question they leave open: <strong>given all these numbers, do you ship?</strong></p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The four-part anatomy every defensible eval has, the grading ladder that tells you when a rule beats a judge, the hard line between a capability suite and a regression suite, and the first fifteen rows of Beacon's golden set - written from real failures, not imagination.
+    </div>
+    <div class="callout tip">
+      <strong>The running case: Beacon</strong>
+      Beacon is a B2B SaaS company shipping three bots this quarter - a customer-facing support chatbot, an internal text-to-query bot for analysts, and an analytics bot that writes insight summaries for executives. Same company, same eval discipline, three completely different gates. Sessions b5, b6 and b7 gate them one at a time, and b9 runs all three through the launch scorecard.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="anatomy">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the anatomy</span>
+      <h2>Four parts, and the failure that comes from skipping each <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">An eval is not a script. It is four separable decisions, and teams usually make three of them well and one of them by accident. The one made by accident is the one that fails in production.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The four parts of an eval: a set of cases, a grader, a threshold set in advance, and an interval around the result. Skipping each has a named failure mode.">
+        <style>
+          .eaT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .eaN { font: 800 20px Inter, sans-serif; fill: #FFFFFF; }
+          .eaH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .eaX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .eaW { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+          .eaK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="48" height="48" rx="11" fill="#0E3320"/>
+        <text class="eaN" x="41" y="56">1</text>
+        <rect x="86" y="24" width="360" height="48" rx="10" fill="#1A4D33"/>
+        <text class="eaT" x="104" y="45">The set - which cases you run</text>
+        <text class="eaT" x="104" y="63" fill="#A9CDB8">sampled from real traffic, in real proportions</text>
+        <rect x="460" y="24" width="396" height="48" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="eaW" x="478" y="45">Skip it: you measure the demo, not the bot. The most</text>
+        <text class="eaW" x="478" y="63">common failure, and the least visible from inside.</text>
+
+        <rect x="24" y="88" width="48" height="48" rx="11" fill="#1A4D33"/>
+        <text class="eaN" x="41" y="120">2</text>
+        <rect x="86" y="88" width="360" height="48" rx="10" fill="#1A4D33"/>
+        <text class="eaT" x="104" y="109">The grader - how a case is scored</text>
+        <text class="eaT" x="104" y="127" fill="#A9CDB8">rule, execution, or a judge you calibrated</text>
+        <rect x="460" y="88" width="396" height="48" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="eaW" x="478" y="109">Skip it: an uncalibrated judge grades on length and</text>
+        <text class="eaW" x="478" y="127">confidence, and reports its own opinion as accuracy.</text>
+
+        <rect x="24" y="152" width="48" height="48" rx="11" fill="#3D7D5A"/>
+        <text class="eaN" x="41" y="184">3</text>
+        <rect x="86" y="152" width="360" height="48" rx="10" fill="#3D7D5A"/>
+        <text class="eaT" x="104" y="173">The threshold - decided BEFORE the run</text>
+        <text class="eaT" x="104" y="191" fill="#EDF6F0">tied to a risk tier, written down, signed</text>
+        <rect x="460" y="152" width="396" height="48" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="eaW" x="478" y="173">Skip it: the bar becomes whatever you scored. Nobody</text>
+        <text class="eaW" x="478" y="191">ever failed a gate they set after seeing the result.</text>
+
+        <rect x="24" y="216" width="48" height="48" rx="11" fill="#BF6708"/>
+        <text class="eaN" x="41" y="248">4</text>
+        <rect x="86" y="216" width="360" height="48" rx="10" fill="#BF6708"/>
+        <text class="eaT" x="104" y="237">The interval - the error bar on the result</text>
+        <text class="eaT" x="104" y="255" fill="#FDF3E3">what n examples actually prove</text>
+        <rect x="460" y="216" width="396" height="48" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="eaW" x="478" y="237">Skip it: 19 of 20 reads as 95% and proves 76%. The</text>
+        <text class="eaW" x="478" y="255">gap between those two numbers is this whole course.</text>
+
+        <rect x="24" y="292" width="832" height="112" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="eaH" x="44" y="318">The sentence all four parts assemble into</text>
+        <text class="eaX" x="44" y="340">"On 500 cases sampled from December traffic, including a 15% adversarial and unanswerable slice, graded by</text>
+        <text class="eaX" x="44" y="358">execution where possible and by a judge calibrated against 120 human labels elsewhere, Beacon's support bot</text>
+        <text class="eaX" x="44" y="376">passed 474. That puts true task success at 92.5% or better with 95% confidence, against a T3 bar of 90%."</text>
+        <text class="eaX" x="44" y="394">Nobody in that meeting has a follow-up question. That is what a defensible number sounds like.</text>
+
+        <rect x="24" y="424" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="eaK" x="48" y="436">Parts 1 and 2 are engineering. Part 3 is governance. Part 4 is arithmetic - and it is the one almost</text>
+        <text class="eaK" x="48" y="454">everybody drops, because a point estimate always looks more decisive than an honest range.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four parts, four named failure modes, one defensible sentence</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Where the cases come from: real failures beat imagination<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Anthropic's engineering guidance on agent evals is blunt about the starting point: begin with <strong>20 to 50 simple tasks drawn from real failures</strong>, because early changes have large effect sizes and you do not need statistical power to see them. That advice is about <em>iteration speed</em>, not about launch evidence - and conflating the two is how a 20-case set ends up in a go/no-go deck. Both things are true at once:</p>
+        <ul>
+          <li><strong>20-50 cases is the right size to start improving a bot.</strong> You are looking for 30-point swings, and 30-point swings are visible at n=30.</li>
+          <li><strong>20-50 cases is nowhere near enough to launch on.</strong> You are now claiming a 5-point difference from a bar, and that needs an order of magnitude more. Session a4 and b9 do this arithmetic properly.</li>
+        </ul>
+        <p>Where the cases actually come from, in descending order of value: production logs of things that went wrong; support tickets and escalations; the questions your own team asks the bot to check it is alive; and last and least, questions you invented at your desk. Invented questions carry your assumptions about what users ask, which is exactly the bias the eval exists to catch.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Anthropic's "volume over quality" principle, and its limit<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Anthropic's published eval guidance recommends prioritising <strong>volume over quality</strong>: many automated lower-signal test cases beat a handful of hand-graded ones. This is correct and counter-intuitive, and it follows directly from the interval math - a noisy grader on 500 cases tells you more than a perfect grader on 20, because the sampling error dominates the grading error at small n.</p>
+        <p>The limit: it holds for the <em>capability</em> suite, not the <em>safety canary</em>. A 200-case injection suite scored roughly is fine. The eight cases covering "the bot must never issue a refund without approval" are graded exactly, by a person, every time, and must pass at 100%. Volume for the trend, precision for the tripwire.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="grading">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the grading ladder</span>
+      <h2>Always grade at the cheapest rung that works <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">There is a strict ordering of graders by cost, speed and trustworthiness, and it runs in the opposite direction to how most teams reach for them. Reach for the LLM judge last, not first - it is the most expensive, slowest and least reliable rung, and half the cases you would point it at can be settled by running the output instead.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The grading ladder from cheapest and most trustworthy to most expensive and least trustworthy: rule-based, execution-based, embedding-based, LLM judge, human label.">
+        <style>
+          .glT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .glH { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .glX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .glK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="176" height="52" rx="10" fill="#0E3320"/>
+        <text class="glT" x="42" y="46">1 · Rule / exact match</text>
+        <text class="glT" x="42" y="64" fill="#A9CDB8">free · instant · exact</text>
+        <rect x="212" y="24" width="644" height="52" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="glX" x="232" y="46">Did it refuse? Did it call the right tool? Is the JSON valid? Does the SQL contain a DROP? Anything a regex or a</text>
+        <text class="glX" x="232" y="64">schema check can settle, settle here. Deterministic, reproducible, and it never has an opinion about length.</text>
+
+        <rect x="24" y="88" width="176" height="52" rx="10" fill="#1A4D33"/>
+        <text class="glT" x="42" y="110">2 · Execution</text>
+        <text class="glT" x="42" y="128" fill="#A9CDB8">cheap · truthful</text>
+        <rect x="212" y="88" width="644" height="52" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="glX" x="232" y="110">Run the output and compare results. Text-to-SQL execution accuracy, chart code that renders, a patch that makes</text>
+        <text class="glX" x="232" y="128">the failing test pass. If your bot emits anything runnable, this rung is available and you should be on it.</text>
+
+        <rect x="24" y="152" width="176" height="52" rx="10" fill="#3D7D5A"/>
+        <text class="glT" x="42" y="174">3 · Embedding similarity</text>
+        <text class="glT" x="42" y="192" fill="#EDF6F0">cheap · fuzzy</text>
+        <rect x="212" y="152" width="644" height="52" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="glX" x="232" y="174">Cosine similarity to a reference answer, ROUGE-L. Useful as a cheap regression tripwire on phrasing drift. Weak</text>
+        <text class="glX" x="232" y="192">as a correctness signal: a confidently wrong answer sits close to the right one in embedding space.</text>
+
+        <rect x="24" y="216" width="176" height="52" rx="10" fill="#BF6708"/>
+        <text class="glT" x="42" y="238">4 · LLM judge</text>
+        <text class="glT" x="42" y="256" fill="#FDF3E3">slow · biased · needed</text>
+        <rect x="212" y="216" width="644" height="52" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="glX" x="232" y="238">The only rung that can score groundedness, tone or whether an insight follows from the data. Also the only rung</text>
+        <text class="glX" x="232" y="256">with documented biases toward long, confident, self-authored answers. Never use it uncalibrated - see b4.</text>
+
+        <rect x="24" y="280" width="176" height="52" rx="10" fill="#12241B"/>
+        <text class="glT" x="42" y="302">5 · Human label</text>
+        <text class="glT" x="42" y="320" fill="#A9CDB8">slow · costly · truth</text>
+        <rect x="212" y="280" width="644" height="52" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="glX" x="232" y="302">The ground truth every other rung is measured against. You do not grade the whole set here - you grade the 100+</text>
+        <text class="glX" x="232" y="320">cases that calibrate rung 4, plus every safety canary, plus a weekly sample of production traffic.</text>
+
+        <rect x="24" y="352" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="glK" x="48" y="364">The rule: every case you move DOWN this ladder gets cheaper, faster and more trustworthy at once. Most</text>
+        <text class="glK" x="48" y="382">teams grade at rung 4 out of habit, then wonder why their eval is expensive, slow and argues with itself.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - five rungs; the cheapest one that settles the case is the right one</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The rung-4 habit costs real money.</strong> A common pattern in text-to-query evals is to ask a judge "is this SQL correct?" - a question that is slow, expensive, non-deterministic, and strictly worse than running both queries and comparing the rows. Execution accuracy became the field standard on the BIRD benchmark precisely because exact-string matching rejected valid alternative SQL while a judge was unreliable. The machine-checkable question is almost always available and almost always better; you just have to notice it is there.</p>
+    </div>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="two-suites">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the two suites</span>
+      <h2>Capability and regression are different animals <span class="tag concept">4 min live</span></h2>
+    </div>
+    <p class="lede">One golden set cannot serve both purposes, and merging them produces a suite that is simultaneously too easy to drive improvement and too flaky to block a deploy. Split them on day one.</p>
+
+    <table class="clean">
+      <tr><th></th><th>Capability suite</th><th>Regression suite</th></tr>
+      <tr><td><strong>Question it answers</strong></td><td>How good is this bot, and is it getting better?</td><td>Did we break something we already fixed?</td></tr>
+      <tr><td><strong>Expected pass rate</strong></td><td>Starts low. If it is at 100%, it is too easy to be informative</td><td>Near 100%, always. Anything else is a bug, not a score</td></tr>
+      <tr><td><strong>Size</strong></td><td>Large - hundreds, because you are estimating a rate</td><td>Small and growing - one case per past incident</td></tr>
+      <tr><td><strong>Where cases come from</strong></td><td>Sampled production traffic + an adversarial slice</td><td>Every bug you ever fixed, frozen forever</td></tr>
+      <tr><td><strong>Grading</strong></td><td>Mixed rungs; a noisy judge is acceptable at volume</td><td>Deterministic rungs wherever possible, so the gate is sharp</td></tr>
+      <tr><td><strong>In CI</strong></td><td>Reported, trended, not blocking</td><td>Blocking. A red regression suite stops the deploy</td></tr>
+      <tr><td><strong>Runs</strong></td><td>Nightly or per release candidate - it is expensive</td><td>Every pull request - it must be cheap enough to</td></tr>
+    </table>
+
+    <div class="callout tip">
+      <strong>Why the blocking suite must be deterministic</strong>
+      A per-pull-request gate on 100 cases can only reliably detect a regression of roughly 10 points - the interval is simply too wide at that n to see anything smaller. You cannot fix that by adding cases (too slow for CI), so you fix it by removing noise: make the blocking cases rule-graded and execution-graded, where a failure is a failure and not a judge having an off day. Sharp gate, small n. Session b10 wires this up.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Beacon's golden set skeleton <span class="tag demo">★ 14 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">Not a toy exercise. Build the sheet you will actually use for the rest of this course, on a bot you actually own. If you do not have one yet, use Beacon's support bot - the category shares are given below.</p>
+
+    <div class="steps">
+      <div class="step"><p>Open a sheet with these seven columns: <strong>id · category · input · expected behaviour · grading rung · required capability · source</strong>. The last column records where the case came from - a ticket number, a log line, a person. Invented cases get marked "invented" and you will see how few of them you trust in a month.</p></div>
+      <div class="step"><p>Write your category list first, before any cases. For a support bot, Beacon uses five: straightforward help-centre lookup (30%), answer that must cite policy exactly (20%), multi-turn referring to earlier turns (20%), outside the knowledge base and must escalate (15%), adversarial or injected input (15%). Your percentages should come from a traffic sample, not from a guess.</p></div>
+      <div class="step"><p>Now fill fifteen rows - three per category. Take them from real logs if you have them. For each row, write the <strong>expected behaviour</strong> as an observable outcome ("escalates and does not state a policy") rather than a quality adjective ("handles it well"). If you cannot phrase it observably, you cannot grade it.</p></div>
+      <div class="step"><p>For every row, assign the grading rung from Part 2 - and push each one as far down the ladder as it will go. Watch how many rows you initially wrote as "judge" collapse to a rule once you phrase the expectation observably. That collapse is the point of the exercise.</p></div>
+      <div class="step"><p>Mark which rows would go in the <strong>blocking regression suite</strong> versus the capability suite. On a fresh bot this will be almost none - the regression suite is grown from incidents, not written up front. Leave the column; it fills itself in over the next six months.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <strong>The trap in step 2</strong>
+      Almost every team writes a category list with no unanswerable and no adversarial cases in it, because those questions feel unfair. They are the two categories that decide whether a bot is safe to launch. A set with no unanswerable questions cannot detect a bot that never says "I do not know" - and that bot will confidently invent a refund policy in week one.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>The first look at the gate you are building toward <span class="tag demo">★ 8 min · explore</span></h2>
+    </div>
+    <p class="lede">This is the scorecard b9 builds properly. Open it now, once, so the shape of the destination is in your head for the next eight sessions. Switch on <strong>Golden set sampled from real traffic</strong> and watch what happens to the confidence figure - that single toggle is Part 1 of the anatomy, and it is worth more than every other lever on the board.</p>
+
+    <div class="glbox" data-bot="chatbot"></div>
+
+    <div class="steps">
+      <div class="step"><p>Press <strong>Ship anyway</strong> right now, before touching anything. Read the incident list. Every item in it is a failure mode this course teaches you to catch before it happens rather than after.</p></div>
+      <div class="step"><p>Now switch on <strong>Golden set sampled from real traffic</strong> alone. The confidence figure falls hard. Nothing about the bot changed - you only stopped grading it on questions chosen because it answers them well.</p></div>
+      <div class="step"><p>Add <strong>Adversarial + unanswerable slice</strong> and <strong>Judge calibrated vs human labels</strong>. It falls further. You now have an honest number for the first time, and it is bad. This is the normal and correct experience of building a first real eval.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>Read the honesty rail under the board</strong>
+      The per-category pass rates are a teaching model of a bot with realistic failure modes. The statistics are not a model: the confidence figure is a real 95% Wilson interval computed in your browser from the successes and n shown. Session a4 gives you the table to check it against.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 40-50 min total</span></h2>
+    </div>
+    <ul>
+      <li>Grow your golden set from 15 rows to 40, and pull at least half of the new rows from production logs or support tickets rather than from your head. Keep the "source" column honest - you will want to know later which rows you invented.</li>
+      <li>Go through your existing evals, if you have any, and count how many are graded by an LLM judge that could be graded by a rule or by execution instead. Move two of them down the ladder this week and note what it does to your eval runtime and cost.</li>
+      <li>Find the last three production incidents your bot caused, and write one frozen regression case for each. That is your regression suite. It is allowed to have three rows; it is not allowed to have zero.</li>
+      <li>Write down the threshold you would ship at, today, before you have measured anything. Seal it. In b9 you will find out whether you would have moved it after seeing the result - almost everybody does, which is exactly why part 3 of the anatomy says decide it first.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every framework and figure on this page traces to a primary source - vendor evaluation documentation, published benchmarks, and peer-reviewed papers catalogued in this course's source map. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic agent-eval guidance: 20-50 tasks from real failures; capability vs regression suites</span><span class="note">Part 1 + Part 3 · the launch-size question is answered in a4 and b9</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic grading hierarchy: code/rule → embedding → LLM-based, and "volume over quality"</span><span class="note">Part 2 · execution rung added from the benchmark literature</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Execution accuracy as the field standard over exact-set-match (BIRD, Spider)</span><span class="note">Part 2 · full treatment in b6</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">LLM-judge bias taxonomy and calibration procedure</span><span class="note">Named here as the reason rung 4 is last · measured properly in b4</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Wilson interval arithmetic behind the confidence figure in Demo 2</span><span class="note">Used here, derived in a4, applied in b9</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Metric definitions (faithfulness, relevancy, tool-call accuracy) with formulas</span><span class="note">Not covered by design · b2 summarises, Learn Evals goes deep</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · Anthropic's guidance says to start with 20-50 tasks drawn from real failures. Why is that not the number you launch on?</p>
+      <button class="qopt" type="button">A · It is - 20-50 well-chosen cases is the industry launch standard</button>
+      <button class="qopt" type="button">B · Because 20-50 cases cannot be graded by a judge, only by hand</button>
+      <button class="qopt" type="button">C · Because it answers a different question: 20-50 is sized to see the 30-point swings of early iteration, while a launch claims a few points of difference from a bar, which needs far more cases</button>
+      <p class="qwhy">The two activities have different statistical requirements. Early iteration produces huge effect sizes that are visible at tiny n, which is exactly why starting small is good advice. A launch decision compares your result to a threshold and needs the interval around that result to be narrow enough to clear it - a completely different problem, and the reason 19 of 20 proves only 76%.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">2 · Your text-to-query bot's eval asks an LLM judge "is this SQL correct?" What should you do?</p>
+      <button class="qopt" type="button">A · Add a second judge and take the majority verdict</button>
+      <button class="qopt" type="button">B · Move it down the ladder - run both queries and compare the returned rows, which is cheaper, deterministic and strictly more truthful</button>
+      <button class="qopt" type="button">C · Keep the judge but raise its temperature for diversity</button>
+      <p class="qwhy">This is the rung-4 habit. SQL is runnable, so execution grading is available - and execution grading is free of judge bias, reproducible run to run, and settles the question the judge was only estimating. Execution accuracy displaced both exact-string matching and judging on the field's main text-to-SQL benchmarks for exactly this reason.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Why must the blocking regression suite be graded deterministically rather than by a judge?</p>
+      <button class="qopt" type="button">A · Because a CI gate on ~100 cases can only detect roughly 10-point regressions anyway, so the only way to make the gate sharp is to remove grader noise rather than add cases</button>
+      <button class="qopt" type="button">B · Because LLM judges cannot run inside CI pipelines</button>
+      <button class="qopt" type="button">C · Because regression cases are always simpler than capability cases</button>
+      <p class="qwhy">You cannot buy sharpness with volume in CI - a per-pull-request suite has to stay fast and cheap, which caps n. So you buy it by eliminating variance in the grader instead. Deterministic rungs mean a red suite is a real regression and never a judge having an off day, which is what makes the gate safe to block on.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Builder session 1 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The four parts</b><span>The set, the grader, the threshold set in advance, the interval around the result. Skipping any one has a named failure mode.</span></div>
+      <div class="cheat-item"><b>Cases come from failures</b><span>Production logs &gt; tickets &gt; team probes &gt; invented. Mark the invented ones; you will trust them less in a month.</span></div>
+      <div class="cheat-item"><b>The grading ladder</b><span>Rule → execution → embedding → LLM judge → human. Always grade at the cheapest rung that settles the case.</span></div>
+      <div class="cheat-item"><b>Runnable output = execution grading</b><span>If it emits SQL, code, JSON or a chart spec, run it. Never ask a judge what a compiler can answer.</span></div>
+      <div class="cheat-item"><b>Two suites, never one</b><span>Capability: large, starts low, trended, non-blocking. Regression: small, near-100%, deterministic, blocks the deploy.</span></div>
+      <div class="cheat-item"><b>Volume over quality</b><span>Many rough automated cases beat few perfect ones - sampling error dominates grading error at small n. Except the safety canary, which is exact.</span></div>
+      <div class="cheat-item"><b>Observable expectations</b><span>"Escalates and states no policy" is gradeable. "Handles it well" is not. If you cannot phrase it observably, you cannot grade it.</span></div>
+      <div class="cheat-item"><b>Threshold before result</b><span>Nobody ever failed a gate they set after seeing the score. Write it down, seal it, then run.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Builder session 1 of 10 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="b2-quality-metrics.html">Next: Quality metrics →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/gate-live.js?v=2"></script>
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder session 8 · Agent-specific evals - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Builder session 8 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Builder track · Session 8 of 10</div>
+    <h1>Agent-specific evals: <span class="accent">when the answer is not the only thing to grade</span></h1>
+    <p class="sub">Sessions b5 to b7 graded three bots on what they said. An agent does not just say things - it takes steps, and the steps are where the money, the data and the damage live. This session grades the path as well as the destination, and then delivers the one number that changes how you read every dashboard you own: not how often the agent can do the task, but how often it does the task every single time.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Builder track</span>
+      <span class="chip audience">AI engineers · ML engineers · technical PMs</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Trajectory modes + tool-call metrics</span>
+      <span class="a3" style="flex:5">20-40 · Build-along: the spec, then pass^k</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Two things go wrong that a final-answer eval cannot see</h2>
+    </div>
+    <p class="lede">A bot answers. An agent decides, calls, reads, decides again, and eventually answers. Every eval you have built so far grades the last box in that chain, which means two entire failure families are invisible to it: <strong>an agent that reached the right answer down a route you would never approve</strong>, and <strong>an agent that reaches the right answer only sometimes</strong>. Both ship happily through a green dashboard.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The five trajectory matching modes and which one your agent actually needs, the real formulas behind tool-call accuracy in RAGAS, DeepEval and Azure, a written trajectory spec for Beacon's support agent, and pass^k - the reliability number that is almost never on a dashboard and is almost always the one your users experience.
+    </div>
+    <div class="callout tip">
+      <strong>Where this sits</strong>
+      b5, b6 and b7 gated three bots on output. b9 assembles all of it into one scorecard and signs it. This session is the bridge: it adds the two agent-shaped measurements that the output gates cannot make, so that the scorecard in b9 has something honest to put in its quality box when the thing being launched takes steps.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="trajectory">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the path</span>
+      <h2>Trajectory matching, and its five settings <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">A trajectory is the ordered list of tool calls an agent made. Grading it means comparing that list to a reference list a human wrote, and the entire question is <em>how strictly</em>. Google's Vertex agent evaluation names the modes precisely; treat those names as the vocabulary, because the semantics are what you are actually choosing between.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Trajectory matching modes: exact match, in-order match, any-order match, trajectory precision, trajectory recall and single tool use, with the same semantics shown under three vendor vocabularies.">
+        <style>
+          .tmT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .tmS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .tmL { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .tmX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .tmH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .tmN { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .tmK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="52" rx="10" fill="#0E3320"/>
+        <text class="tmT" x="44" y="46">The reference trajectory for one Beacon support case, written by a human</text>
+        <text class="tmS" x="44" y="64">lookup_order → get_refund_policy → request_human_approval → issue_refund_credit</text>
+
+        <rect x="24" y="88" width="210" height="46" rx="9" fill="#0E3320"/>
+        <text class="tmL" x="44" y="116">Exact match</text>
+        <rect x="234" y="88" width="622" height="46" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tmX" x="254" y="110">Identical tool calls in identical order. Nothing extra, nothing missing, nothing</text>
+        <text class="tmX" x="254" y="128">reordered. The strictest mode - use it only where the sequence IS the contract.</text>
+
+        <rect x="24" y="144" width="210" height="46" rx="9" fill="#1A4D33"/>
+        <text class="tmL" x="44" y="172">In-order match</text>
+        <rect x="234" y="144" width="622" height="46" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tmX" x="254" y="166">Predicted contains ALL the reference calls in the reference order. Extra calls in</text>
+        <text class="tmX" x="254" y="184">between are allowed. It grades the spine of the path and forgives the detours.</text>
+
+        <rect x="24" y="200" width="210" height="46" rx="9" fill="#1A4D33"/>
+        <text class="tmL" x="44" y="228">Any-order match</text>
+        <rect x="234" y="200" width="622" height="46" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tmX" x="254" y="222">Predicted contains all the reference calls in ANY order. Extras allowed. Use it</text>
+        <text class="tmX" x="254" y="240">when the order genuinely does not matter - two independent lookups, say.</text>
+
+        <rect x="24" y="256" width="210" height="46" rx="9" fill="#3D7D5A"/>
+        <text class="tmL" x="44" y="284">Trajectory precision</text>
+        <rect x="234" y="256" width="622" height="46" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tmX" x="254" y="278">= overlap / predicted calls. Falls when the agent makes calls the reference never</text>
+        <text class="tmX" x="254" y="296">had. The metric for a flailing agent that tries six tools to do one job.</text>
+
+        <rect x="24" y="312" width="210" height="46" rx="9" fill="#3D7D5A"/>
+        <text class="tmL" x="44" y="340">Trajectory recall</text>
+        <rect x="234" y="312" width="622" height="46" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tmX" x="254" y="334">= overlap / reference calls. Falls when the agent skips a call the reference</text>
+        <text class="tmX" x="254" y="352">required. Extras cost nothing here. The metric for a lazy, short-cutting agent.</text>
+
+        <rect x="24" y="368" width="210" height="46" rx="9" fill="#BF6708"/>
+        <text class="tmL" x="44" y="396">Single tool use</text>
+        <rect x="234" y="368" width="622" height="46" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="tmX" x="254" y="390">Did this one named tool appear anywhere in the trajectory? The cheapest check on</text>
+        <text class="tmX" x="254" y="408">the list, and the right one when only one specific call actually matters.</text>
+
+        <rect x="24" y="430" width="832" height="104" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="tmH" x="44" y="456">One idea, three vocabularies - the names differ, the semantics do not</text>
+        <text class="tmN" x="44" y="480">Vertex AI</text>
+        <text class="tmX" x="204" y="480">exact match · in-order match · any-order match · precision · recall · single-tool-use</text>
+        <text class="tmN" x="44" y="500">agentevals</text>
+        <text class="tmX" x="204" y="500">strict · unordered · subset · superset</text>
+        <text class="tmN" x="44" y="520">Azure AI Foundry</text>
+        <text class="tmX" x="204" y="520">Task Navigation Efficiency: exact_match · in_order_match · any_order_match + P/R/F1</text>
+
+        <rect x="24" y="554" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="tmK" x="48" y="566">The mode is a product decision, not a default. Pick exact match only where the sequence really is the</text>
+        <text class="tmK" x="48" y="584">contract; pick any-order where you would otherwise punish a smarter path than the one you happened to write.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - six ways to compare a path to a reference, and three vendor names for each of them</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Precision and recall are a pair of dials, not a score<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The binary modes give you a verdict. Trajectory precision and recall give you a <em>diagnosis</em>, and the diagnosis is usually more useful in the week before launch:</p>
+        <ul>
+          <li><strong>Recall high, precision low.</strong> The agent does everything it should, plus a pile of things it should not. It is exploring. This costs latency and tokens, and every extra call is an extra chance to touch something it should not have touched.</li>
+          <li><strong>Precision high, recall low.</strong> Everything it did was legitimate, but it skipped steps. This is the dangerous one: the skipped step is often the verification call, the policy lookup, or the human approval.</li>
+          <li><strong>Both low.</strong> The agent is not doing the task. Stop tuning the eval and go look at ten traces.</li>
+        </ul>
+        <p>Azure reports exactly this shape under Task Navigation Efficiency: the three match modes plus precision, recall and F1 over the tool sequence. Report the pair, not the F1, at least until launch - the F1 hides which of the two failure shapes you have, and they have completely different fixes.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The reference trajectory is a design artefact, and it will be wrong<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Writing a reference trajectory forces a decision most teams have never made explicitly: <em>what is the approved way to do this task?</em> That is a policy question wearing an engineering costume. The first version of your reference set will encode how you happened to build the agent last month rather than what the business requires, and you will discover this the first time a genuinely better path fails exact match.</p>
+        <p>The correct reaction is not to loosen every case to any-order. It is to sort the reference calls into two kinds: <strong>required</strong> calls, which carry policy or safety weight and belong in an in-order match, and <strong>incidental</strong> calls, which are one valid implementation among several and should not be graded at all. Most reference trajectories shrink by half when you do this, and get sharper as they shrink.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="tool-metrics">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the calls</span>
+      <h2>Tool-call metrics, with the formulas they are actually computing <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Four libraries, five metric names, and only three underlying questions: were the right tools called, were they called with the right arguments, and did the task get done. Knowing which question a metric answers is the whole skill - the names do not tell you.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 572" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tool-call metrics from RAGAS, DeepEval and Azure AI Foundry with their formulas and what each one is for.">
+        <style>
+          .tcS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .tcN { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .tcX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .tcH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .tcK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="272" height="60" rx="9" fill="#0E3320"/>
+        <text class="tcS" x="44" y="44">RAGAS</text>
+        <text class="tcN" x="44" y="66">Tool call accuracy</text>
+        <rect x="308" y="24" width="548" height="60" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tcX" x="328" y="50">= argument accuracy x sequence-aligned indicator. Strict order is the</text>
+        <text class="tcX" x="328" y="68">default; a flexible-order mode is available for genuinely free paths.</text>
+
+        <rect x="24" y="94" width="272" height="60" rx="9" fill="#1A4D33"/>
+        <text class="tcS" x="44" y="114">DeepEval</text>
+        <text class="tcN" x="44" y="136">Tool Correctness</text>
+        <rect x="308" y="94" width="548" height="60" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tcX" x="328" y="120">= correctly used tools / total tools called. Deterministic, not</text>
+        <text class="tcX" x="328" y="138">judged, with strictness dials for parameters, output and ordering.</text>
+
+        <rect x="24" y="164" width="272" height="60" rx="9" fill="#1A4D33"/>
+        <text class="tcS" x="44" y="184">DeepEval</text>
+        <text class="tcN" x="44" y="206">Task Completion</text>
+        <rect x="308" y="164" width="548" height="60" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tcX" x="328" y="190">= AlignmentScore(task, outcome). Referenceless, needs the full</text>
+        <text class="tcX" x="328" y="208">trace, default threshold 0.5. Grades the destination, not the path.</text>
+
+        <rect x="24" y="234" width="272" height="60" rx="9" fill="#3D7D5A"/>
+        <text class="tcS" x="44" y="254" fill="#EDF6F0">Azure AI Foundry</text>
+        <text class="tcN" x="44" y="276">Tool Call Accuracy</text>
+        <rect x="308" y="234" width="548" height="60" rx="9" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tcX" x="328" y="260">A 1-5 judge score thresholded to pass/fail, default threshold 3.</text>
+        <text class="tcX" x="328" y="278">Tool Input Accuracy grades the arguments as a separate criterion.</text>
+
+        <rect x="24" y="304" width="272" height="60" rx="9" fill="#BF6708"/>
+        <text class="tcS" x="44" y="322" fill="#FDF3E3">Azure AI Foundry</text>
+        <text class="tcN" x="44" y="342">Intent Resolution</text>
+        <text class="tcN" x="44" y="358">+ Task Adherence</text>
+        <rect x="308" y="304" width="548" height="60" rx="9" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="tcX" x="328" y="330">Did the agent understand what was actually asked, and did it stay</text>
+        <text class="tcX" x="328" y="348">inside its instructions? The two judged bookends around the tools.</text>
+
+        <rect x="24" y="380" width="832" height="126" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="tcH" x="44" y="406">Which of these do you actually need? Read your own situation off this</text>
+        <text class="tcX" x="44" y="430">You have a reference trajectory and the order is the contract → trajectory match, exact or in-order.</text>
+        <text class="tcX" x="44" y="448">You have a reference but the path is legitimately free → tool correctness, or precision and recall as a pair.</text>
+        <text class="tcX" x="44" y="466">You have no reference at all, only a task and an outcome → task completion, judged and referenceless.</text>
+        <text class="tcX" x="44" y="484">The last one is the cheapest to write and the most expensive to trust. It is a rung-4 grader in agent clothing.</text>
+
+        <rect x="24" y="526" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="tcK" x="48" y="538">Notice the ladder from b1 reappearing. Tool correctness is a rule. Trajectory match is a rule. Task completion</text>
+        <text class="tcK" x="48" y="556">and Azure's 1-5 scores are judges. Reach for the rules first, and calibrate anything on the judge rung.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - five metrics, three underlying questions, and where each sits on the grading ladder</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>Task Completion is seductive and it is a judge.</strong> It needs no reference trajectory at all - hand it the task and the trace, and it returns an alignment score against a 0.5 default threshold. That convenience is exactly why it spreads through a codebase: it is the only agent metric you can add without doing the work of writing references. But referenceless means there is nothing to disagree with the model, so it inherits every bias from b4 and reports them as task success. Use it as a <em>trend</em> alongside deterministic tool metrics, never as the blocking gate, and calibrate it against human labels before you quote its number to anyone.</p>
+    </div>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="passk">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the headline</span>
+      <h2>pass@k and pass^k pull in opposite directions <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">These two look like variations on one idea and they are opposites. One asks whether the agent <em>can</em>. The other asks whether it <em>does, every time</em>. Research optimises the first because it measures headroom. Production runs on the second, because production is not a single run.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="pass at k versus pass hat k with their estimator formulas, the decay of 0.75 per-trial reliability over eight trials, and tau-bench's retail numbers.">
+        <style>
+          .pkT { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .pkF { font: 700 12.5px "SF Mono", Menlo, monospace; fill: #FFFFFF; }
+          .pkS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .pkA { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .pkL { font: 600 11px Inter, sans-serif; fill: #FFFFFF; }
+          .pkV { font: 800 18px Inter, sans-serif; fill: #FFFFFF; }
+          .pkH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .pkX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .pkK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="412" height="110" rx="10" fill="#1A4D33"/>
+        <text class="pkT" x="44" y="50">pass@k - at least ONE of k trials succeeds</text>
+        <text class="pkF" x="44" y="76">1 - E[ C(n-c, k) / C(n, k) ]</text>
+        <text class="pkS" x="44" y="100">The capability metric. It RISES with k.</text>
+        <text class="pkS" x="44" y="118">Answers: can this agent do it at all?</text>
+
+        <rect x="444" y="24" width="412" height="110" rx="10" fill="#BF6708"/>
+        <text class="pkT" x="464" y="50">pass^k - ALL k trials succeed</text>
+        <text class="pkF" x="464" y="76">E[ C(c, k) / C(n, k) ]</text>
+        <text class="pkA" x="464" y="100">The reliability metric. It FALLS with k.</text>
+        <text class="pkA" x="464" y="118">Answers: can it do it every single time?</text>
+
+        <text class="pkH" x="24" y="158">One task the agent passes 75% of the time, asked to succeed k times in a row</text>
+
+        <rect x="24" y="170" width="90" height="64" rx="9" fill="#0E3320"/>
+        <text class="pkL" x="38" y="194">k = 1</text>
+        <text class="pkV" x="38" y="220">75%</text>
+        <rect x="128" y="170" width="90" height="64" rx="9" fill="#0E3320"/>
+        <text class="pkL" x="142" y="194">k = 2</text>
+        <text class="pkV" x="142" y="220">56%</text>
+        <rect x="232" y="170" width="90" height="64" rx="9" fill="#1A4D33"/>
+        <text class="pkL" x="246" y="194">k = 3</text>
+        <text class="pkV" x="246" y="220">42%</text>
+        <rect x="336" y="170" width="90" height="64" rx="9" fill="#1A4D33"/>
+        <text class="pkL" x="350" y="194">k = 4</text>
+        <text class="pkV" x="350" y="220">32%</text>
+        <rect x="440" y="170" width="90" height="64" rx="9" fill="#3D7D5A"/>
+        <text class="pkL" x="454" y="194" fill="#EDF6F0">k = 5</text>
+        <text class="pkV" x="454" y="220">24%</text>
+        <rect x="544" y="170" width="90" height="64" rx="9" fill="#3D7D5A"/>
+        <text class="pkL" x="558" y="194" fill="#EDF6F0">k = 6</text>
+        <text class="pkV" x="558" y="220">18%</text>
+        <rect x="648" y="170" width="90" height="64" rx="9" fill="#BF6708"/>
+        <text class="pkL" x="662" y="194" fill="#FDF3E3">k = 7</text>
+        <text class="pkV" x="662" y="220">13%</text>
+        <rect x="752" y="170" width="90" height="64" rx="9" fill="#BF6708"/>
+        <text class="pkL" x="766" y="194" fill="#FDF3E3">k = 8</text>
+        <text class="pkV" x="766" y="220">10%</text>
+
+        <rect x="24" y="252" width="832" height="100" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="pkH" x="44" y="278">tau-bench (Sierra): the same agent, the same tasks, simply asked to be consistent</text>
+        <text class="pkX" x="44" y="300">Success is not judged. A task passes when the final DATABASE STATE matches the goal state - execution-rung</text>
+        <text class="pkX" x="44" y="318">grading for agents. On the retail domain, GPT-4o-class agents score under 50% at pass^1 and under 25% at pass^8.</text>
+        <text class="pkX" x="44" y="336">tau2-bench extends it with dual-control environments, where the user can act too, and a telecom domain.</text>
+
+        <rect x="24" y="372" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="pkK" x="48" y="384">Your dashboard reports a single-run pass rate, which is a pass@k-shaped number. What your users</text>
+        <text class="pkK" x="48" y="402">actually experience is pass^k, and it is always lower. Capability is not reliability.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two formulas, one decay curve, and the benchmark that made the point stick</figcaption>
+    </figure>
+
+    <div class="callout warn">
+      <strong>The arithmetic nobody does out loud</strong>
+      A workflow with three agent steps, each independently reliable 75% of the time, completes end to end 0.75 x 0.75 x 0.75 = 42% of the time. Your quality review saw three green 75% numbers and signed. Your users see a coin flip that loses. Multi-step agents do not add error, they multiply it, and the per-step number that looks acceptable in isolation is the number that destroys the workflow.
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why tau-bench grades the database and not the sentence<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>tau-bench made one design choice that is worth stealing outright: a task succeeds when the <strong>final database state matches the goal state</strong>. No judge, no reference answer, no string comparison. Just: did the world end up the way it was supposed to?</p>
+        <p>That is the execution rung from b1, applied to agents. It is deterministic, it is free of judge bias, and it is immune to an agent that describes doing the right thing while doing the wrong thing - a failure mode that is otherwise very hard to catch, because the narration is generated by the same model that took the action. If your agent writes to anything at all, you have a state to compare, and you should be grading it there rather than asking a judge whether the response sounded correct.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The agent benchmark landscape, in one paragraph each<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>WebArena</strong> puts agents in realistic self-hosted web environments. The best GPT-4 agent scored 14.41% against a human rate of 78.24%. That gap is the honest starting point for anybody about to promise a browsing agent.</p>
+        <p><strong>GAIA</strong> asks questions that are easy for people and hard for assistants: humans reach 92%, GPT-4 with plugins reached 15%. It is the clearest available demonstration that "hard for a model" and "hard for a person" are unrelated axes.</p>
+        <p><strong>SWE-bench</strong> contributes the validation pattern most worth copying. Each task carries <strong>FAIL_TO_PASS</strong> tests, which must go from failing to passing, and <strong>PASS_TO_PASS</strong> tests, which must stay passing. That second set is the regression suite in miniature, and it is what stops an agent from "fixing" the bug by breaking the rest of the repository. If your agent produces anything verifiable, build both halves.</p>
+        <p><strong>BFCL</strong> checks tool calls deterministically by parsing them into an abstract syntax tree and comparing structure rather than strings, which is why it can grade function calls without a judge. It is now at V4 with holistic agentic evaluation. Its lesson for you: a tool call is structured data, so grade it as structured data.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Write Beacon's trajectory spec <span class="tag demo">★ 11 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">Beacon's support agent can issue refund credits, which is what made it T3 in b9. That capability is a sequence of tool calls, and this is where you decide which parts of that sequence are policy and which are implementation detail.</p>
+
+    <div class="steps">
+      <div class="step"><p>Take five real traces from your agent - actual traces, not imagined ones - and write down the tool calls each one made, in order. You now have five candidate reference trajectories and, almost certainly, five different paths for tasks you thought were the same.</p></div>
+      <div class="step"><p>For each call in each trace, mark it <strong>required</strong> or <strong>incidental</strong>. Required means policy, safety or correctness depends on it: the approval call, the policy lookup, the permission check. Incidental means it is one valid way among several. Delete every incidental call from the reference - grading it only punishes better implementations later.</p></div>
+      <div class="step"><p>Now choose the match mode per case, not per suite. Cases where a required call must happen <em>before</em> another get <strong>in-order match</strong>. Cases where two lookups are independent get <strong>any-order match</strong>. Reserve <strong>exact match</strong> for the handful of cases where an extra call is itself a violation.</p></div>
+      <div class="step"><p>Write one row of the spec in a format you can execute. Keep the required calls, the mode and a comment saying <em>why</em> that mode - the comment is what stops somebody loosening it in six months without knowing what they gave up.</p></div>
+    </div>
+
+    <div class="prompt-box"><span class="label">★ one row of Beacon's trajectory spec</span>
+id: T-014
+input: "refund my last order, it arrived broken"
+reference_trajectory:
+  - lookup_order
+  - get_refund_policy
+  - request_human_approval    # required: T3 rail, must precede any credit
+  - issue_refund_credit
+match_mode: in_order          # extras allowed; the ORDER is the policy
+canary: true                  # approval-before-credit is a 100% gate, not a rate
+</div>
+
+    <div class="callout warn">
+      <strong>The trap in step 3</strong>
+      Teams reach for exact match because it feels rigorous, then spend the next month marking false failures as false and quietly loosening thresholds until the suite means nothing. Exact match on a free-form path does not measure quality, it measures how closely the agent imitates the person who wrote the reference. Choose the loosest mode that would still catch the failure you are afraid of, and write down which failure that is.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Compute pass^k on a task you already ship <span class="tag demo">★ 9 min · everyone runs</span></h2>
+    </div>
+    <p class="lede">This takes fifteen lines and one afternoon of compute, and it is the single most uncomfortable number you can put in front of a launch meeting. Do it before somebody else does.</p>
+
+    <div class="steps">
+      <div class="step"><p>Pick one task your agent already handles. Run it <strong>n = 10 times</strong> from an identical starting state, with whatever temperature and tooling production uses. Do not lower the temperature for the experiment - you are measuring production, not a laboratory.</p></div>
+      <div class="step"><p>Score each run at the execution rung if you can: did the final state match the goal state? Count the successes as <strong>c</strong>. Resist the urge to grade partial credit; pass^k is a consistency measure and partial credit dissolves it.</p></div>
+      <div class="step"><p>Plug n and c into the estimator and read pass^k for k = 1, 3 and 5. Then look at how many steps your real workflow chains together and read the number for that k. That is the number your users meet.</p></div>
+      <div class="step"><p>Repeat for your five highest-traffic tasks and put the pass^3 column next to the pass@1 column in one table. The gap between those two columns is the gap between your demo and your support queue.</p></div>
+    </div>
+
+    <div class="prompt-box"><span class="label">★ pass^k in fifteen lines</span>
+from math import comb
+
+def pass_hat_k(n, c, k):
+    """n = trials run, c = trials that succeeded, k = successes required in a row."""
+    if c &lt; k:
+        return 0.0
+    return comb(c, k) / comb(n, k)
+
+# Beacon support agent, one refund task, run 10 times, 8 passed
+pass_hat_k(10, 8, 1)   # 0.800  the number on the dashboard
+pass_hat_k(10, 8, 3)   # 0.467  the number a 3-step workflow meets
+pass_hat_k(10, 8, 5)   # 0.222  the number a 5-step workflow meets
+
+# same data, the other direction: pass@k RISES, because one success is enough
+# 1 - comb(n - c, k) / comb(n, k)  ->  k=3 gives 1.000
+</div>
+
+    <div class="callout tip">
+      <strong>What to do when the number is bad</strong>
+      It will be bad. Three responses actually work, and none of them is a better prompt. <strong>Shorten the chain</strong>: fewer steps multiply less. <strong>Make a step deterministic</strong>: every step you move out of the model and into code stops contributing variance at all. <strong>Add a verification step with a retry</strong>: a checked-and-retried step is far more reliable than an unchecked one, which is the whole argument for tool output verification in b9. Notice that all three are architecture changes, which is why this number belongs in a design review and not in a dashboard.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 50-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Grow the trajectory spec from four rows to fifteen, and mark every required call that carries policy weight. Count how many of those required calls your current eval would notice if the agent silently stopped making them. For most teams the honest answer is zero.</li>
+      <li>Run the pass^k measurement on your three highest-traffic tasks and put pass@1 and pass^3 side by side in one table. Take that table to whoever owns the roadmap. It is a more persuasive artefact than any eval report you will write this quarter.</li>
+      <li>Find one step in your longest agent workflow that could be deterministic code instead of a model call, and move it. Re-run pass^3. The improvement is usually larger than a model upgrade would have bought you, and it is permanent.</li>
+      <li>Copy the SWE-bench pattern: for one verifiable task, write the tests that must go from failing to passing <em>and</em> the tests that must stay passing. The second list is the part everyone forgets, and it is the part that catches an agent that fixes one thing by breaking three.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every framework and figure on this page traces to a primary source - vendor evaluation documentation, published benchmarks, and peer-reviewed papers catalogued in this course's source map. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Vertex trajectory modes: exact, in-order, any-order, precision, recall, single-tool-use</span><span class="note">Part 1 · mapped to agentevals and Azure vocabularies</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">RAGAS tool call accuracy; DeepEval Tool Correctness and Task Completion, with formulas</span><span class="note">Part 2 · thresholds and dials as published</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Azure agent evaluators: Tool Call Accuracy 1-5 at default threshold 3, Tool Input Accuracy, Intent Resolution, Task Adherence</span><span class="note">Part 2</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">pass@k and pass^k estimators, and tau-bench's database-state grading with retail pass^1 and pass^8</span><span class="note">Part 3 + Demo 2 · tau2-bench named</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Agent benchmark landscape: WebArena, GAIA, SWE-bench, BFCL</span><span class="note">Self-study card · surveyed for the patterns, not taught</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Judge calibration behind Task Completion and Azure's 1-5 scores</span><span class="note">Named here as a caution · b4 owns the procedure</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Wiring the trajectory suite into a blocking pipeline</span><span class="note">Specified here · b10 makes it run</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · Your agent's trajectory scores high recall and low precision against the reference. What is it doing?</p>
+      <button class="qopt" type="button">A · Skipping required calls, including the approval step</button>
+      <button class="qopt" type="button">B · Calling tools in the wrong order</button>
+      <button class="qopt" type="button">C · Making every call it should, plus extra calls the reference never had - it is exploring, which costs latency and tokens and widens the blast radius</button>
+      <p class="qwhy">Recall is overlap over the reference calls, so a high recall means nothing required was skipped. Precision is overlap over the predicted calls, so a low precision means the agent added calls of its own. That is the flailing shape: correct but wasteful, and every unnecessary call is another chance to touch something it should not have touched. The opposite pattern - high precision, low recall - is the more dangerous one, because the skipped call is usually the verification or the approval.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">2 · A task your agent passes 75% of the time is used three times in one workflow. What is the end-to-end success rate?</p>
+      <button class="qopt" type="button">A · About 75% - the trials are independent, so the rate does not change</button>
+      <button class="qopt" type="button">B · About 42%, because 0.75 x 0.75 x 0.75 = 0.42 - multi-step agents multiply error rather than adding it</button>
+      <button class="qopt" type="button">C · About 25%, one third of 75%</button>
+      <p class="qwhy">This is the pass^k arithmetic and it is the reason capability numbers flatter multi-step agents so badly. Three green 75% steps in a design review look acceptable; the workflow they compose fails more often than it succeeds. tau-bench showed the same shape on real agents: GPT-4o-class systems under 50% at pass^1 fall under 25% at pass^8 on retail, with no change to the agent or the tasks. The fixes are architectural - shorten the chain, make steps deterministic, verify and retry - not prompt-level.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Why is DeepEval's Task Completion metric a poor choice for a blocking gate, despite being the easiest agent metric to adopt?</p>
+      <button class="qopt" type="button">A · It is referenceless - an alignment score from a judge against a 0.5 default threshold, so nothing independent can contradict the model, and it carries every judge bias into a number labelled task success</button>
+      <button class="qopt" type="button">B · It cannot be computed without a reference trajectory</button>
+      <button class="qopt" type="button">C · It only works on single-turn agents</button>
+      <p class="qwhy">Referencelessness is exactly what makes it convenient and exactly what makes it untrustworthy as a gate. It needs the full trace and the task, and it returns a judged score, so it sits on rung 4 of the grading ladder with all the position, verbosity and self-enhancement biases that implies. Run it as a trend beside deterministic tool metrics, calibrate it against human labels before quoting it, and block on the rules instead.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Builder session 8 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Grade the path, not only the answer</b><span>An agent takes steps. Two failure families - a bad route to a right answer, and a right answer only sometimes - are invisible to output-only evals.</span></div>
+      <div class="cheat-item"><b>Five modes, one choice</b><span>Exact (identical + same order), in-order (all reference calls in order, extras fine), any-order (extras fine, order free), precision, recall, single-tool-use.</span></div>
+      <div class="cheat-item"><b>One idea, three vocabularies</b><span>Vertex modes = agentevals strict/unordered/subset/superset = Azure Task Navigation Efficiency with P/R/F1. Do not re-learn it three times.</span></div>
+      <div class="cheat-item"><b>Precision and recall are a diagnosis</b><span>Low precision = flailing, extra calls. Low recall = skipping steps, usually the verification or approval. Report the pair, not the F1.</span></div>
+      <div class="cheat-item"><b>Required vs incidental calls</b><span>Only policy-bearing calls belong in a reference trajectory. Grading incidental calls punishes better implementations later.</span></div>
+      <div class="cheat-item"><b>Tool metrics sit on the ladder too</b><span>Tool Correctness and trajectory match are rules. Task Completion and Azure's 1-5 scores are judges. Rules block, judges trend.</span></div>
+      <div class="cheat-item"><b>pass@k rises, pass^k falls</b><span>pass@k = 1 - E[C(n-c,k)/C(n,k)], at least one success. pass^k = E[C(c,k)/C(n,k)], all k succeed. Production is pass^k.</span></div>
+      <div class="cheat-item"><b>Capability is not reliability</b><span>0.75 per trial is 42% over three. tau-bench: under 50% at pass^1, under 25% at pass^8 on retail. Grade the final database state, not the sentence.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Builder session 8 of 10 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="b9-the-launch-gate.html">Next: The launch gate →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

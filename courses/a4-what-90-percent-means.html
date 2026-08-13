@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 4 · What "90% confident" really means - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Leader session 4 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Leader track · Session 4 of 6</div>
+    <h1>What "90% confident" really means: <span class="accent">three claims wearing one number</span></h1>
+    <p class="sub">This is the arithmetic session, and it is the one that changes how you sit in a launch review. Three completely different claims hide behind the phrase "ninety percent" - an observation, a statistical floor, and a feeling - and only one of them can be defended when someone pushes back. You will read a live interval table, find out what twenty examples actually prove, and meet the best gotcha in this course: the structure of your own golden set can make your error bar three times too narrow.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Leader track</span>
+      <span class="chip audience">Heads of product · eng leaders · risk &amp; compliance</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Three claims, and what n buys</span>
+      <span class="a3" style="flex:4">20-38 · The live table + the cluster gotcha</span>
+      <span class="a4" style="flex:2">38-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The most expensive sentence in AI product review</h2>
+    </div>
+    <p class="lede">"The bot is about ninety percent accurate." Everyone nods. The number is not wrong, nobody is exaggerating, and the launch that follows still surprises everyone in month two. The gap is not honesty and it is not skill - it is that the speaker measured something and the room heard a guarantee, and no one in the conversation owned the difference. That difference has a size, it is computable, and by the end of this session you will be able to compute it in your head.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The three claims that share the phrase "90%" and the one sentence that survives a hard question, a working feel for what 20, 100, 500 and 2,000 cases each buy you, the sample sizes behind any margin of error you might ask for, the honest reading of Anthropic's "start with 20-50 tasks" advice, and the clustered-standard-error gotcha that can make a proud interval three times too narrow.
+    </div>
+    <div class="callout tip">
+      <strong>No tools on this page, and no maths required</strong>
+      The leader track is judgement mode. The table in Discussion 1 computes itself in your browser; you read it, you do not build it. Everything here is designed to be usable in a meeting where you have no laptop and thirty seconds.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="three-claims">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · three claims</span>
+      <h2>One number, three claims, and only one of them is evidence <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">When someone says a bot is 90% accurate, ask yourself which of these three they mean. In almost every meeting the speaker means the first, the listener hears the second, and the decision is actually made on the third.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 495" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three claims share the phrase ninety percent: an observed point estimate, a statistical lower bound from a confidence interval, and colloquial confidence. Only the second is defensible.">
+        <style>
+          .tcN { font: 800 20px Inter, sans-serif; fill: #FFFFFF; }
+          .tcT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .tcS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .tcS2 { font: 400 11px Inter, sans-serif; fill: #EDF6F0; }
+          .tcS3 { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .tcX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .tcH { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .tcA { font: 700 13px Inter, sans-serif; fill: #FDF3E3; }
+          .tcK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="44" rx="10" fill="#0E3320"/>
+        <text class="tcT" x="44" y="52">"The bot is 90% accurate." Three different claims are wearing that one number.</text>
+
+        <rect x="24" y="84" width="48" height="60" rx="11" fill="#0E3320"/>
+        <text class="tcN" x="41" y="122">1</text>
+        <rect x="86" y="84" width="300" height="60" rx="10" fill="#1A4D33"/>
+        <text class="tcT" x="104" y="108">The observed point estimate</text>
+        <text class="tcS" x="104" y="128">100 cases ran, 90 of them passed</text>
+        <rect x="400" y="84" width="456" height="60" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tcX" x="418" y="108">True, and the weakest of the three. It is a fact about</text>
+        <text class="tcX" x="418" y="128">the hundred cases you happened to run, and nothing more.</text>
+
+        <rect x="24" y="152" width="48" height="60" rx="11" fill="#1A4D33"/>
+        <text class="tcN" x="41" y="190">2</text>
+        <rect x="86" y="152" width="300" height="60" rx="10" fill="#3D7D5A"/>
+        <text class="tcT" x="104" y="176">A statistical floor</text>
+        <text class="tcS2" x="104" y="196">the 95% CI lower bound</text>
+        <rect x="400" y="152" width="456" height="60" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tcX" x="418" y="176">The only one that survives a hard question: true success</text>
+        <text class="tcX" x="418" y="196">is at least 82.6% with 95% confidence, at n=100.</text>
+
+        <rect x="24" y="220" width="48" height="60" rx="11" fill="#BF6708"/>
+        <text class="tcN" x="41" y="258">3</text>
+        <rect x="86" y="220" width="300" height="60" rx="10" fill="#BF6708"/>
+        <text class="tcT" x="104" y="244">Colloquial confidence</text>
+        <text class="tcS3" x="104" y="264">it feels about right to me</text>
+        <rect x="400" y="220" width="456" height="60" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="tcX" x="418" y="244">Not a claim at all. It is what people usually mean, and</text>
+        <text class="tcX" x="418" y="264">it gets repeated as if it were the second one.</text>
+
+        <rect x="24" y="296" width="832" height="64" rx="10" fill="#BF6708"/>
+        <text class="tcT" x="44" y="322">The only formulation that survives the room</text>
+        <text class="tcA" x="44" y="344">"The 95% confidence interval lower bound is at or above X%" - say this, or say nothing.</text>
+
+        <rect x="24" y="376" width="832" height="76" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="tcH" x="44" y="400">Why the wording matters more than the number</text>
+        <text class="tcX" x="44" y="422">Claim 1 and claim 2 can sit twenty points apart on the same run. At n=20 the point estimate reads 90% and</text>
+        <text class="tcX" x="44" y="440">the floor is 69.9%. The person hearing "90%" is buying claim 2 and being handed claim 1.</text>
+
+        <rect x="24" y="468" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="tcK" x="48" y="480">Nobody is lying here. Three true sentences share one number, and only one of them is evidence.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - an observation, a floor, and a feeling, all pronounced the same way</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the lower bound, and not the interval, is what you say out loud<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A launch decision is one-sided. You do not care whether the bot might secretly be better than measured; you care whether it might be worse than the bar. So the useful half of the interval is the bottom of it, and the sentence that carries a decision is always shaped like <strong>"at least X, with 95% confidence"</strong>.</p>
+        <p>This also fixes the most common review-meeting failure, where a team reports a range and the room quietly rounds it to the middle. Give people a floor and they argue about the floor, which is the right argument. Give them a range and they argue about the midpoint, which is the number nobody should be using.</p>
+        <p>One honest caveat to carry: the interval covers <em>sampling</em> error only. It says what your set of cases can prove about the population your set was drawn from. It says nothing about a set drawn from the wrong population, a judge that grades generously, or a distribution that shifts next month. A beautifully narrow interval around a badly sampled set is a precise answer to the wrong question - which is exactly why session a3 comes before this one.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Wilson, not Wald: why the arithmetic on this page uses one formula<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>There is more than one way to put an interval around a proportion. The textbook one most people half-remember (the Wald interval) behaves badly at exactly the values that matter here: small samples and rates near 90% or 100%. It can produce a bound above 100%, and at 20 for 20 it produces an interval of zero width, which would tell you a perfect score on twenty cases proves perfection.</p>
+        <p>The Wilson score interval is the standard recommendation for this situation, set out in the reference paper by Brown, Cai and DasGupta in <em>Statistical Science</em> (2001). It stays inside 0 and 1, behaves sensibly at the extremes, and is what every figure on this page and in this course's simulator is computed with. You do not need the formula. You need to know that one formula was used consistently, and which one, so that your numbers and your team's numbers can be compared.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="what-n-buys">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · what n buys</span>
+      <h2>The width of the bar, and the price of narrowing it <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Hold the observed rate fixed at 90% and change only the number of cases. Nothing about the bot varies in this picture. Everything that moves is a statement about how much you looked.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Wilson 95 percent intervals at an observed 90 percent for golden sets of 20, 50, 100, 200, 500, 1000 and 2000 cases, showing the interval narrowing from 27.3 points wide to 2.6 points wide.">
+        <style>
+          .wnT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .wnL { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .wnX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .wnA { font: 400 10px Inter, sans-serif; fill: #66736B; }
+          .wnK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="44" rx="10" fill="#0E3320"/>
+        <text class="wnT" x="44" y="52">Observed 90% every time. Only the size of the golden set changes.</text>
+
+        <line x1="529" y1="84" x2="529" y2="392" stroke="#66736B" stroke-width="1" stroke-dasharray="4 4"/>
+        <text class="wnA" x="496" y="80">observed 90%</text>
+
+        <rect x="24" y="84" width="92" height="40" rx="8" fill="#BF6708"/>
+        <text class="wnL" x="38" y="109">n = 20</text>
+        <rect x="124" y="97" width="540" height="14" rx="7" fill="#EDF6F0"/>
+        <rect x="257.7" y="97" width="368.5" height="14" rx="7" fill="#BF6708"/>
+        <text class="wnX" x="680" y="108">69.9% - 97.2% · 27.3 pts</text>
+
+        <rect x="24" y="128" width="92" height="40" rx="8" fill="#BF6708"/>
+        <text class="wnL" x="38" y="153">n = 50</text>
+        <rect x="124" y="141" width="540" height="14" rx="7" fill="#EDF6F0"/>
+        <rect x="375.1" y="141" width="230.8" height="14" rx="7" fill="#BF6708"/>
+        <text class="wnX" x="680" y="152">78.6% - 95.7% · 17.0 pts</text>
+
+        <rect x="24" y="172" width="92" height="40" rx="8" fill="#3D7D5A"/>
+        <text class="wnL" x="38" y="197">n = 100</text>
+        <rect x="124" y="185" width="540" height="14" rx="7" fill="#EDF6F0"/>
+        <rect x="429.1" y="185" width="160.7" height="14" rx="7" fill="#3D7D5A"/>
+        <text class="wnX" x="680" y="196">82.6% - 94.5% · 11.9 pts</text>
+
+        <rect x="24" y="216" width="92" height="40" rx="8" fill="#3D7D5A"/>
+        <text class="wnL" x="38" y="241">n = 200</text>
+        <rect x="124" y="229" width="540" height="14" rx="7" fill="#EDF6F0"/>
+        <rect x="462.9" y="229" width="112.0" height="14" rx="7" fill="#3D7D5A"/>
+        <text class="wnX" x="680" y="240">85.1% - 93.4% · 8.4 pts</text>
+
+        <rect x="24" y="260" width="92" height="40" rx="8" fill="#1A4D33"/>
+        <text class="wnL" x="38" y="285">n = 500</text>
+        <rect x="124" y="273" width="540" height="14" rx="7" fill="#EDF6F0"/>
+        <rect x="489.9" y="273" width="70.2" height="14" rx="7" fill="#1A4D33"/>
+        <text class="wnX" x="680" y="284">87.1% - 92.3% · 5.3 pts</text>
+
+        <rect x="24" y="304" width="92" height="40" rx="8" fill="#1A4D33"/>
+        <text class="wnL" x="38" y="329">n = 1000</text>
+        <rect x="124" y="317" width="540" height="14" rx="7" fill="#EDF6F0"/>
+        <rect x="502.0" y="317" width="50.0" height="14" rx="7" fill="#1A4D33"/>
+        <text class="wnX" x="680" y="328">88.0% - 91.7% · 3.7 pts</text>
+
+        <rect x="24" y="348" width="92" height="40" rx="8" fill="#0E3320"/>
+        <text class="wnL" x="38" y="373">n = 2000</text>
+        <rect x="124" y="361" width="540" height="14" rx="7" fill="#EDF6F0"/>
+        <rect x="510.1" y="361" width="35.1" height="14" rx="7" fill="#0E3320"/>
+        <text class="wnX" x="680" y="372">88.6% - 91.2% · 2.6 pts</text>
+
+        <text class="wnA" x="116" y="406">60%</text>
+        <text class="wnA" x="251" y="406">70%</text>
+        <text class="wnA" x="386" y="406">80%</text>
+        <text class="wnA" x="521" y="406">90%</text>
+        <text class="wnA" x="652" y="406">100%</text>
+
+        <rect x="24" y="424" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="wnK" x="48" y="436">Width shrinks with the square root of n. Going from 500 to 2,000 is four times the labelling work</text>
+        <text class="wnK" x="48" y="454">and buys under three points of width. Evidence gets expensive faster than it gets useful.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - same 90% seven times over, and seven very different things you may claim</figcaption>
+    </figure>
+
+    <p>Read it as a ladder of permissions rather than a table of statistics. Each row is a sentence you are allowed to say:</p>
+
+    <table class="clean">
+      <tr><th>Golden set</th><th>95% interval at an observed 90%</th><th>What you are allowed to say</th></tr>
+      <tr><td><strong>n = 20</strong></td><td>69.9% - 97.2%, 27.3 points wide</td><td>Almost nothing. 18 of 20 is fully compatible with a bot that is truly right seven times in ten.</td></tr>
+      <tr><td><strong>n = 50</strong></td><td>78.6% - 95.7%, 17.0 points wide</td><td>You cannot rule out that it is below 80%.</td></tr>
+      <tr><td><strong>n = 100</strong></td><td>82.6% - 94.5%, 11.9 points wide</td><td>The first defensible "high 80s or better".</td></tr>
+      <tr><td><strong>n = 200</strong></td><td>85.1% - 93.4%, 8.4 points wide</td><td>You can defend a claim of 85% or above.</td></tr>
+      <tr><td><strong>n = 500</strong></td><td>87.1% - 92.3%, 5.3 points wide</td><td>Roughly 4-point regressions become detectable run to run.</td></tr>
+      <tr><td><strong>n = 1000</strong></td><td>88.0% - 91.7%, 3.7 points wide</td><td>"About 90%, give or take two." A T3 bar of 90% is now arguable.</td></tr>
+      <tr><td><strong>n = 2000</strong></td><td>88.6% - 91.2%, 2.6 points wide</td><td>Diminishing returns. Four times the work since n=500, under three points bought.</td></tr>
+    </table>
+
+    <p>The same fact from the other direction, which is the form you will want when someone asks how many cases to label. To achieve a given margin of error around a rate near 90%:</p>
+
+    <table class="clean">
+      <tr><th>Margin you want</th><th>Cases needed</th><th>What that costs in practice</th></tr>
+      <tr><td><strong>±10%</strong></td><td>n ≈ 35</td><td>An afternoon. Useful for iteration, never for a launch claim.</td></tr>
+      <tr><td><strong>±5%</strong></td><td>n ≈ 138</td><td>A couple of days. The realistic floor for a first honest report.</td></tr>
+      <tr><td><strong>±3%</strong></td><td>n ≈ 384</td><td>About a week of labelling. Where most serious launch evidence sits.</td></tr>
+      <tr><td><strong>±2%</strong></td><td>n ≈ 864</td><td>Weeks, or a labelling budget. Justified for high-tier bots.</td></tr>
+      <tr><td><strong>±1%</strong></td><td>n ≈ 3,457</td><td>A project of its own. Ask hard whether the decision needs this precision.</td></tr>
+    </table>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>"Start with 20-50 tasks" is excellent advice about a different activity<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Anthropic's engineering guidance on agent evals recommends starting with <strong>20 to 50 simple tasks drawn from real failures</strong>. That advice is correct, and the table above does not contradict it - the two are about different jobs, and conflating them is how a 20-case set ends up in a go/no-go deck:</p>
+        <ul>
+          <li><strong>Iteration.</strong> Early changes produce 30-point swings. A 30-point swing is visible at n=30, so a small set drawn from things that actually broke is the fastest possible feedback loop. Starting big here is a waste of a week.</li>
+          <li><strong>Launch evidence.</strong> You are now claiming a few points of difference from a threshold. That needs an order of magnitude more cases, for the reason the picture above shows: at n=20 the floor sits 20 points below the estimate.</li>
+        </ul>
+        <p>The same guidance draws a second line worth carrying as a leader: <strong>capability evals</strong> start low and exist to drive improvement, so a low score there is the system working. <strong>Regression evals</strong> are expected to run at a nearly 100% pass rate, so anything else is a bug rather than a score. If a report merges the two, you will misread both. Builder session b1 splits them properly.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="clusters">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the cluster gotcha</span>
+      <h2>Your golden set has structure, and the arithmetic does not know <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">This is the best gotcha in the course, and it catches sophisticated teams rather than careless ones - you have to have got everything else right before it can bite you. Anthropic's error-bar research puts it plainly: <strong>clustered standard errors on popular evals can be over three times as large as naive standard errors</strong>. Read that as: the interval you were proud of may be up to three times too narrow.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 435" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A golden set of 200 questions built as 10 questions per document across 20 documents has only 20 independent clusters, so the clustered standard error can be over three times the naive standard error.">
+        <style>
+          .clT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .clS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .clS3 { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .clH { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .clA { font: 700 12.5px Inter, sans-serif; fill: #3A2A08; }
+          .clX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .clW { font: 700 12.5px Inter, sans-serif; fill: #991B1B; }
+          .clW2 { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+          .clK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="52" rx="10" fill="#0E3320"/>
+        <text class="clT" x="44" y="46">Your golden set: 200 questions. Built as 10 questions per document, across 20 documents.</text>
+        <text class="clS" x="44" y="64">The naive interval assumes 200 independent draws. You do not have 200 independent draws.</text>
+
+        <rect x="24" y="92" width="124" height="56" rx="10" fill="#1A4D33"/>
+        <text class="clT" x="38" y="114">Doc 1</text>
+        <text class="clS" x="38" y="132">10 questions</text>
+        <rect x="164" y="92" width="124" height="56" rx="10" fill="#1A4D33"/>
+        <text class="clT" x="178" y="114">Doc 2</text>
+        <text class="clS" x="178" y="132">10 questions</text>
+        <rect x="304" y="92" width="124" height="56" rx="10" fill="#1A4D33"/>
+        <text class="clT" x="318" y="114">Doc 3</text>
+        <text class="clS" x="318" y="132">10 questions</text>
+        <rect x="444" y="92" width="124" height="56" rx="10" fill="#BF6708"/>
+        <text class="clT" x="458" y="114">Doc 4</text>
+        <text class="clS3" x="458" y="132">10 questions</text>
+        <rect x="584" y="92" width="124" height="56" rx="10" fill="#1A4D33"/>
+        <text class="clT" x="598" y="114">Doc 5</text>
+        <text class="clS" x="598" y="132">10 questions</text>
+        <rect x="724" y="92" width="132" height="56" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="clX" x="740" y="114">+ 15 more</text>
+        <text class="clX" x="740" y="132">documents</text>
+
+        <text class="clX" x="44" y="170">Document 4 is ambiguous, so all ten of its questions fail together - one fact counted ten times.</text>
+
+        <rect x="24" y="190" width="404" height="104" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="clH" x="44" y="216">Naive standard error</text>
+        <text class="clX" x="44" y="238">n = 200 treated as 200 independent draws.</text>
+        <text class="clX" x="44" y="256">This is the interval most reports show.</text>
+        <rect x="44" y="268" width="100" height="12" rx="6" fill="#3D7D5A"/>
+        <text class="clX" x="154" y="278">1x width</text>
+
+        <rect x="452" y="190" width="404" height="104" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="clA" x="472" y="216">Clustered standard error</text>
+        <text class="clX" x="472" y="238">n = 200 in only 20 independent clusters.</text>
+        <text class="clX" x="472" y="256">Anthropic: can be over three times as large.</text>
+        <rect x="472" y="268" width="300" height="12" rx="6" fill="#BF6708"/>
+        <text class="clX" x="782" y="278">up to 3x</text>
+
+        <rect x="24" y="310" width="832" height="56" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="clW" x="44" y="334">So the interval you reported may be up to three times too narrow.</text>
+        <text class="clW2" x="44" y="354">The fix is not more questions per document. It is more documents - more independent units of evidence.</text>
+
+        <rect x="24" y="386" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="clK" x="48" y="398">Anthropic's error-bar guidance says it directly: clustered standard errors on popular evals can be</text>
+        <text class="clK" x="48" y="416">over three times as large as naive ones. If your set has structure, your interval must know about it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - 200 questions, 20 pieces of evidence, and an error bar that did not notice</figcaption>
+    </figure>
+
+    <div class="callout warn">
+      <strong>Why this catches good teams specifically</strong>
+      Building a golden set as "ten questions per document" is the sensible, organised way to do it. So is "five queries per table", "eight tickets per customer", or "twelve turns per conversation". Every one of those is a cluster. The questions inside a cluster share their difficulty, their ambiguity and their retrieval context, so they succeed and fail together - and a set of 200 questions from 20 documents carries closer to 20 units of evidence than 200. The naive formula has no way to know this, because you never told it. Nobody did anything wrong; the structure that made the set easy to build is the structure that inflated the confidence.
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The companion recommendation: compare versions with paired differences<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The same Anthropic research offers the counterpart move, and it is the one that saves you money rather than costing it. When you are comparing two versions of a bot rather than measuring one in isolation, do not compare two independent scores. Run both versions on <strong>the same questions</strong> and difference them question by question.</p>
+        <p>The reason it works: a hard question is hard for both versions, and an easy one is easy for both. Differencing per question cancels that shared difficulty out, so you are left looking only at the change you care about. In practice this means you can detect a genuine improvement of a given size with substantially fewer cases than an unpaired comparison would need - the same evidence, better arranged.</p>
+        <p>As a leader, the two questions this gives you are short. <strong>"Were both versions run on the same set?"</strong> and <strong>"Does your set have repeated units in it - several questions per document, per table, per customer?"</strong> Almost nobody expects a leader to ask the second one, and almost every real golden set answers yes.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Discussion 1 of 2</span>
+      <h2>The live interval table <span class="tag demo">★ 10 min · read it together</span></h2>
+    </div>
+    <p class="lede">Below is the same table as Part 2, computed live rather than typed out. The observed accuracy is pinned at 90% and only n changes. Read the first row aloud in the session - it is the row that changes how people talk for the rest of the quarter.</p>
+
+    <div class="glbox" data-mode="ci"></div>
+
+    <div class="callout tip">
+      <strong>Everything in this table is real arithmetic</strong>
+      Elsewhere in this course the same simulator shows per-category bot pass rates, and those are a teaching model of a bot with realistic failure modes. Here there is no model at all. Every interval above is computed in your browser from the Wilson formula, from nothing but n and an observed 90%, with no figure hard-coded. You can check any row of it by hand, and it will match the printed table in Part 2 exactly.
+    </div>
+
+    <div class="steps">
+      <div class="step"><p>Start at <strong>n = 20</strong>. The pass rate is 90% and the lower bound is 69.9%. Say the consequence out loud: eighteen of twenty is genuinely compatible with a bot that is right about seven times in ten. This is the row that describes almost every demo you have ever been shown.</p></div>
+      <div class="step"><p>Walk down to <strong>n = 100</strong>. The floor has climbed to 82.6% and the width has more than halved. This is the first row where "high 80s or better" is a defensible sentence rather than an optimistic one - and it is also roughly where most teams stop, because a hundred feels like a lot of work.</p></div>
+      <div class="step"><p>Compare <strong>n = 500</strong> and <strong>n = 2000</strong>. Four times the labelling, and the width goes from 5.3 points to 2.6. Ask the group the real question: if your bot is one point short of its bar, is it cheaper to improve the bot or to label 1,500 more cases? Teams reflexively pick the first, and it is frequently the more expensive answer.</p></div>
+      <div class="step"><p>Now find the row your own most recent eval was on. Most people in the room will be between rows one and three. Write down the sentence that row entitles you to say, and notice how different it is from the sentence that was actually said.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Discussion 2 of 2</span>
+      <h2>Rewrite a claim you have already made <span class="tag demo">★ 8 min · at your table</span></h2>
+    </div>
+    <p class="lede">Take the most recent accuracy claim from your own organisation - a slide, a board update, a vendor email you forwarded approvingly - and put it through the four rewrites below. Do it on paper. The point is not to embarrass anyone; it is to feel how much of the original sentence was structure and how much was hope.</p>
+
+    <div class="prompt-box good">
+      <span class="label">★ The four rewrites, in order</span>
+      <p><strong>1. Name the claim.</strong> Is the number in your sentence an observation, a statistical floor, or a feeling? Write which. <strong>2. Attach n.</strong> How many cases produced it? If you do not know, that is the finding, and it comes before any argument about the value. <strong>3. Replace the point with the floor.</strong> Look up the row in the table and rewrite the sentence as "at least X%, with 95% confidence, on n cases". <strong>4. Check for clusters.</strong> Ask whether the set was built as several questions per document, table, ticket or conversation. If it was, say so and widen your claim, because the printed interval assumed something about your set that is not true.</p>
+    </div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>What this sounds like when it lands well.</strong> The before: "our support bot is about 90% accurate and we think it is ready." The after: "on 500 cases sampled from December traffic, including a 15% adversarial and unanswerable slice, graded by rule and execution where possible with the judge calibrated against 120 human labels, it passed 474. True task success is at least 92.5% with 95% confidence, against a tier bar of 90%. The set is drawn from 500 separate conversations rather than several questions per conversation, so the interval is not clustered." It is longer. It also ends the meeting, because there is no follow-up question left in it - and that is what you are buying with the extra clause. Builder session b9 assembles this sentence from a live scorecard.</p>
+    </div>
+
+    <div class="callout warn">
+      <strong>The one rewrite people resist</strong>
+      Step 3 always feels like a downgrade, because the floor is lower than the number you were using and somebody has to explain why the figure "went down" without the bot changing. It is worth saying explicitly in the room: the number did not go down, the claim got honest, and the version you were using was never the one you could defend. Teams that make this switch once never go back, because the first time a hard question lands and the answer is already in the sentence, the value becomes obvious to everyone present.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 45 min total</span></h2>
+    </div>
+    <ul>
+      <li>Ask for the n behind the last three AI performance numbers your organisation reported. Not the methodology, not a review - just the three counts. The distribution of answers tells you where your measurement culture actually is.</li>
+      <li>Take your highest-stakes bot and work backwards from the decision: what margin of error would actually change your mind, and what does the sample-size table say that costs? Bring that number to the team as a budget question rather than a quality complaint.</li>
+      <li>Ask the cluster question once, gently, of whichever team you trust most: "is the set several questions per document, or one question per document?" Whatever the answer, you will learn something, and it is a question they will remember being asked.</li>
+      <li>Rewrite one claim you personally own into the "at least X%, with 95% confidence, on n cases" form and use it in your next update. Then watch what happens to the questions you get back. Fewer, and better.</li>
+      <li>Sit in on one version-comparison review and ask whether both versions ran on the same questions. If not, the team is paying for cases it does not need.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every figure on this page traces to a primary source catalogued in this course's source map, dated 2026-08-13. The interval figures are computed rather than quoted, and you can reproduce every one of them. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Wilson score interval at an observed 90% for n = 20 to 2,000, with widths from 27.3 to 2.6 points</span><span class="note">Part 2 + Discussion 1 · computed live in the browser, not hard-coded</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Wilson recommended over the Wald interval for small n and rates near the boundary (Brown, Cai &amp; DasGupta, Statistical Science, 2001)</span><span class="note">Part 1 self-study · the formula behind every figure in this course</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Sample size for margin of error at p = 0.9: ±10% n≈35, ±5% n≈138, ±3% n≈384, ±2% n≈864, ±1% n≈3,457</span><span class="note">Part 2 · the budgeting form of the same arithmetic</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic "Adding Error Bars to Evals": clustered standard errors can be over three times naive standard errors; paired differences between versions</span><span class="note">Part 3 · the single best gotcha in this course</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic agent-eval guidance: 20-50 tasks from real failures for iteration; capability evals start low, regression evals run near 100%</span><span class="note">Part 2 self-study · the iteration-versus-evidence distinction</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Risk tiers and the bars the lower bound has to clear</span><span class="note">Used as context here · the T1-T4 table is a5</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">The six-gate launch scorecard the confidence figure feeds</span><span class="note">Named here · assembled live in b9</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Judge calibration against human labels, and what an uncalibrated judge does to the rate before any interval is computed</span><span class="note">Assumed here · measured in b4</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · A team reports that 18 of 20 cases passed, so the bot is 90% accurate. What are you entitled to conclude?</p>
+      <button class="qopt" type="button">A · That the bot is 90% accurate - that is the measurement, and measurements are facts</button>
+      <button class="qopt" type="button">B · Very little. The 95% interval runs from 69.9% to 97.2%, so 18 of 20 is fully compatible with a bot that is truly right about seven times in ten</button>
+      <button class="qopt" type="button">C · That the bot is at least 85%, since 90% minus a reasonable margin</button>
+      <p class="qwhy">The 90% is a true statement about the twenty cases you ran and almost nothing about the bot. At n=20 the interval is 27.3 points wide, and its floor sits more than twenty points below the headline. This is the arithmetic behind the rule that a demo is not evidence: not because demos are dishonest, but because twenty observations cannot separate a 70% bot from a 95% one. Option C is the instinct to eyeball a margin, and the point of the table is that the real margin is much bigger than instinct suggests.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · You are at n=500 with an interval of 87.1% to 92.3%. Someone proposes labelling 1,500 more cases to reach n=2,000. What is the right response?</p>
+      <button class="qopt" type="button">A · Approve it - more evidence is always the right investment before a launch</button>
+      <button class="qopt" type="button">B · Refuse it - beyond 500 cases, additional labelling has no statistical effect</button>
+      <button class="qopt" type="button">C · Price it honestly: four times the labelling buys the width down from 5.3 to 2.6 points, so ask whether that 2.7 points is worth more than the same budget spent improving the bot</button>
+      <p class="qwhy">Interval width shrinks with the square root of n, so buying precision gets steadily more expensive while the bot itself does not improve at all. That does not make the spend wrong - if you are one point short of a tier bar, narrowing the interval is sometimes genuinely the cheapest path to a defensible launch, and builder session b9 shows exactly that case. What makes it a leadership decision is that it is a real trade with two priced options, and it is usually presented as though only one of them existed.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Your team's golden set is 200 questions, built as 10 questions over each of 20 documents. What should you say about the reported interval?</p>
+      <button class="qopt" type="button">A · That it is probably too narrow - 200 questions from 20 documents is closer to 20 independent units of evidence, and clustered standard errors can be over three times the naive ones. Add documents, not more questions per document</button>
+      <button class="qopt" type="button">B · Nothing - 200 cases is 200 cases regardless of how they were assembled</button>
+      <button class="qopt" type="button">C · That the set is too small and should be doubled to 400 questions across the same 20 documents</button>
+      <p class="qwhy">Questions drawn from the same document share their difficulty, ambiguity and retrieval context, so they pass and fail together. The naive formula counts them as 200 independent facts when they behave much more like 20, and Anthropic's error-bar research measures the consequence: clustered standard errors on popular evals can be over three times as large as naive ones. Option C is the trap - doubling to 400 questions over the same 20 documents adds work and adds almost no independent evidence, which is exactly the mistake the finding warns against.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 4 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Three claims, one number</b><span>Observed point estimate, statistical floor, gut feel. The speaker means the first, the room hears the second.</span></div>
+      <div class="cheat-item"><b>The only defensible sentence</b><span>"The 95% CI lower bound is at or above X%." Say this, or say nothing. Launch decisions are one-sided.</span></div>
+      <div class="cheat-item"><b>n=20 proves almost nothing</b><span>69.9% to 97.2%. 18 of 20 is compatible with a truly 70% bot. This is every demo you have been shown.</span></div>
+      <div class="cheat-item"><b>n=100 is the first honest row</b><span>82.6% to 94.5%. "High 80s or better" becomes defensible. n=200 lets you defend 85% or above.</span></div>
+      <div class="cheat-item"><b>Width shrinks with √n</b><span>500 gives 5.3 points, 2,000 gives 2.6. Four times the labelling for under three points. Price it against fixing the bot.</span></div>
+      <div class="cheat-item"><b>Margins have price tags</b><span>±10% n≈35 · ±5% n≈138 · ±3% n≈384 · ±2% n≈864 · ±1% n≈3,457. Ask which margin would change your mind.</span></div>
+      <div class="cheat-item"><b>The cluster gotcha</b><span>10 questions x 20 documents is 20 units of evidence, not 200. Clustered SEs can be over 3x naive. Add documents.</span></div>
+      <div class="cheat-item"><b>20-50 tasks is for iterating</b><span>Anthropic's advice is about feedback speed, not launch evidence. Capability evals start low; regression evals sit near 100%.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 4 of 6 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="a5-risk-tiers-and-the-gate.html">Next: Risk tiers and the launch gate →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/gate-live.js?v=2"></script>
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

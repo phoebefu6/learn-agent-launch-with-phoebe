@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 3 · How to read an eval report - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Leader session 3 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Leader track · Session 3 of 6</div>
+    <h1>How to read an eval report: <span class="accent">the questions that change the answer</span></h1>
+    <p class="sub">Somebody puts a number in front of you and says the bot is ready. This session is about the three or four questions that decide whether that number means anything - and about the uncomfortable fact that the same models, on the same outputs, score roughly ten times better or worse depending only on how the measurer defined the word. You will leave with a grilling kit you can use in the next review, without touching a tool.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Leader track</span>
+      <span class="chip audience">Heads of product · eng leaders · risk &amp; compliance</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:5">3-25 · Three ways a number gets its shape</span>
+      <span class="a3" style="flex:4">25-40 · Grill a report at your table</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>You are not being lied to. You are being shown a different question's answer</h2>
+    </div>
+    <p class="lede">Almost every misleading eval number in this session was produced honestly, by competent people, using a defensible method. That is what makes them dangerous. A leader who assumes bad faith looks for the wrong thing; the actual failure is that a number arrives without the definition, the sample and the grading rule that gave it its shape - and those three things move it further than any model upgrade ever will.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The definition-sensitivity effect and roughly how large it is, three tells that a case set was picked rather than sampled, a way to read a vendor's internal benchmark without either believing it or dismissing it, the reason a leaderboard position is not a claim about your data, and a seven-question grilling kit you can run in a fifteen-minute review.
+    </div>
+    <div class="callout tip">
+      <strong>No tools on this page, on purpose</strong>
+      The leader track is judgement mode. There is nothing here to install and nothing to run. Everything on this page is a question you can ask out loud in a meeting, and the reason the answer matters. Session a4 gives you the arithmetic that sits underneath it, and the builder track sessions b2, b4 and b6 show your team how to produce the answers.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="definition">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · definition sensitivity</span>
+      <h2>The word moves the number about ten times further than the model does <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">This is the headline of the whole session, and it is the one thing to remember if you remember nothing else. Hallucination rate is the clearest published example because two independent efforts have scored the same models under two different definitions, and the results do not overlap at all.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 435" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Definition sensitivity: the same models score 0.7 to 4.4 percent hallucination on the Vectara HHEM leaderboard but 7 to 12 percent under stricter FaithJudge re-scoring, a roughly tenfold move driven by the definition alone.">
+        <style>
+          .dsT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .dsS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .dsB { font: 800 26px Inter, sans-serif; fill: #1A4D33; }
+          .dsB2 { font: 800 26px Inter, sans-serif; fill: #BF6708; }
+          .dsH { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .dsX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .dsA { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .dsK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="44" rx="10" fill="#0E3320"/>
+        <text class="dsT" x="44" y="52">Same models. Same outputs. Two definitions of the word "hallucination".</text>
+
+        <rect x="24" y="84" width="404" height="132" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="dsH" x="44" y="110">Vectara HHEM leaderboard</text>
+        <text class="dsB" x="44" y="152">0.7% - 4.4%</text>
+        <text class="dsX" x="44" y="178">hallucination rate across current frontier</text>
+        <text class="dsX" x="44" y="196">models, under the leaderboard's own scoring</text>
+
+        <rect x="452" y="84" width="404" height="132" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="dsH" x="472" y="110">FaithJudge re-scoring</text>
+        <text class="dsB2" x="472" y="152">7% - 12%</text>
+        <text class="dsX" x="472" y="178">the same models, re-scored under a stricter</text>
+        <text class="dsX" x="472" y="196">rule for what counts as unsupported</text>
+
+        <rect x="24" y="232" width="832" height="44" rx="10" fill="#1A4D33"/>
+        <text class="dsA" x="44" y="259">The number moved by roughly 10x. Nothing about the models changed - only the definition.</text>
+
+        <rect x="24" y="290" width="832" height="100" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="dsH" x="44" y="316">What a leader does with this</text>
+        <text class="dsX" x="44" y="338">Never compare two rates from two reports. Ask instead: what exactly counted as a hallucination</text>
+        <text class="dsX" x="44" y="356">here, who wrote that rule, and would our own worst answer last month have been counted?</text>
+        <text class="dsX" x="44" y="374">A vendor is not lying when their number is lower than yours. They may be scoring a different thing.</text>
+
+        <rect x="24" y="404" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="dsK" x="48" y="416">Definition first, number second. A number without its definition is not evidence, it is decoration.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one definition change, a tenfold move, and no model was harmed</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The same effect, in every metric you will be shown<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Hallucination rate is the loudest case, not a special one. Every headline metric in this field hides a definitional dial, and the dial is usually set by whoever needs the number:</p>
+        <ul>
+          <li><strong>Resolution rate.</strong> Intercom publishes its definition openly and it is instructive: a hard resolution needs the customer to confirm, a soft resolution counts an exit plus 24 hours of inactivity, the resolution is <em>reversed</em> if the customer comes back to the thread, and a greeting-only exchange never counts. Three of those four rules are choices, and each one moves the rate. Their production range across customers runs roughly 38% to 72% (a secondary, vendor-published figure).</li>
+          <li><strong>Accuracy on a query bot.</strong> Exact-string match against a single reference answer, versus running both queries and comparing the returned rows, are different metrics with the same name. The first rejects correct answers phrased differently.</li>
+          <li><strong>Task success on an agent.</strong> Did one attempt succeed, or did all of them? Those are different numbers with the same label, and the gap between them is where production lives. Builder session b8 measures it.</li>
+        </ul>
+        <p>The leader move is always the same and it is one sentence long: <strong>"read me the definition you used."</strong> If nobody in the room can, the number is not ready to be discussed yet.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What honestly good looks like, so you have an anchor<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Leaders get anchored on 99% because that is what software is like, and a bot report at 99% should worry you far more than one at 78%. Some published anchors worth carrying in your head, all measured on public benchmarks rather than on your data:</p>
+        <ul>
+          <li>On BIRD, the main text-to-query benchmark, the best published systems sit around 82% execution accuracy while <strong>measured human performance is 92.96%</strong>. Humans do not get 100% either.</li>
+          <li>On Spider 2.0, built from enterprise-shaped workflows rather than tidy exam questions, a frontier reasoning model scored <strong>17.0%</strong> - against 91.2% on the older, simpler Spider 1.0. Same class of model, same task name, a completely different difficulty of set.</li>
+          <li>For support chatbots, a mature containment rate of 70-90% is a strong result and a well-configured retrieval chatbot commonly lands at 40-65% (Gartner-attributed, reaching you through third parties rather than from a primary study).</li>
+        </ul>
+        <p>Session a2 covers this ground properly. The point to hold here: when a report shows a number far above these anchors, the most likely explanation is not that your team is exceptional. It is that the set was easier.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="vendor">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · whose set, whose scaffolding</span>
+      <h2>Internal benchmarks answer a question you did not ask <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Vendor accuracy claims are the most-quoted numbers in any buying conversation and the least transferable. The published Snowflake Cortex Analyst result is a useful teaching case precisely because the company documented what it took to get there - which is more transparency than most vendors offer, and enough to see the shape of the problem.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Anatomy of a vendor accuracy headline: an internal 150-question benchmark, a hand-built semantic model, agentic retries and lenient multi-gold scoring, against single-shot GPT-4o scoring 51 percent on the same set.">
+        <style>
+          .vbT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .vbS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .vbS2 { font: 400 11px Inter, sans-serif; fill: #EDF6F0; }
+          .vbS3 { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .vbX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .vbW { font: 700 12.5px Inter, sans-serif; fill: #991B1B; }
+          .vbW2 { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+          .vbK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="52" rx="10" fill="#0E3320"/>
+        <text class="vbT" x="44" y="46">A vendor headline: "over 90% accuracy" on text-to-query, published by the vendor</text>
+        <text class="vbS" x="44" y="64">Snowflake Cortex Analyst, an internal 150-question benchmark - not independently verified</text>
+
+        <rect x="24" y="92" width="520" height="48" rx="10" fill="#1A4D33"/>
+        <text class="vbT" x="44" y="113">1 · An internal 150-question set, not an independent one</text>
+        <text class="vbS" x="44" y="131">the questions and the grading rules were both chosen in-house</text>
+        <rect x="556" y="92" width="300" height="48" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="vbX" x="574" y="113">You cannot reproduce it, and</text>
+        <text class="vbX" x="574" y="131">nobody outside the vendor has.</text>
+
+        <rect x="24" y="148" width="520" height="48" rx="10" fill="#1A4D33"/>
+        <text class="vbT" x="44" y="169">2 · A hand-built semantic model over the schema</text>
+        <text class="vbS" x="44" y="187">a curated modelling layer most teams do not have on day one</text>
+        <rect x="556" y="148" width="300" height="48" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="vbX" x="574" y="169">Your number without that layer</text>
+        <text class="vbX" x="574" y="187">is a different number entirely.</text>
+
+        <rect x="24" y="204" width="520" height="48" rx="10" fill="#3D7D5A"/>
+        <text class="vbT" x="44" y="225">3 · Agentic retries, not a single attempt</text>
+        <text class="vbS2" x="44" y="243">the system was allowed more than one try before scoring</text>
+        <rect x="556" y="204" width="300" height="48" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="vbX" x="574" y="225">A retry budget is a cost line</text>
+        <text class="vbX" x="574" y="243">on your invoice, not a freebie.</text>
+
+        <rect x="24" y="260" width="520" height="48" rx="10" fill="#BF6708"/>
+        <text class="vbT" x="44" y="281">4 · Lenient multi-gold scoring</text>
+        <text class="vbS3" x="44" y="299">several different answers were accepted as correct</text>
+        <rect x="556" y="260" width="300" height="48" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="vbX" x="574" y="281">Strictness is a dial, and this</text>
+        <text class="vbX" x="574" y="299">one was turned down.</text>
+
+        <rect x="24" y="324" width="832" height="56" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="vbW" x="44" y="348">On the same 150 questions, single-shot GPT-4o scored 51%.</text>
+        <text class="vbW2" x="44" y="368">Same set, same questions. The gap is scaffolding, not model quality - and that scaffolding would be yours.</text>
+
+        <rect x="24" y="400" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="vbK" x="48" y="412">Internal benchmarks are not lies. They answer a question you did not ask: how well can this</text>
+        <text class="vbK" x="48" y="430">vendor do on their own set with their own scaffolding? Yours is: what happens on our schema.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four choices behind one headline, and the 39-point gap they are worth</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The honest way to use a vendor number.</strong> Do not throw it away and do not repeat it. Treat it as a ceiling under ideal conditions and ask for the four things that turn it into a forecast: was the set yours or theirs, what preparation work was assumed, how many attempts per question, and how lenient was the marking. Then ask the one question that settles the buying decision - <em>will you run this on fifty of our own questions, in front of us, first try?</em> Every serious vendor says yes. The answer to that pilot is the only number that belongs in your business case.</p>
+    </div>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="annotation">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the answer key</span>
+      <h2>Sometimes the ground truth is the thing that is wrong <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Everything so far assumed that at least the right answers were right. On the two most-cited text-to-query benchmarks in the field, an audit checked that assumption and it did not hold. This is the finding that should change how you hear the phrase "state of the art".</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 435" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gold-annotation error rates of 52.8 percent on BIRD Mini-Dev and 62.8 percent on Spider 2.0-Snow; re-evaluating 16 agents on corrected data moved scores between minus 7 and plus 31 percent and rankings by up to 9 positions.">
+        <style>
+          .anT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .anL { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+          .anB { font: 800 28px Inter, sans-serif; fill: #991B1B; }
+          .anH { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .anA { font: 700 12.5px Inter, sans-serif; fill: #3A2A08; }
+          .anX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .anK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="44" rx="10" fill="#0E3320"/>
+        <text class="anT" x="44" y="52">An audit re-checked the gold answers on two standard benchmarks. This is what it found.</text>
+
+        <rect x="24" y="84" width="404" height="96" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="anL" x="44" y="110">BIRD Mini-Dev</text>
+        <text class="anB" x="44" y="150">52.8%</text>
+        <text class="anL" x="44" y="170">of gold annotations found to be in error</text>
+
+        <rect x="452" y="84" width="404" height="96" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="anL" x="472" y="110">Spider 2.0-Snow</text>
+        <text class="anB" x="472" y="150">62.8%</text>
+        <text class="anL" x="472" y="170">of gold annotations found to be in error</text>
+
+        <rect x="24" y="196" width="832" height="76" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="anA" x="44" y="222">What happened when 16 agents were re-evaluated on the corrected data</text>
+        <text class="anX" x="44" y="244">Scores moved between -7% and +31%. Rankings moved by up to 9 positions. Systems that looked</text>
+        <text class="anX" x="44" y="262">state of the art were not, and others had been punished for answers that were actually correct.</text>
+
+        <rect x="24" y="288" width="832" height="76" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="anH" x="44" y="314">The tension you have to hold, without resolving it</text>
+        <text class="anX" x="44" y="336">The 96%-plus leaderboard entries on that split and the 62.8% annotation-error audit of that same</text>
+        <text class="anX" x="44" y="354">split are both true. A leaderboard position is a claim about a dataset, not about your data.</text>
+
+        <rect x="24" y="384" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="anK" x="48" y="396">Ask who wrote the right answers, and when anyone last checked them. On the two benchmarks</text>
+        <text class="anK" x="48" y="414">most cited in this field, the answer was: nobody had, until someone did - and the key moved.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - when the answer key is audited, the ranking is not the same ranking</figcaption>
+    </figure>
+
+    <div class="callout warn">
+      <strong>What this does and does not mean</strong>
+      It does not mean benchmarks are worthless or that everyone is cheating. It means a benchmark result is a measurement made with an instrument, and this instrument had not been calibrated. Two practical consequences for you: a leaderboard gap of a few points between two vendors is inside the noise and should not decide a purchase, and any team quoting a public benchmark as evidence that <em>their</em> deployment will work has skipped the only step that matters - running it on your own questions.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Discussion 1 of 2</span>
+      <h2>The grilling kit: seven questions, fifteen minutes <span class="tag demo">★ 12 min · everyone asks</span></h2>
+    </div>
+    <p class="lede">These are the questions, in order, in the words you would actually use. None of them require you to understand the model. Every one of them changes the number if the answer is bad, and a team that can answer all seven has almost certainly done the work.</p>
+
+    <table class="clean">
+      <tr><th>Ask this</th><th>A good answer sounds like</th><th>A worrying answer sounds like</th></tr>
+      <tr><td><strong>How many cases were in this run?</strong></td><td>"Four hundred and eighty, and here is the sheet."</td><td>"A good number." Or any answer under about fifty offered as launch evidence.</td></tr>
+      <tr><td><strong>Where were they sampled from?</strong></td><td>"A random sample of December production traffic, in the same category proportions as live."</td><td>"We wrote them." Or "the ones we use for demos."</td></tr>
+      <tr><td><strong>What fraction are adversarial or unanswerable?</strong></td><td>"About fifteen percent, split between the two, and here is how they scored separately."</td><td>"None - we wanted to test what it is meant to do." This is the most common answer and the most revealing.</td></tr>
+      <tr><td><strong>Who or what graded them?</strong></td><td>"Rules and execution where possible, a model judge for the rest, humans on the safety cases."</td><td>"The model checked its own answers." Or a judge doing work a rule could do.</td></tr>
+      <tr><td><strong>Was the judge calibrated, and against how many human labels?</strong></td><td>"Against a hundred and twenty human-labelled cases, and we report where it disagrees."</td><td>"We wrote a good prompt for it." An uncalibrated judge reports its own opinion as accuracy.</td></tr>
+      <tr><td><strong>What is the interval around that number?</strong></td><td>"The 95% lower bound is 88.1%." Session a4 is entirely about this answer.</td><td>"It is ninety percent." A point estimate offered as though it were a floor.</td></tr>
+      <tr><td><strong>Was the threshold set before or after the run?</strong></td><td>"Before, in the tier document, dated and signed."</td><td>"We felt this was a reasonable bar." Nobody has ever failed a gate they set after seeing the result.</td></tr>
+    </table>
+
+    <div class="callout tip">
+      <strong>How to use it without becoming the person nobody invites</strong>
+      Ask them as curiosity, not as cross-examination, and ask them of a report you expect to be good rather than one you already distrust. The purpose is to establish that these are the standing questions in your organisation, so that the next report arrives with the answers already in it. Within two cycles the kit stops being something you ask and becomes the shape of the template your teams write to - which was the point.
+    </div>
+
+    <div class="prompt-box good">
+      <span class="label">★ The one-sentence version, if you only get to ask one thing</span>
+      <p>"Walk me through <strong>how a single case was chosen and how it was marked right or wrong</strong> - pick any case, I do not mind which." A team with a real eval can answer this in thirty seconds and will enjoy answering it. A team without one will answer with an average.</p>
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Discussion 2 of 2</span>
+      <h2>Spot the picked set <span class="tag demo">★ 10 min · at your table</span></h2>
+    </div>
+    <p class="lede">Cherry-picking is almost never deliberate. It happens because the cases that are easiest to write down are the ones the team already knows the bot handles, and because a failing case is unpleasant to add to your own test suite. Here are the tells, in the order you will notice them.</p>
+
+    <div class="steps">
+      <div class="step"><p><strong>The pass rate is suspiciously round and suspiciously high.</strong> Real evals produce numbers like 87.3% on sets with awkward sizes. A clean 95% on exactly 20 cases is a demo, and a 100% pass rate means the set is too easy to be informative - the practitioner rule of thumb is that a perfect score is a problem with the eval, not a property of the bot.</p></div>
+      <div class="step"><p><strong>There is no unanswerable category.</strong> Take the report's category list and look for the row where the correct behaviour is to refuse or escalate. If it is missing, the set cannot detect a bot that never says "I do not know" - and that is the bot that invents a refund policy in week one.</p></div>
+      <div class="step"><p><strong>Every category passes at about the same rate.</strong> Real bots are lumpy: strong on lookups, weak on multi-turn, terrible on questions that need arithmetic. Uniform performance across genuinely different categories usually means the categories are not genuinely different.</p></div>
+      <div class="step"><p><strong>The set has not changed in six months.</strong> A golden set that never grows is a set nobody is adding failures to, which means production incidents are not flowing back into it. Ask when the last case was added and what incident it came from.</p></div>
+      <div class="step"><p><strong>Now do it for real.</strong> Take the most recent eval summary from your own organisation - or a vendor's published claim if you do not have one yet - and run the seven questions and these five tells against it. Write down the two answers you could not get. Those two are your next conversation, and they are more useful than any request for a higher number.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <strong>The tell that outranks all the others</strong>
+      Ask whether the number has ever gone <em>down</em> between two reports. A measurement system that only ever produces improvements is not measuring; it is reporting. Real evals get worse when the set gets more honest, and the sessions where the number fell are the ones where the team learned something. If nobody can remember a report that went backwards, you are looking at a marketing artifact with a technical vocabulary.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 40 min total</span></h2>
+    </div>
+    <ul>
+      <li>Put the seven grilling questions into your standard review template, so they arrive with the report rather than after it. This costs you one edit and changes what your teams prepare.</li>
+      <li>Find the last AI accuracy number you personally repeated to someone more senior than you. Go and find its definition. If you cannot find one in fifteen minutes, send a short correction - it will do more for your credibility than the original number did.</li>
+      <li>Ask one vendor in your current pipeline for the four scaffolding facts behind their headline accuracy: whose set, what preparation was assumed, how many attempts per question, how lenient the marking. Note how long it takes them to answer.</li>
+      <li>Pick the one category your team's golden set is missing - it will usually be unanswerable or adversarial - and ask for it to be added before the next report, not after. You are not asking for a better bot. You are asking for a measurement that could have failed.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every figure on this page traces to a primary source catalogued in this course's source map, dated 2026-08-13. Vendor claims are labelled as vendor claims. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Definition sensitivity: 0.7%-4.4% on the Vectara HHEM leaderboard vs 7-12% under FaithJudge re-scoring</span><span class="note">Part 1 · the ~10x headline · metric mechanics in b2</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Snowflake Cortex Analyst 90%+ - internal 150-question set, semantic model, agentic retries, lenient multi-gold; single-shot GPT-4o 51% on the same set</span><span class="note">Part 2 · vendor-published, not independently verified</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Gold-annotation audit: 52.8% error on BIRD Mini-Dev, 62.8% on Spider 2.0-Snow; 16 agents re-evaluated shifted -7% to +31% and up to 9 ranking positions</span><span class="note">Part 3 · the leaderboard tension</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Difficulty anchors: BIRD SOTA ~82% vs measured human 92.96%; Spider 2.0 o1-preview 17.0% vs 91.2% on Spider 1.0</span><span class="note">Part 1 self-study · archetype detail in a2</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Intercom Fin resolution definition and its 38-72% production range</span><span class="note">Named here as a definition example · vendor-published, secondary · full treatment in a2 and b5</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Judge calibration against 100+ human labels, and the LLM-judge bias taxonomy</span><span class="note">Asked about here · measured and mitigated in b4</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">The interval behind "what is the error bar on that number"</span><span class="note">Question 6 of the grilling kit · answered in full in a4</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Execution accuracy vs exact-set-match as the text-to-query grading standard</span><span class="note">Mentioned as a definition dial · derived in b6</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Two reports give hallucination rates for the same models: one says 0.7%-4.4%, the other says 7-12%. Which one is wrong?</p>
+      <button class="qopt" type="button">A · The lower one - vendors always understate hallucination</button>
+      <button class="qopt" type="button">B · Neither. They used different definitions of what counts as a hallucination, and that alone moves the number by roughly 10x</button>
+      <button class="qopt" type="button">C · The higher one, because stricter scoring exaggerates rare failures</button>
+      <p class="qwhy">This is the single most useful fact on the page. The Vectara HHEM leaderboard and the stricter FaithJudge re-scoring evaluate the same models on the same kind of task and land an order of magnitude apart, because they draw the line between "supported" and "unsupported" in different places. The consequence for you is a rule, not a fact: never compare two rates from two reports, and always ask for the definition before you react to the number.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · A vendor's published benchmark shows over 90% accuracy on text-to-query. What is the most useful next question?</p>
+      <button class="qopt" type="button">A · Which model is underneath it?</button>
+      <button class="qopt" type="button">B · Can we see the same number for our industry?</button>
+      <button class="qopt" type="button">C · Whose set was it, what preparation was assumed, how many attempts per question, and how lenient was the marking - then will you run fifty of our questions, first try, in front of us?</button>
+      <p class="qwhy">The documented case shows why. That 90%-plus figure came from an internal 150-question set, with a hand-built semantic model over the schema, agentic retries rather than one attempt, and lenient multi-gold scoring - and on the same set, single-shot GPT-4o scored 51%. The 39-point gap is scaffolding you would have to build and pay for. None of that makes the vendor dishonest; it makes their number an answer to a question about their conditions, not yours. The live pilot is the only number that belongs in a business case.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Your team wants to buy the tool sitting three places higher on a public text-to-query leaderboard. What should you say?</p>
+      <button class="qopt" type="button">A · That a few ranking places is inside the noise - an audit found 52.8% and 62.8% gold-annotation error rates on the two main benchmarks, and correcting them moved scores by -7% to +31% and rankings by up to 9 positions</button>
+      <button class="qopt" type="button">B · That leaderboards are meaningless and should be ignored entirely</button>
+      <button class="qopt" type="button">C · That we should wait for the next leaderboard refresh before deciding</button>
+      <p class="qwhy">The instrument had not been calibrated. When the answer keys themselves were audited and corrected, re-evaluating sixteen agents moved rankings by up to nine positions - which is more movement than the gap you were about to spend money on. The correct posture is neither belief nor dismissal: a leaderboard result is a claim about a dataset, useful for ruling systems out and useless as a forecast of what happens on your schema. Answer B overcorrects into a different mistake, and a refresh does not fix an unaudited key.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 3 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Definition before number</b><span>Same models, same outputs: 0.7-4.4% or 7-12% hallucination depending only on the rule. The word moves it ~10x.</span></div>
+      <div class="cheat-item"><b>"Read me the definition you used"</b><span>One sentence that works on every metric. If nobody in the room can, the number is not ready to discuss.</span></div>
+      <div class="cheat-item"><b>100% means the set is too easy</b><span>Real evals are lumpy and produce awkward numbers. A perfect score is a finding about the eval, not the bot.</span></div>
+      <div class="cheat-item"><b>Look for the missing category</b><span>No unanswerable and no adversarial rows means the set cannot catch a bot that never says "I do not know".</span></div>
+      <div class="cheat-item"><b>Internal beats independent, on paper</b><span>A vendor's 90%+ came with a semantic model, retries and lenient marking. Single-shot on the same set: 51%.</span></div>
+      <div class="cheat-item"><b>Scaffolding is yours to build</b><span>The gap between a vendor demo and your result is preparation, retries and tolerance - all of them cost lines.</span></div>
+      <div class="cheat-item"><b>The answer key can be wrong</b><span>52.8% and 62.8% gold-error audits moved 16 agents by -7% to +31% and up to 9 ranks. A few places is noise.</span></div>
+      <div class="cheat-item"><b>Has the number ever gone down?</b><span>A measurement that only ever improves is reporting, not measuring. The reports that fell are the honest ones.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 3 of 6 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="a4-what-90-percent-means.html">Next: What "90% confident" really means →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

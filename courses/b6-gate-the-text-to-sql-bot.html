@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder session 6 · Gate the text-to-query bot - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Builder session 6 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Builder track · Session 6 of 10</div>
+    <h1>Gate the text-to-query bot: <span class="accent">the answer is runnable, so run it</span></h1>
+    <p class="sub">The second of three gating sessions, and the easy one - because this archetype hands you machine-checkable truth. Run the predicted query, run the gold query, compare the rows. That single move removes the judge from most of the eval. What it does not remove is a ceiling, a dominant failure class, and a set of criteria that accuracy alone will never see.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Builder track</span>
+      <span class="chip audience">AI engineers · ML engineers · technical PMs</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Execution accuracy, the ceiling, the taxonomy</span>
+      <span class="a3" style="flex:5">20-40 · Build-along: the Analyst Bot's harness and gate</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The archetype where the machine can settle the argument</h2>
+    </div>
+    <p class="lede">Session b5 gated a bot with no ground truth, where correctness stayed an opinion until a human or a calibrated judge supplied one. Beacon's Analyst Bot is the opposite animal: every answer it produces is a query, and a query can be executed. That is the cheapest, sharpest grading rung on the ladder from b1, and this archetype lives on it.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      Execution accuracy as the field metric and why exact-set-match was deprecated, an honest read on the published ceiling from three converging pieces of evidence, the four-bucket failure taxonomy that matters more than the aggregate, abstention scored as a behaviour rather than assumed away, and a gate board on the Analyst Bot that you take to all green.
+    </div>
+    <div class="callout tip">
+      <strong>The running case: Beacon Analyst Bot</strong>
+      Internal text-to-query bot over the warehouse. Analysts ask in English, it writes SQL, runs it, and returns rows. Read-only, so tier T2 and a bar of 85%. Nobody outside the company sees its output, which is exactly why it is under-governed: the blast radius is a wrong number in a Monday planning meeting, and that number leaves no trace.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="execution">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the metric</span>
+      <h2>Execution accuracy, and the ceiling nobody puts on the slide <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Two correct SQL queries almost never look alike. They join in a different order, alias differently, use a different date predicate, and return exactly the same rows. Any metric that compares the text rejects one of them, which is why the field moved to comparing what the queries <em>do</em>.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Execution accuracy replaced exact-set-match as the text-to-SQL metric, and three pieces of evidence set the honest ceiling: BIRD SOTA versus human performance, Spider 2.0 enterprise results, and an audit of gold-annotation error rates.">
+        <style>
+          .exT { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .exD { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .exS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .exX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .exW { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+          .exL { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .exK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+          .exH { font: 700 13px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="20" width="404" height="118" rx="10" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="exD" x="44" y="44">Exact-set-match - deprecated</text>
+        <text class="exX" x="44" y="66">Compares predicted SQL text against gold SQL text.</text>
+        <text class="exX" x="44" y="84">Two correct queries that differ in JOIN order or</text>
+        <text class="exX" x="44" y="102">column order both score zero. Rightly retired.</text>
+
+        <rect x="452" y="20" width="404" height="118" rx="10" fill="#0E3320"/>
+        <text class="exT" x="472" y="44">Execution accuracy (EX) - the field metric</text>
+        <text class="exS" x="472" y="66">Run both queries. Compare the returned result</text>
+        <text class="exS" x="472" y="84">multisets. Any SQL that produces the right rows</text>
+        <text class="exS" x="472" y="102">passes, however it happens to be written.</text>
+
+        <rect x="24" y="158" width="196" height="56" rx="10" fill="#0E3320"/>
+        <text class="exL" x="42" y="180">BIRD leaderboard</text>
+        <text class="exS" x="42" y="198">SOTA against human</text>
+        <rect x="232" y="158" width="624" height="56" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="exX" x="252" y="180">Top test-set execution accuracy is about 81.95%. Human performance on the</text>
+        <text class="exX" x="252" y="198">same benchmark is 92.96%. The gap to human is the honest ceiling.</text>
+
+        <rect x="24" y="226" width="196" height="56" rx="10" fill="#1A4D33"/>
+        <text class="exL" x="42" y="248">Spider 2.0</text>
+        <text class="exS" x="42" y="266">enterprise reality</text>
+        <rect x="232" y="226" width="624" height="56" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="exX" x="252" y="248">o1-preview solves 17.0% of real warehouse workflows, against 91.2% on the</text>
+        <text class="exX" x="252" y="266">older Spider 1.0. Academic schemas do not predict enterprise schemas.</text>
+
+        <rect x="24" y="294" width="196" height="56" rx="10" fill="#3D7D5A"/>
+        <text class="exL" x="42" y="316">Annotation audit</text>
+        <text class="exS" x="42" y="334" fill="#EDF6F0">the gold is wrong</text>
+        <rect x="232" y="294" width="624" height="56" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="exW" x="252" y="316">Audited gold-annotation error rates: 52.8% in BIRD Mini-Dev, 62.8% in Spider</text>
+        <text class="exW" x="252" y="334">2.0-Snow. Re-scoring 16 agents moved results -7% to +31% and ranks by 9.</text>
+
+        <rect x="24" y="370" width="832" height="80" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="exH" x="44" y="394">What the three of them mean together</text>
+        <text class="exX" x="44" y="416">Above roughly 80% you are partly fitting annotation noise, not measuring capability. Self-reported Spider2-Snow</text>
+        <text class="exX" x="44" y="434">entries above 96% and a 62.8% annotation-error audit of that same split are both true. Teach the tension.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one metric, three pieces of evidence, and a ceiling that is lower than the leaderboard</figcaption>
+    </figure>
+
+    <div class="prompt-box good">
+      <span class="label">★ Two queries exact-set-match scores as a miss, and EX scores as a pass</span>
+-- gold
+SELECT c.region, SUM(o.amount) AS revenue
+FROM orders o JOIN customers c ON c.id = o.customer_id
+WHERE o.placed_at &gt;= DATE '2026-07-01' AND o.placed_at &lt; DATE '2026-08-01'
+GROUP BY c.region;
+
+-- predicted: other join order, other aliases, identical result multiset
+SELECT c.region, SUM(o.amount) AS revenue
+FROM customers c JOIN orders o ON o.customer_id = c.id
+WHERE o.placed_at &gt;= DATE '2026-07-01' AND o.placed_at &lt; DATE '2026-08-01'
+GROUP BY c.region;
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the ceiling matters to your launch, not just to a leaderboard<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three numbers, three different warnings, and they only make sense together.</p>
+        <ul>
+          <li><strong>BIRD: SOTA around 81.95%, human 92.96%.</strong> Humans do not reach 100% on this task either. When somebody asks your bot for 95% accuracy on natural-language queries, the honest answer is that measured human performance on the field's main benchmark is 92.96%.</li>
+          <li><strong>Spider 2.0: o1-preview at 17.0%.</strong> The same class of model scores 91.2% on the older Spider 1.0. Nothing about the model collapsed - the schemas got real. Enterprise warehouses have hundreds of tables, dialect quirks, and multi-step workflows, and academic benchmark scores do not transfer to them.</li>
+          <li><strong>The annotation audit: 52.8% and 62.8% gold-error rates.</strong> Re-evaluating 16 agents on corrected data shifted scores by -7% to +31% and moved rankings by up to nine positions. That is not a rounding correction; it is the leaderboard being partly a measurement of the labels.</li>
+        </ul>
+        <p>The practical consequence for your own set is uncomfortable and worth saying out loud: <strong>above roughly 80% on any hand-annotated text-to-SQL set, some of what you are measuring is your annotators.</strong> That is not a reason to stop measuring. It is a reason to audit your own gold queries before you audit your model, and to stop treating the last few points as engineering progress.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Reading a vendor accuracy claim, using Snowflake's as the worked example<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Snowflake published a 90%+ accuracy figure for Cortex Analyst. It is a useful number to read carefully, because every clause in it is doing work. The claim is measured on an <strong>internal 150-question benchmark</strong>, it is <strong>not independently verified</strong>, and it required three things at once: a curated semantic model over the tables, agentic retries rather than a single attempt, and lenient multi-gold scoring that accepts several correct queries per question. On the same internal set, <strong>single-shot GPT-4o scored 51%</strong>.</p>
+        <p>None of that makes the number dishonest. It makes it a number about a <em>system</em> on a <em>specific set</em>, and the 51% tells you how much of the system is doing the lifting. The transferable lesson is the shape of the question you ask any vendor, including yourself: whose questions, whose gold, how many attempts, how lenient the scoring, and who checked it. Session a3 turns those five into a grilling script.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="taxonomy">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the taxonomy</span>
+      <h2>The aggregate hides which way it failed <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Two bots reporting 78% execution accuracy can be completely different products. One fails loudly, in a way the analyst notices within a second. The other fails silently, in a way that reaches a planning meeting. Report the taxonomy, not the headline.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four outcomes when a predicted query runs: syntax error, empty result, wrong but non-empty, and correct but expensive. Schema linking dominates the wrong-but-non-empty class.">
+        <style>
+          .fmT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .fmR { font: 700 12.5px Inter, sans-serif; fill: #991B1B; }
+          .fmW { font: 400 11px Inter, sans-serif; fill: #991B1B; }
+          .fmS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .fmH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .fmX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .fmK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="20" width="832" height="44" rx="10" fill="#0E3320"/>
+        <text class="fmT" x="44" y="48">Run the predicted query. Four things can happen, and one aggregate number hides which.</text>
+
+        <rect x="24" y="80" width="406" height="110" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="fmR" x="44" y="106">1 · Syntax error - the query does not run</text>
+        <text class="fmW" x="44" y="128">Loud, cheap, harmless. Caught by a dry-run before</text>
+        <text class="fmW" x="44" y="146">the user ever sees it. The best failure you can</text>
+        <text class="fmW" x="44" y="164">have, and the one teams report most proudly.</text>
+
+        <rect x="450" y="80" width="406" height="110" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="fmR" x="470" y="106">2 · Empty result - runs, returns nothing</text>
+        <text class="fmW" x="470" y="128">Also visible. The analyst sees zero rows and asks</text>
+        <text class="fmW" x="470" y="146">again. Annoying, not dangerous - nobody builds a</text>
+        <text class="fmW" x="470" y="164">board slide out of an empty table.</text>
+
+        <rect x="24" y="202" width="406" height="110" rx="10" fill="#12241B"/>
+        <text class="fmT" x="44" y="228">3 · Wrong but non-empty - the dangerous one</text>
+        <text class="fmS" x="44" y="250">Runs clean, returns plausible rows, and the number</text>
+        <text class="fmS" x="44" y="268">is wrong. Silent. It reaches a slide, a decision,</text>
+        <text class="fmS" x="44" y="286">a board pack. Only execution against gold finds it.</text>
+
+        <rect x="450" y="202" width="406" height="110" rx="10" fill="#1A4D33"/>
+        <text class="fmT" x="470" y="228">4 · Correct - but at what cost</text>
+        <text class="fmS" x="470" y="250">Right rows via a 4.2TB full-table scan. Correct</text>
+        <text class="fmS" x="470" y="268">and unaffordable. BIRD's R-VES weights execution</text>
+        <text class="fmS" x="470" y="286">accuracy by runtime ratio against the gold query.</text>
+
+        <rect x="24" y="334" width="832" height="102" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="fmH" x="44" y="360">Where the wrong-but-non-empty ones come from</text>
+        <text class="fmX" x="44" y="382">Schema linking dominates the error taxonomy: 37% of BIRD errors are schema-linking failures and a further 36%</text>
+        <text class="fmX" x="44" y="400">are JOIN errors. In large multi-database settings that rises above 60%, up to 68.3%. The bot picked the wrong</text>
+        <text class="fmX" x="44" y="418">table or the wrong column. That is a context problem, not a model problem, and context is a lever you own.</text>
+
+        <rect x="24" y="452" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="fmK" x="48" y="464">Report the taxonomy, not just the aggregate. Two bots at 78% EX are not the same bot if one fails loud</text>
+        <text class="fmK" x="48" y="482">and the other fails silently. The second one is the one that reaches a board pack.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four outcomes, one of them silent, and the error class that produces it</figcaption>
+    </figure>
+
+    <div class="prompt-box">
+      <span class="label">The classifier, in nine lines of pseudo-code</span>
+run(predicted) raises            -> SYNTAX    loud, dry-run catches it
+rows == [] and gold_rows != []   -> EMPTY     visible, user retries
+sorted(rows) != sorted(gold)     -> WRONG     silent, this is the one
+sorted(rows) == sorted(gold)     -> PASS
+                                    then record runtime / gold_runtime
+
+# EX  = PASS / total
+# and report SYNTAX, EMPTY, WRONG as three separate rates, always
+    </div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The 3.1x revenue bug.</strong> Beacon's Analyst Bot joined <code>orders</code> to <code>customers</code> on the wrong key and reported 3.1 times the real revenue for a region. The query was syntactically perfect, ran in 400ms, returned a tidy grouped table, and nobody questioned it until the finance close two weeks later. That single incident is bucket 3 in the taxonomy and a schema-linking failure in the error class - the two most common findings in the published error analyses meeting in one production bug. The fix was not a bigger model. It was column descriptions and a curated set of joinable keys handed to the bot as context.</p>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why schema linking is the lever, and what "context" concretely means<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Schema linking is the step where a natural-language phrase gets bound to an actual table and column. "Revenue" could be <code>orders.amount</code>, <code>orders.gross</code>, <code>invoice_lines.net</code> or a view somebody built in 2023. The bot cannot guess, and published error analyses keep landing in the same place: schema linking accounts for roughly 37% of BIRD errors with a further 36% attributable to JOIN mistakes, and in large multi-database settings the schema-linking share rises above 60%, measured up to 68.3%.</p>
+        <p>In practice, "give it schema context" means four unglamorous artifacts: column descriptions written by somebody who knows the business, an explicit list of joinable key pairs, a shortlist of the canonical tables for each common question type, and a set of worked examples of correct queries. None of that is modelling work. All of it is data-product work, which is precisely why it tends to be nobody's job and stays undone while the team argues about models.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="beyond-accuracy">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · beyond accuracy</span>
+      <h2>Three criteria execution accuracy will never see <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">A perfect EX score still leaves three launch questions unanswered: what the bot does when the question has no answer, what happens when a question has several right answers, and what stops it doing something destructive. Only one of those is a metric. The other two are a scoring choice and a rail.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 455" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three criteria beyond execution accuracy: abstention scored as a behaviour, multiple gold queries with lenient column-level scoring, and read-only rails by construction.">
+        <style>
+          .rlL { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .rlS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .rlA { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .rlX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .rlK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="20" width="196" height="112" rx="10" fill="#0E3320"/>
+        <text class="rlL" x="42" y="52">Abstention</text>
+        <text class="rlS" x="42" y="74">TrustSQL scores it</text>
+        <text class="rlS" x="42" y="92">as a behaviour</text>
+        <rect x="232" y="20" width="624" height="112" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rlX" x="252" y="48">Real users ask questions the warehouse cannot answer: infeasible, or so</text>
+        <text class="rlX" x="252" y="66">under-specified that "best customer" has three defensible meanings. A bot</text>
+        <text class="rlX" x="252" y="84">with no abstention answers all of them confidently. TrustSQL's Reliability</text>
+        <text class="rlX" x="252" y="102">Score grades this directly, and under high penalty a model without</text>
+        <text class="rlX" x="252" y="120">abstention can score NEGATIVE - worse than answering nothing at all.</text>
+
+        <rect x="24" y="148" width="196" height="112" rx="10" fill="#1A4D33"/>
+        <text class="rlL" x="42" y="180">Several right</text>
+        <text class="rlL" x="42" y="198">answers</text>
+        <text class="rlS" x="42" y="220">multi-gold, lenient</text>
+        <text class="rlS" x="42" y="238">column P and R</text>
+        <rect x="232" y="148" width="624" height="112" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="rlX" x="252" y="176">One question can have several correct queries, and a single gold answer</text>
+        <text class="rlX" x="252" y="194">marks the others wrong. Snowflake's answer is to keep multiple gold</text>
+        <text class="rlX" x="252" y="212">queries per question and score column-level precision and recall</text>
+        <text class="rlX" x="252" y="230">leniently, so a valid alternative shape is not penalised for being</text>
+        <text class="rlX" x="252" y="248">different. Lenient scoring raises the number - say so when you report it.</text>
+
+        <rect x="24" y="276" width="196" height="112" rx="10" fill="#BF6708"/>
+        <text class="rlL" x="42" y="308">Rails, not metrics</text>
+        <text class="rlA" x="42" y="330">Cortex Analyst is</text>
+        <text class="rlA" x="42" y="348">read-only by design</text>
+        <rect x="232" y="276" width="624" height="112" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="rlX" x="252" y="304">Snowflake Cortex Analyst is restricted to read-only operations: SELECT,</text>
+        <text class="rlX" x="252" y="322">SHOW, DESCRIBE, EXPLAIN. The engineered-DROP question cannot fail,</text>
+        <text class="rlX" x="252" y="340">because the DROP cannot execute. Add a least-privilege database role</text>
+        <text class="rlX" x="252" y="358">and a row limit and the whole class is gone. A rail removes a failure</text>
+        <text class="rlX" x="252" y="376">instead of measuring it, which is why it beats any metric you could add.</text>
+
+        <rect x="24" y="404" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="rlK" x="48" y="416">Snowflake's 90%+ figure is INTERNAL and not independently verified: 150 questions, a semantic model,</text>
+        <text class="rlK" x="48" y="434">agentic retries and lenient multi-gold scoring. Single-shot GPT-4o scored 51% on that same set.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one metric, one scoring choice, one rail, and the vendor claim read honestly</figcaption>
+    </figure>
+
+    <table class="clean">
+      <tr><th>Criterion</th><th>How you score it</th><th>What it catches that EX cannot</th></tr>
+      <tr><td><strong>Execution accuracy</strong></td><td>Run predicted and gold, compare result multisets</td><td>The core correctness question, deterministically</td></tr>
+      <tr><td><strong>Failure taxonomy</strong></td><td>Split every miss into syntax, empty, wrong-non-empty</td><td>Whether your misses are loud or silent</td></tr>
+      <tr><td><strong>Abstention</strong></td><td>Reliability Score with a penalty for confident wrong answers on infeasible questions</td><td>A bot that never says "that cannot be answered from this warehouse"</td></tr>
+      <tr><td><strong>Multiple gold queries</strong></td><td>Several accepted golds per question, lenient column-level precision and recall</td><td>Valid alternative queries being marked wrong by a single-gold set</td></tr>
+      <tr><td><strong>Efficiency</strong></td><td>R-VES: execution accuracy weighted by runtime ratio against gold</td><td>A correct answer that scans 4.2TB and costs more than the analyst's afternoon</td></tr>
+      <tr><td><strong>Rails</strong></td><td>Not scored - enforced. Read-only role, allowed verbs, row limit</td><td>Nothing. It removes the failure class rather than measuring it</td></tr>
+    </table>
+
+    <div class="callout warn">
+      <strong>The set that hides the abstention problem</strong>
+      Every question in a normal text-to-SQL golden set has an answer, because that is how you build a golden set: you write a question, then you write the gold query. A question with no gold query does not get written. That single mechanical fact means the default set is structurally incapable of detecting a bot that never abstains - and real analysts ask infeasible and under-specified questions all day. You have to add those cases deliberately, and mark the expected behaviour as an abstention rather than a row set.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Build the Analyst Bot's execution harness <span class="tag demo">★ 12 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">Take the golden-set skeleton from b1 and give it the one thing this archetype allows: a runner. Twenty minutes of harness work replaces every judge call you were about to make.</p>
+
+    <div class="steps">
+      <div class="step"><p>For each case, freeze three things: the natural-language question, the <strong>gold SQL</strong>, and the <strong>gold result multiset</strong> stored as sorted rows. The stored rows are the ground truth. The gold SQL is only how you produced them, and it is allowed to be rewritten later without invalidating the case.</p></div>
+      <div class="step"><p>Write the runner: execute the predicted query against a frozen snapshot of the warehouse, execute or load the gold, and compare sorted multisets. Classify every miss into <strong>syntax · empty · wrong-non-empty</strong> and report the three rates alongside execution accuracy. If your report has one number on it, you built half a harness.</p></div>
+      <div class="step"><p>Set the category shares from a real query log, not from imagination. Beacon's Analyst Bot uses six: single-table filter and aggregate 25%, multi-table join needing schema linking 25%, under-specified question 15%, silently-wrong-filter 10%, correct-via-full-table-scan 10%, and an adversarial slice of questions engineered to emit a DROP at 15%.</p></div>
+      <div class="step"><p>Add the cases the golden-set method structurally omits: questions the warehouse <strong>cannot</strong> answer, and questions where "best" or "top" is undefined. Their expected behaviour is an abstention with a named reason, and they are scored right or wrong like any other case. This is the slice that decides whether your bot is honest.</p></div>
+      <div class="step"><p>Record <code>runtime / gold_runtime</code> next to every pass, and put the rails in the database rather than the prompt. A read-only role and a row limit are enforcement; "please do not drop tables" is a wish.</p></div>
+    </div>
+
+    <div class="prompt-box good">
+      <span class="label">★ The rail that makes the adversarial slice unfailable</span>
+-- enforcement lives in the grant, not in the system prompt
+CREATE ROLE bot_reader;
+GRANT USAGE ON SCHEMA analytics TO ROLE bot_reader;
+GRANT SELECT ON ALL TABLES IN SCHEMA analytics TO ROLE bot_reader;
+-- no INSERT, UPDATE, DELETE, DROP or CREATE anywhere in this grant
+
+-- plus a hard row cap and a statement timeout on the bot's session
+    </div>
+
+    <div class="callout tip">
+      <strong>Audit your own gold before you audit your model</strong>
+      Given audited gold-annotation error rates of 52.8% and 62.8% on two published benchmark splits, assume your own hand-written golds are wrong more often than you would like. Have a second person re-derive the gold result for twenty random cases. Every disagreement you find is a point of measured accuracy you were about to attribute to the model.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Take the Analyst Bot to all green <span class="tag demo">★ 10 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">The same board b9 uses, mounted on this archetype at tier T2. Two levers are dimmed as "not a gate for this bot" - work out why before you hover them.</p>
+
+    <div class="glbox" data-bot="sql" data-tier="t2"></div>
+
+    <div class="steps">
+      <div class="step"><p>Press <strong>Ship anyway</strong> at the default settings and read the incident list. Every line in it is one of the four taxonomy buckets wearing production clothes, and the 3.1x revenue bug is right there in the middle.</p></div>
+      <div class="step"><p>Switch on <strong>Retrieval / schema context</strong> alone and watch the multi-table join category recover. That single lever is the answer to the largest published error class in this archetype, and it costs you column descriptions rather than a model upgrade.</p></div>
+      <div class="step"><p>Hover the two dimmed levers. <strong>Cite-or-abstain grounding</strong> is dimmed because there is no passage to cite: correctness here is settled by executing the query, not by tracing prose back to a source. <strong>Human approval on irreversible actions</strong> is dimmed because a read-only query is reversible by definition - and it stops being dimmed the moment somebody lets this bot write.</p></div>
+      <div class="step"><p>Now switch on <strong>Action rails</strong> and <strong>Output verification</strong> together, then take the board to all six gates green. Note which lever fixed the full-table-scan category and which one fixed the silently-wrong filter. They are different levers and they defend different buckets of the taxonomy.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>Read the honesty rail under the board</strong>
+      The per-category pass rates are a teaching model of a bot with realistic failure modes - schema-linking failures dominate, because that is what the published error analyses show - and they are not a measurement of any real product. The statistics are not a model: the confidence figure is the lower bound of a real 95% Wilson interval, computed live in your browser from the successes and n shown. Change n and check it against the table in Leader session 4.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 50-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Run your existing text-to-query eval and split the misses into syntax, empty and wrong-but-non-empty. Report the three rates to your team next to the aggregate. The reaction to the third number is usually the most productive meeting you will have this quarter.</li>
+      <li>Take twenty of your gold queries and have somebody else re-derive the expected result independently. Count the disagreements. That count is your annotation error rate, and it is the ceiling on what your eval can prove.</li>
+      <li>Add ten cases whose correct answer is an abstention: five infeasible, five under-specified. Score them. If your bot answers all ten confidently, you have found the failure that no accuracy number on your dashboard was ever going to show you.</li>
+      <li>Check what database role your bot actually connects as. If it can write, you are measuring a failure class you could have deleted. Move it to a read-only role with a row limit this week, and then delete the corresponding eval cases, because you no longer need them.</li>
+      <li>Log <code>runtime / gold_runtime</code> for one week of production queries. Find the correct answers that cost the most. Efficiency is a real gate on this archetype and almost nobody sets one until finance does it for them.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every figure on this page traces to a primary source - published benchmarks, peer-reviewed papers and vendor documentation catalogued in this course's source map, dated 2026-08-13. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Execution accuracy as the field metric; exact-set-match deprecated for rejecting valid alternative SQL</span><span class="note">Part 1 · named in b1, measured here</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">BIRD: SOTA test execution accuracy ~81.95% against human performance of 92.96%</span><span class="note">Part 1 · the ceiling, stated as a ceiling</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Spider 2.0: o1-preview 17.0% on enterprise workflows vs 91.2% on Spider 1.0</span><span class="note">Part 1 · why benchmark scores do not transfer</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Gold-annotation audit: 52.8% BIRD Mini-Dev, 62.8% Spider 2.0-Snow; 16 agents re-scored -7% to +31%, ranks moved by 9</span><span class="note">Part 1 + Demo 1 · taught against the 96%+ self-reported entries, not instead of them</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Schema linking as the dominant error class: 37% of BIRD errors plus 36% JOIN errors; above 60-68.3% in large multi-database settings</span><span class="note">Part 2 · the lever is context, not model size</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">TrustSQL Reliability Score: abstention as a scored behaviour, negative scores under high penalty</span><span class="note">Part 3 · the slice a normal golden set cannot contain</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Snowflake Cortex Analyst read-only restriction (SELECT/SHOW/DESCRIBE/EXPLAIN), and the internal, not independently verified, 90%+ claim</span><span class="note">Part 3 · rails by construction · single-shot GPT-4o at 51% on the same set</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">BIRD R-VES: execution accuracy weighted by runtime ratio against the gold query</span><span class="note">Named here as the efficiency gate · cost discipline in b3, cost gate in b9</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Wilson interval arithmetic behind the confidence figure in Demo 2</span><span class="note">Used here, derived in a4</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Why did the field deprecate exact-set-match in favour of execution accuracy?</p>
+      <button class="qopt" type="button">A · Because string comparison is too slow to run at benchmark scale</button>
+      <button class="qopt" type="button">B · Because two correct queries rarely look alike - different join order, aliases or predicates all score zero under text comparison even though they return identical rows</button>
+      <button class="qopt" type="button">C · Because SQL dialects differ between warehouses, so no gold string is portable</button>
+      <p class="qwhy">Exact-set-match punishes valid alternative SQL, which makes it a measurement of writing style as much as correctness. Execution accuracy asks the only question that matters to the analyst - did the right rows come back - and it settles it deterministically, with no judge, no opinion and no dialect argument. Option C is a real irritation but it is not why the metric was retired.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Your bot misses 22% of cases. Which failure bucket should worry you most?</p>
+      <button class="qopt" type="button">A · Syntax errors, because they are the most visible sign of a weak model</button>
+      <button class="qopt" type="button">B · Empty results, because the analyst gets nothing back and gives up</button>
+      <button class="qopt" type="button">C · Wrong but non-empty, because the query runs clean, returns plausible rows and the wrong number reaches a decision with nothing flagging it</button>
+      <p class="qwhy">Syntax errors are caught by a dry-run and empty results are caught by the analyst within a second. Neither reaches a slide. A silently wrong result set does - Beacon's bot joined on the wrong key, over-reported regional revenue by 3.1x, and nobody noticed until the finance close. That bucket is also where schema-linking failures land, which is roughly 37% of BIRD errors plus a further 36% of JOIN errors, and it is the reason you split the taxonomy instead of reporting one aggregate.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · A vendor cites 90%+ text-to-SQL accuracy. What is the honest way to read it?</p>
+      <button class="qopt" type="button">A · Ask whose questions, whose gold, how many attempts and how lenient the scoring - Snowflake's 90%+ is an internal, not independently verified, 150-question benchmark needing a semantic model, agentic retries and lenient multi-gold scoring, where single-shot GPT-4o scored 51%</button>
+      <button class="qopt" type="button">B · Treat it as broadly comparable to BIRD, since both measure execution accuracy</button>
+      <button class="qopt" type="button">C · Discard it, because vendor benchmarks are marketing</button>
+      <p class="qwhy">The number is not dishonest and option C throws away real information. It is a claim about a whole system on one specific internal set, and the 51% single-shot figure tells you how much of the result comes from the semantic model, the retries and the scoring leniency rather than the model. It is also not comparable to BIRD, where SOTA sits around 81.95% against human performance of 92.96% - and where an audit found 52.8% gold-annotation errors in one split, which is the reason to be sceptical of everybody's high numbers, vendors included.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Builder session 6 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Execution accuracy, not text match</b><span>Run predicted and gold, compare result multisets. Exact-set-match was deprecated because it rejects valid alternative SQL.</span></div>
+      <div class="cheat-item"><b>The ceiling is not 100%</b><span>BIRD SOTA ~81.95% against measured human performance of 92.96%. Anyone promising 95% is promising past human.</span></div>
+      <div class="cheat-item"><b>Enterprise is a different benchmark</b><span>o1-preview: 91.2% on Spider 1.0, 17.0% on Spider 2.0 warehouse workflows. Academic scores do not transfer.</span></div>
+      <div class="cheat-item"><b>Above ~80% you fit annotation noise</b><span>Audited gold errors of 52.8% and 62.8%; re-scoring 16 agents moved results -7% to +31% and ranks by 9. Audit your own gold.</span></div>
+      <div class="cheat-item"><b>Split the taxonomy</b><span>Syntax, empty, wrong-but-non-empty, correct-but-expensive. The silent one is the dangerous one.</span></div>
+      <div class="cheat-item"><b>Schema linking is the lever</b><span>37% of BIRD errors plus 36% JOIN errors, above 60-68.3% multi-database. Fixed with column descriptions, not a bigger model.</span></div>
+      <div class="cheat-item"><b>Score the abstention</b><span>Golden sets structurally omit unanswerable questions. Add them. TrustSQL's Reliability Score can go negative without abstention.</span></div>
+      <div class="cheat-item"><b>Rails beat metrics</b><span>Read-only role, allowed verbs, row limit. Cortex Analyst is read-only by construction, so the DROP case cannot fail.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Builder session 6 of 10 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="b7-gate-the-analytics-bot.html">Next: Gate the analytics bot →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/gate-live.js?v=2"></script>
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

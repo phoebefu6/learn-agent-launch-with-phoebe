@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder session 2 · Quality metrics - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Builder session 2 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Builder track · Session 2 of 10</div>
+    <h1>Quality metrics: <span class="accent">the formulas, and how much the definition moves the number</span></h1>
+    <p class="sub">Faithfulness, groundedness, answer relevancy, hallucination rate. Four names, and underneath most of them one piece of arithmetic. This session gives you the actual formulas so you can read a vendor number without being fooled by it, and then shows you the uncomfortable part: the same models score 0.7% hallucination under one published definition and 12% under another. The metric is not the number. The definition is.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Builder track</span>
+      <span class="chip audience">AI engineers · ML engineers · technical PMs</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:5">3-22 · The formulas + definition sensitivity</span>
+      <span class="a3" style="flex:4">22-40 · Build-along: score one answer, then freeze the contract</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>What this page covers, and what it deliberately does not</h2>
+    </div>
+    <p class="lede">Metric <strong>depth</strong> lives in two sibling courses and this one does not re-teach it. <a href="https://phoebefu6.github.io/learn-ai-evals-with-phoebe/">Learn Evals</a> goes properly into retrieval and generation metrics, RAGAS internals and tracing. <a href="https://phoebefu6.github.io/learn-model-evaluation-with-phoebe/">Model Evaluation</a> covers the classic and LLM-era metric canon side by side, including the Goodhart trap. Go there to learn the metrics. Stay here for the only question this course cares about: <strong>which of these numbers can you put on a launch gate, and what exactly does the number mean when you do?</strong></p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The literal formulas behind faithfulness, response relevancy, groundedness and hallucination rate; the one wrinkle in RAGAS relevancy that can push it outside 0 to 1 and break a naive gate; proof that a stricter definition moves a hallucination number roughly tenfold; and Beacon's frozen metric contract - the document that stops your quarterly number quietly re-baselining itself.
+    </div>
+    <div class="callout tip">
+      <strong>The running case: Beacon</strong>
+      Three bots this quarter. The <strong>support bot</strong> answers customers and can issue a refund credit, so it is tier T3. The <strong>Analyst Bot</strong> turns questions into warehouse queries. The <strong>Insight Bot</strong> writes summaries for executives. Today only the support bot and the Insight Bot are in scope - they are the two whose correctness is an opinion until a metric supplies one. The Analyst Bot is executable and gets its own treatment in b6.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="claim-family">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the claim-support family</span>
+      <h2>One formula wearing three different names <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Faithfulness, groundedness and hallucination rate are usually the same measurement reported three ways. Once you see the shared pipeline, the interesting question stops being "which metric" and becomes "who decides what counts as a claim".</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 375" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The claim-support pipeline: split the answer into atomic claims, check each against the retrieved context, take an entailment verdict, divide supported claims by total claims. Faithfulness, groundedness and hallucination rate all share this arithmetic.">
+        <style>
+          .cfT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .cfS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .cfF { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .cfA { font: 700 13px Inter, sans-serif; fill: #3D7D5A; }
+          .cfK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="196" height="76" rx="10" fill="#0E3320"/>
+        <text class="cfT" x="40" y="48">1 · Split the answer</text>
+        <text class="cfS" x="40" y="68">into atomic claims -</text>
+        <text class="cfS" x="40" y="86">one fact per claim</text>
+        <text class="cfA" x="228" y="66" text-anchor="middle">▸</text>
+
+        <rect x="236" y="24" width="196" height="76" rx="10" fill="#1A4D33"/>
+        <text class="cfT" x="252" y="48">2 · Check each claim</text>
+        <text class="cfS" x="252" y="68">against the retrieved</text>
+        <text class="cfS" x="252" y="86">context, not the web</text>
+        <text class="cfA" x="440" y="66" text-anchor="middle">▸</text>
+
+        <rect x="448" y="24" width="196" height="76" rx="10" fill="#3D7D5A"/>
+        <text class="cfT" x="464" y="48">3 · NLI verdict</text>
+        <text class="cfS" x="464" y="68" fill="#EDF6F0">entailed or not</text>
+        <text class="cfS" x="464" y="86" fill="#EDF6F0">entailed. Binary.</text>
+        <text class="cfA" x="652" y="66" text-anchor="middle">▸</text>
+
+        <rect x="660" y="24" width="196" height="76" rx="10" fill="#BF6708"/>
+        <text class="cfT" x="676" y="48">4 · Divide</text>
+        <text class="cfS" x="676" y="68" fill="#FDF3E3">supported claims</text>
+        <text class="cfS" x="676" y="86" fill="#FDF3E3">over total claims</text>
+
+        <rect x="24" y="118" width="832" height="74" rx="10" fill="#12241B"/>
+        <text class="cfF" x="44" y="152">faithfulness  =  supported claims  /  total claims</text>
+        <text class="cfS" x="44" y="176">RAGAS. Same arithmetic under three different names, and the whole page turns on step 1.</text>
+
+        <rect x="24" y="210" width="272" height="100" rx="10" fill="#1A4D33"/>
+        <text class="cfT" x="42" y="234">Faithfulness (RAGAS)</text>
+        <text class="cfS" x="42" y="256">supported / total claims, 0 to 1</text>
+        <text class="cfS" x="42" y="274">The reference definition, and</text>
+        <text class="cfS" x="42" y="292">the one the others rename.</text>
+
+        <rect x="304" y="210" width="272" height="100" rx="10" fill="#3D7D5A"/>
+        <text class="cfT" x="322" y="234">Groundedness (TruLens)</text>
+        <text class="cfS" x="322" y="256" fill="#EDF6F0">TruLens decomposes a response</text>
+        <text class="cfS" x="322" y="274" fill="#EDF6F0">into claims and searches for</text>
+        <text class="cfS" x="322" y="292" fill="#EDF6F0">supporting evidence.</text>
+
+        <rect x="584" y="210" width="272" height="100" rx="10" fill="#BF6708"/>
+        <text class="cfT" x="602" y="234">Hallucination rate</text>
+        <text class="cfS" x="602" y="256" fill="#FDF3E3">the same check inverted and</text>
+        <text class="cfS" x="602" y="274" fill="#FDF3E3">tracked over live traffic</text>
+        <text class="cfS" x="602" y="292" fill="#FDF3E3">instead of a frozen set.</text>
+
+        <rect x="24" y="330" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="cfK" x="48" y="342">The three names differ in scale and tooling, not in arithmetic. If you can defend the claim</text>
+        <text class="cfK" x="48" y="360">extraction step, all three are defensible. If you cannot, none of them are.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one pipeline, one division, three product names</figcaption>
+    </figure>
+
+    <div class="prompt-box">
+      <span class="label">★ Faithfulness, in four lines</span>
+      <pre style="margin:0;font:inherit;white-space:pre-wrap"><code style="font:inherit;color:inherit">claims       = extract_claims(answer)        # one fact per claim
+supported    = [c for c in claims
+                if entailed(c, retrieved_context)]   # NLI verdict
+faithfulness = len(supported) / len(claims)  # RAGAS, 0 to 1</code></pre>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Step 1 is the whole metric, and nobody audits it<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every number in this family is a fraction, and a fraction is only as stable as its denominator. The denominator is "total claims" - which is decided by a claim extractor, usually another language model, using a prompt you did not write.</p>
+        <p>Take one Beacon answer: <em>"Refunds are processed within 5 business days, and you can track them in the billing portal."</em> A coarse splitter sees one claim. A fine splitter sees three: refunds are processed; the window is 5 business days; tracking happens in the billing portal. If the 5-day figure is the wrong one and everything else is right, the coarse splitter scores 0.00 and the fine splitter scores 0.67. Same answer, same context, same model, same error - a two-thirds swing in the metric from a prompt nobody reviewed.</p>
+        <p>The practical consequence for a launch gate: <strong>freeze the extractor and version it</strong>. Treat a change to the claim splitter exactly as you would treat a change to the model - it re-baselines every historical number you have, and a quarter-over-quarter comparison across a splitter change is meaningless.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Groundedness on an ordinal scale, and why you cannot average it<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Some platforms report the same idea as an ordinal judge score rather than a fraction. Azure AI Foundry's groundedness evaluator runs on a <strong>1 to 5 scale</strong>, where 5 means the facts in the response are verifiable in the provided source. Azure's agent evaluators use the same 1-5 shape with a default pass threshold of 3.</p>
+        <p>An ordinal scale is not a rate, and this trips up gates constantly. The distance between a 1 and a 2 is not the distance between a 4 and a 5, so an <em>average</em> of 4.1 tells you very little: it is equally consistent with "everything scored 4" and with "most things scored 5 and eight answers were fabrications scored 1". Gate on the <strong>distribution</strong>, not the mean - for example, "no case below 4 on the policy slice" rather than "mean above 4". Session b4 builds the rubric discipline that makes ordinal judge scores trustworthy in the first place.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="definition-sensitivity">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the headline</span>
+      <h2>The definition moves the number roughly tenfold <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">This is the single most useful fact on the page, and the one that changes how you read every vendor claim afterwards. Two published scoring definitions were run over the same leaderboard. Not different models, not different prompts - the same outputs, scored twice.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 465" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The same models score 0.7 to 4.4 percent hallucination on the Vectara HHEM leaderboard but 7 to 12 percent under stricter FaithJudge re-scoring, roughly a tenfold difference from the definition alone.">
+        <style>
+          .dsT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .dsS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .dsB { font: 700 11px Inter, sans-serif; fill: #FFFFFF; }
+          .dsH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .dsX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .dsK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="44" rx="10" fill="#0E3320"/>
+        <text class="dsT" x="44" y="44">One set of models, one set of outputs, two published scoring definitions</text>
+        <text class="dsS" x="44" y="61">Vectara hallucination leaderboard, then FaithJudge re-scoring of the same leaderboard</text>
+
+        <rect x="24" y="86" width="232" height="70" rx="10" fill="#3D7D5A"/>
+        <text class="dsT" x="42" y="112">Vectara HHEM</text>
+        <text class="dsS" x="42" y="132" fill="#EDF6F0">the leaderboard's own</text>
+        <text class="dsS" x="42" y="150" fill="#EDF6F0">automatic scorer</text>
+        <rect x="280" y="100" width="560" height="42" rx="6" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <rect x="308" y="108" width="148" height="26" rx="5" fill="#3D7D5A"/>
+        <text class="dsB" x="322" y="125">0.7% - 4.4%</text>
+
+        <rect x="24" y="170" width="232" height="70" rx="10" fill="#BF6708"/>
+        <text class="dsT" x="42" y="196">FaithJudge re-scoring</text>
+        <text class="dsS" x="42" y="216" fill="#FDF3E3">stricter definition,</text>
+        <text class="dsS" x="42" y="234" fill="#FDF3E3">same models</text>
+        <rect x="280" y="184" width="560" height="42" rx="6" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <rect x="560" y="192" width="200" height="26" rx="5" fill="#BF6708"/>
+        <text class="dsB" x="575" y="209">7% - 12%</text>
+
+        <line x1="280" y1="252" x2="840" y2="252" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="dsX" x="280" y="268" text-anchor="middle">0%</text>
+        <text class="dsX" x="360" y="268" text-anchor="middle">2%</text>
+        <text class="dsX" x="440" y="268" text-anchor="middle">4%</text>
+        <text class="dsX" x="520" y="268" text-anchor="middle">6%</text>
+        <text class="dsX" x="600" y="268" text-anchor="middle">8%</text>
+        <text class="dsX" x="680" y="268" text-anchor="middle">10%</text>
+        <text class="dsX" x="760" y="268" text-anchor="middle">12%</text>
+        <text class="dsX" x="838" y="268" text-anchor="middle">14%</text>
+        <text class="dsX" x="280" y="288">reported hallucination rate</text>
+
+        <rect x="24" y="302" width="832" height="98" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="dsH" x="44" y="328">The definition moves the number by roughly 10x</text>
+        <text class="dsX" x="44" y="350">Nothing about the models changed between these two rows. One scorer asks whether the summary is supported;</text>
+        <text class="dsX" x="44" y="368">the other applies a stricter claim-level standard. Same evidence, a tenfold difference in the headline figure.</text>
+        <text class="dsX" x="44" y="386">So a vendor claiming 2% and a vendor claiming 10% may be running identical models. Ask which definition.</text>
+
+        <rect x="24" y="418" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="dsK" x="48" y="430">A launch gate must name its metric definition, not just its threshold. A 95% bar under one scorer</text>
+        <text class="dsK" x="48" y="448">can be an 85% bar under another, and neither team is lying.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - same models, two definitions, a tenfold gap in the headline</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>What this does to a procurement conversation.</strong> Two vendors present. The first reports a 2% hallucination rate, the second reports 9%. The instinct in the room is that the first bot is four times better. The honest reading is that you have no idea, because you have been handed two numbers produced by two scorers with different standards for what counts as unsupported. The only comparison worth making is on <em>your</em> data with <em>one</em> scorer, and the only question worth asking in the meeting is which definition produced the figure on the slide. Session a3 turns this into a list of grilling questions for leaders; here it becomes a line in your eval config.</p>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why stricter definitions always look worse, and why that is fine<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A strict scorer marks a claim unsupported unless the context entails it outright. A lenient scorer accepts plausible elaboration, common knowledge, and paraphrase that goes slightly beyond the source. Real answers are full of small elaborations, so the strict scorer finds far more of them. Neither is wrong; they are answering different questions.</p>
+        <p>The decision you actually have to make is which question matches your blast radius. Beacon's support bot states refund policy to paying customers, so "plausible elaboration" is exactly the failure mode that costs money - it should be scored strictly. An internal Insight Bot summarising a dashboard for a weekly review can tolerate a looser standard, because a human reads every line before it travels. <strong>Pick the strictness from the tier, then never move it because the number came back ugly.</strong></p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="vendor-scales">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the other metrics</span>
+      <h2>Relevancy, citations, verbosity - and their wrinkles <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Faithfulness only tells you the answer is supported. It says nothing about whether the answer addresses the question, whether the citations are usable, or whether the reply was four paragraphs where one would do. Four more metrics, each with a wrinkle you have to gate around.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 510" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Five quality metrics with their outputs and the wrinkle you gate around: RAGAS faithfulness, RAGAS response relevancy, Azure groundedness on a 1 to 5 scale, Bedrock CitationPrecision plus CitationCoverage, and Vertex verbosity.">
+        <style>
+          .vsT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .vsN { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .vsX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .vsK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="832" height="32" rx="8" fill="#0E3320"/>
+        <text class="vsT" x="44" y="44">Metric</text>
+        <text class="vsT" x="272" y="44">What it outputs</text>
+        <text class="vsT" x="512" y="44">The wrinkle you gate around</text>
+
+        <rect x="24" y="66" width="832" height="72" rx="8" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="vsN" x="44" y="90">Faithfulness</text>
+        <text class="vsX" x="44" y="110">RAGAS</text>
+        <text class="vsX" x="272" y="90">0 to 1, continuous</text>
+        <text class="vsX" x="272" y="110">supported / total claims</text>
+        <text class="vsX" x="512" y="90">Depends entirely on how a claim is defined. Same</text>
+        <text class="vsX" x="512" y="110">answer, different splitter, different score.</text>
+
+        <rect x="24" y="144" width="832" height="72" rx="8" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="vsN" x="44" y="168">Response relevancy</text>
+        <text class="vsX" x="44" y="188">RAGAS</text>
+        <text class="vsX" x="272" y="168">mean cosine similarity</text>
+        <text class="vsX" x="272" y="188">of N=3 reverse-engineered</text>
+        <text class="vsX" x="272" y="206">questions to the input</text>
+        <text class="vsX" x="512" y="168">Cosine runs -1 to 1, so this metric can land</text>
+        <text class="vsX" x="512" y="188">outside 0 to 1. Clamp it or your gate breaks.</text>
+
+        <rect x="24" y="222" width="832" height="72" rx="8" fill="#FFFFFF" stroke="#C7D2CA" stroke-width="1.5"/>
+        <text class="vsN" x="44" y="246">Groundedness</text>
+        <text class="vsX" x="44" y="266">Azure AI Foundry</text>
+        <text class="vsX" x="272" y="246">integer 1 to 5</text>
+        <text class="vsX" x="272" y="266">5 = the facts are</text>
+        <text class="vsX" x="272" y="284">verifiable in the source</text>
+        <text class="vsX" x="512" y="246">An ordinal scale, not a rate. Averaging 1-5</text>
+        <text class="vsX" x="512" y="266">scores hides how many 1s you shipped.</text>
+
+        <rect x="24" y="300" width="832" height="72" rx="8" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="vsN" x="44" y="324">CitationPrecision +</text>
+        <text class="vsN" x="44" y="342">CitationCoverage</text>
+        <text class="vsX" x="44" y="362">Amazon Bedrock</text>
+        <text class="vsX" x="272" y="324">two scores, and AWS</text>
+        <text class="vsX" x="272" y="342">recommends using both</text>
+        <text class="vsX" x="272" y="360">together, not either alone</text>
+        <text class="vsX" x="512" y="324">Precision alone rewards citing nothing. Coverage</text>
+        <text class="vsX" x="512" y="342">alone rewards citing everything. Hence the pair.</text>
+
+        <rect x="24" y="378" width="832" height="72" rx="8" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="vsN" x="44" y="402">Verbosity</text>
+        <text class="vsX" x="44" y="422">Vertex AI, pointwise</text>
+        <text class="vsX" x="272" y="402">0 to 5 judge score</text>
+        <text class="vsX" x="272" y="422">on one response at a</text>
+        <text class="vsX" x="272" y="440">time, no comparison</text>
+        <text class="vsX" x="512" y="402">Judges whether the answer is appropriately</text>
+        <text class="vsX" x="512" y="422">concise, not overly wordy or excessively brief.</text>
+        <text class="vsX" x="512" y="440">Also a cost metric - b3 picks it up.</text>
+
+        <rect x="24" y="464" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="vsK" x="48" y="476">Four vendors, four scales, and not one of them is a percentage you can compare to another number.</text>
+        <text class="vsK" x="48" y="494">Pick one definition per gate, write it into the eval config, and never change it mid-quarter.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - five metrics, five outputs, five wrinkles that break naive gates</figcaption>
+    </figure>
+
+    <div class="prompt-box">
+      <span class="label">★ Response relevancy, and the wrinkle</span>
+      <pre style="margin:0;font:inherit;white-space:pre-wrap"><code style="font:inherit;color:inherit">qs        = generate_questions(answer, n=3)   # RAGAS default N = 3
+sims      = [cosine(embed(q), embed(user_input)) for q in qs]
+relevancy = mean(sims)   # cosine is -1..1, so this can exceed [0,1]</code></pre>
+    </div>
+
+    <p>Read what that is actually doing. RAGAS does not compare the answer to the question directly - it asks a model to <strong>reverse-engineer the questions the answer would be a good reply to</strong>, embeds them, and measures how close they land to the question the user really asked. Three questions by default. It is a genuinely clever construction, and it measures whether the answer is <em>on topic</em>, not whether it is <em>correct</em>. A confidently wrong answer to exactly the right question scores beautifully here, which is precisely why it is never a gate on its own.</p>
+
+    <table class="clean">
+      <tr><th>Metric</th><th>Catches</th><th>Completely misses</th><th>Gate it as</th></tr>
+      <tr><td><strong>Faithfulness</strong></td><td>Facts not present in the retrieved context</td><td>Answers that are supported but irrelevant, or that omit the key fact</td><td>Mean plus a per-case floor</td></tr>
+      <tr><td><strong>Response relevancy</strong></td><td>Off-topic, evasive and padded answers</td><td>Confident wrongness on exactly the right topic</td><td>Never alone. Pair with faithfulness</td></tr>
+      <tr><td><strong>Groundedness 1-5</strong></td><td>Fabrication, at a resolution a human can review</td><td>Anything below the threshold that the mean hides</td><td>Distribution, not average</td></tr>
+      <tr><td><strong>Citation pair</strong></td><td>Citing nothing, and citing everything</td><td>Correct citations attached to a wrong conclusion</td><td>Both scores, both above the bar</td></tr>
+      <tr><td><strong>Hallucination rate</strong></td><td>Drift in fabrication over live traffic</td><td>The cases nobody sampled that week</td><td>A trend with a rollback trigger</td></tr>
+      <tr><td><strong>Verbosity 0-5</strong></td><td>Four paragraphs where one would do</td><td>Everything about correctness</td><td>A UX gate and a cost gate at once</td></tr>
+    </table>
+
+    <div class="callout tip">
+      <strong>Verbosity is where this page hands off to b3</strong>
+      Conciseness looks like a taste metric and behaves like a budget line. Every extra token is a token you paid to generate, a token the user waited for, and a token in the context window of the next turn. Vertex scores it as a pointwise 0-5 judgement of whether a response is appropriately concise without being overly wordy or excessively brief. Session b3 shows you the same measurement wearing its other hat - as cost per task and as time-to-last-token - and why a "make it more thorough" prompt change quietly turns two gates red at the same time.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Score one answer by hand, twice <span class="tag demo">★ 10 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">You cannot gate on a metric you have never computed manually. Take one real answer from your own bot - or one from Beacon's support bot - and run the pipeline with a pen. It takes eight minutes and it permanently changes how you read a faithfulness score.</p>
+
+    <div class="steps">
+      <div class="step"><p>Pick one answer where the bot got something subtly wrong, and paste it next to the <strong>retrieved context that was actually in the prompt</strong>. Not the knowledge base. The passages the retriever returned on that specific call. If you cannot recover them, that is your first finding of the day and b10 is about fixing it.</p></div>
+      <div class="step"><p>Split the answer into atomic claims, <strong>coarsely</strong> - one claim per sentence. Mark each supported or unsupported against the context only. Compute supported / total. Write the number down.</p></div>
+      <div class="step"><p>Now split it again, <strong>finely</strong> - one claim per assertable fact, so a sentence with a number, a timeframe and a location becomes three claims. Score it again. Write the second number down next to the first.</p></div>
+      <div class="step"><p>Compare. On most real answers the two numbers differ by 15 to 40 points, and the bot did not change between them. That gap is definition sensitivity at the scale of a single answer - the same thing the HHEM-versus-FaithJudge gap shows at the scale of a leaderboard.</p></div>
+      <div class="step"><p>Last, score the same answer for <strong>relevancy</strong> the RAGAS way, by hand: write down the three questions this answer would be a perfect reply to. If none of them is the question the user asked, you have found an evasive answer that a faithfulness gate would have passed happily.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <strong>The trap in step 2</strong>
+      Almost everybody scores against what they know to be true rather than against the retrieved context. A claim that is factually correct but absent from the context is <em>unsupported</em>, and it must be marked unsupported - that is the entire point of the metric. A bot that produces true statements it could not have known from its context is a bot that is guessing well today and will guess badly next week.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Freeze Beacon's metric contract <span class="tag demo">★ 8 min · everyone writes</span></h2>
+    </div>
+    <p class="lede">A metric contract is one small file that says, for each gate, which definition produced the number and which knobs are frozen. It exists so that six months from now nobody can improve a score by changing a prompt in the grader. Write yours in this session; it is shorter than you expect.</p>
+
+    <div class="prompt-box good">
+      <span class="label">★ Beacon support bot - metric contract, v1</span>
+      <pre style="margin:0;font:inherit;white-space:pre-wrap"><code style="font:inherit;color:inherit">support_bot:            # tier T3, can issue refund credits
+  faithfulness:
+    source:   RAGAS - supported claims / total claims
+    splitter: claim_splitter_v3   # FROZEN. changing it rebaselines
+    strict:   true                # no credit for elaboration
+    gate:     mean &gt;= 0.90  and  no single case below 0.60
+  groundedness:
+    source:   Azure 1-5 ordinal, 5 = verifiable in the source
+    gate:     no case below 4 on the policy slice
+  citations:
+    source:   Bedrock CitationPrecision + CitationCoverage
+    gate:     both &gt;= 0.85        # never one without the other
+  relevancy:
+    source:   RAGAS, N = 3 reverse-engineered questions
+    clamp:    [0, 1]              # cosine is -1..1
+    gate:     reported, not blocking    # never a gate on its own</code></pre>
+    </div>
+
+    <div class="steps">
+      <div class="step"><p>Write one block per metric you intend to gate on. If a metric is not on a gate, it does not belong in this file - it belongs on a dashboard. Contracts get long and stop being read.</p></div>
+      <div class="step"><p>For every metric, record the <strong>source definition by name</strong> and the version of anything that produces the number: the claim splitter, the judge model, the judge prompt, the embedding model. These are the four knobs that silently move scores.</p></div>
+      <div class="step"><p>Mark each gate as <strong>blocking</strong> or <strong>reported</strong>. Relevancy is reported, because it passes confident wrongness. Faithfulness is blocking. Being explicit here is what stops a green dashboard from being mistaken for a green gate.</p></div>
+      <div class="step"><p>Add the per-case floor, not just the mean. "Mean at or above 0.90" is satisfied by ninety perfect answers and ten fabrications. A floor closes that door, and on a T3 bot the floor matters more than the mean.</p></div>
+      <div class="step"><p>Commit the file next to your eval code and put it under review. A pull request that changes a threshold or a splitter version should be as visible as one that changes the model - because it moves the number by just as much.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>Where this file gets used</strong>
+      Session b4 fills in the judge blocks with calibration evidence. Sessions b5, b6 and b7 add the archetype-specific gates for the three Beacon bots. Session b9 reads the whole contract into the launch scorecard, and b10 wires the blocking lines into CI. Everything downstream assumes this file exists, so write a rough one today rather than a perfect one later.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 45-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Score ten real answers by hand at both splitting granularities and record the two numbers side by side. The spread across those ten pairs is your own definition-sensitivity figure, and it is far more persuasive in an internal argument than any published leaderboard.</li>
+      <li>Find the most recent quality number your team reported to anyone outside the team, and write one sentence naming the exact definition that produced it. If you cannot write that sentence in under a minute, the number was not defensible when you reported it.</li>
+      <li>Check whether your relevancy scores are clamped. Compute the minimum and maximum across your last eval run - a value below 0 is not a bug in your bot, it is cosine similarity doing what cosine similarity does, and a gate written as "relevancy above 0.7" will behave strangely near the edges.</li>
+      <li>Write the metric contract for one bot you own. Version the claim splitter, the judge model and the embedding model explicitly, even if the versions are "whatever the library defaulted to in August" - naming the gap is the first step to closing it.</li>
+      <li>Pick your strictness setting from the risk tier before you look at any scores, and write down the reasoning. In b9 you will find out whether you would have quietly loosened it once the result came in.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every formula and figure on this page traces to a primary source - vendor evaluation documentation, published leaderboards and papers catalogued in this course's source map. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">RAGAS faithfulness = supported claims / total claims, with the claim-extract then NLI-verify pipeline</span><span class="note">Part 1 · derivation and variants in Learn Evals</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">RAGAS response relevancy = mean cosine similarity of N reverse-engineered questions, N default 3</span><span class="note">Part 3 · including the out-of-range wrinkle</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Definition sensitivity: 0.7%-4.4% on Vectara HHEM vs 7-12% under FaithJudge re-scoring</span><span class="note">Part 2 · the headline of this session, reused in a3</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Azure groundedness on a 1-5 scale, 5 = facts verifiable in the source; agent evaluators default threshold 3</span><span class="note">Part 1 self-study + Part 3 · ordinal, so gate the distribution</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Bedrock RAG evaluation adds CitationPrecision and CitationCoverage, and AWS recommends both together</span><span class="note">Part 3 · one without the other is gameable</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">TruLens groundedness: decompose the response into claims, then search for supporting evidence</span><span class="note">Part 1 · same arithmetic, different product name</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Vertex pointwise verbosity judge, 0-5, appropriately concise without being wordy or brief</span><span class="note">Part 3 · introduced here as quality, costed in b3</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Judge calibration, position swapping and the four documented judge biases</span><span class="note">Named here as why ordinal scores need rubrics · measured in b4</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Full metric derivations, retrieval metrics and the Goodhart trap</span><span class="note">Not covered by design · Learn Evals and Model Evaluation own these</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · A vendor reports 2% hallucination and a competitor reports 10% on the same benchmark family. What is the most likely explanation?</p>
+      <button class="qopt" type="button">A · The first model is genuinely about five times better at staying grounded</button>
+      <button class="qopt" type="button">B · The two numbers may come from different scoring definitions - the same models score 0.7%-4.4% on Vectara HHEM and 7-12% under stricter FaithJudge re-scoring, so definition alone moves the figure about tenfold</button>
+      <button class="qopt" type="button">C · The second vendor used a smaller evaluation set, which inflates the rate</button>
+      <p class="qwhy">Definition sensitivity is the largest single source of variation in published hallucination numbers, and it is larger than most model differences. Until you know which scorer produced a figure, comparing two figures across vendors tells you about the scorers, not the models. The only fix is to run one definition over your own data, which is exactly what the metric contract in Demo 2 exists to pin down.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Your CI gate is written as "RAGAS response relevancy at or above 0.7" and it occasionally sees a value of -0.12. Is this a bug?</p>
+      <button class="qopt" type="button">A · Yes, the metric is broken and should be recomputed</button>
+      <button class="qopt" type="button">B · Yes, the embedding model has failed and returned a null vector</button>
+      <button class="qopt" type="button">C · No - relevancy is a mean of cosine similarities and cosine runs from -1 to 1, so the metric can mathematically land outside 0 to 1. Clamp it, or write the gate so a negative value cannot behave strangely</button>
+      <p class="qwhy">RAGAS reverse-engineers N questions from the answer, embeds them, and averages their cosine similarity to the original input. Cosine similarity is defined on -1 to 1, so the mean of several of them is too. A wildly off-topic answer can genuinely produce a negative score. It is not a defect - it is the definition - but a gate that assumes a 0-to-1 range will misbehave, so clamp explicitly and say so in the contract.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Why does AWS recommend using CitationPrecision and CitationCoverage together rather than picking one?</p>
+      <button class="qopt" type="button">A · Because each one alone is gameable in the opposite direction - precision alone rewards citing almost nothing, and coverage alone rewards citing almost everything</button>
+      <button class="qopt" type="button">B · Because precision is only defined for retrieval and coverage only for generation</button>
+      <button class="qopt" type="button">C · Because averaging the two produces a single more stable score</button>
+      <p class="qwhy">A bot that attaches one very safe citation and says little else scores near-perfect precision. A bot that staples every retrieved passage to every sentence scores near-perfect coverage. Both are useless to a customer trying to check a policy claim, and both pass a single-metric gate. The pair closes the loophole in each direction, which is why it is a pair and not an average - averaging would let a strong score on one side hide a failure on the other, exactly like the conjunctive gates in b9.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Builder session 2 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Faithfulness</b><span>Supported claims / total claims (RAGAS). Extract claims, verify each against the retrieved context, divide.</span></div>
+      <div class="cheat-item"><b>Three names, one formula</b><span>Faithfulness, groundedness and hallucination rate are the same claim-support check, renamed and rescaled.</span></div>
+      <div class="cheat-item"><b>The splitter is the metric</b><span>Coarse or fine claim extraction swings the same answer by tens of points. Freeze it, version it, review changes.</span></div>
+      <div class="cheat-item"><b>Definition moves the number ~10x</b><span>0.7%-4.4% on Vectara HHEM, 7-12% under FaithJudge, same models. Always ask which scorer produced a figure.</span></div>
+      <div class="cheat-item"><b>Relevancy is topic, not truth</b><span>Mean cosine of N=3 reverse-engineered questions vs the input. Cosine is -1 to 1, so clamp. Never a gate alone.</span></div>
+      <div class="cheat-item"><b>Ordinal scales are not rates</b><span>Azure groundedness is 1-5, where 5 = verifiable in the source. Gate the distribution, never the average.</span></div>
+      <div class="cheat-item"><b>Citations come in pairs</b><span>Bedrock CitationPrecision plus CitationCoverage, used together. One alone is gameable in the opposite direction.</span></div>
+      <div class="cheat-item"><b>Conciseness is two gates</b><span>Vertex scores verbosity 0-5 as quality. The same tokens are latency and money, so b3 gates it again.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Builder session 2 of 10 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="b3-operational-metrics.html">Next: Operational metrics →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

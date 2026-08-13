@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder session 4 · LLM-as-judge - learn agent launch with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=2">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-agent-launch-with-phoebe</a> / Builder session 4 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Agent Launch with Phoebe · Builder track · Session 4 of 10</div>
+    <h1>LLM-as-judge: <span class="accent">an instrument, or just another opinion</span></h1>
+    <p class="sub">Rung 4 of the grading ladder is the only rung that can score whether a claim is grounded, whether a refusal was a good refusal, or whether an insight follows from the data. It is also the only rung with a published list of things it prefers for reasons that have nothing to do with quality. This session turns a judge from an opinion into an instrument, using the procedure proposed by the same paper that named the biases.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Builder track</span>
+      <span class="chip audience">AI engineers · ML engineers · technical PMs</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Four biases, four mitigations</span>
+      <span class="a3" style="flex:5">18-40 · Build-along: rubric, then calibration</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The rung you cannot avoid and cannot trust yet</h2>
+    </div>
+    <p class="lede">Session b1 put the LLM judge at rung 4 of the grading ladder, second from the bottom in trustworthiness, and told you to reach for it last. That advice stands. But "last" is not "never" - there are questions no rule and no compiler can settle, and every one of them lands on a judge. The question this session answers is not <em>whether</em> to use one. It is <strong>what has to be true before a judge's output is allowed into a launch gate.</strong></p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The four documented judge biases and the mitigation each one has, a rubric written to the standard vendors publish rather than to taste, the calibration procedure that produces a number you can quote in a gate, and an honest answer to "how much do you trust this grader" that is a percentage instead of a shrug.
+    </div>
+    <div class="callout tip">
+      <strong>Where this sits in the running case</strong>
+      Beacon ships three bots this quarter. The Analyst Bot's answers can be executed, so most of its eval never touches a judge - session b6. The Support Bot and the Insight Bot cannot be executed at all, so the judge <em>is</em> their quality gate, and the calibration number you build today is the thing that makes gate 1 of the launch scorecard mean something in b9.
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="why-rung-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · why rung 4 exists</span>
+      <h2>Three questions nothing cheaper can answer <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">Before defending the judge, be precise about what it is for. A judge is not a general-purpose grader you point at everything. It is the grader of record for a small, specific class of question - the ones where correctness is a property of meaning rather than of a string, a return code or a result set.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 408" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three questions only an LLM judge can score: groundedness, refusal and tone quality, and whether an insight follows from the data. Rules, execution and embeddings cannot settle any of them.">
+        <style>
+          .wjT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .wjS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .wjX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .wjH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .wjA { font: 400 11px Inter, sans-serif; fill: #3A2A08; }
+          .wjK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="228" height="58" rx="10" fill="#0E3320"/>
+        <text class="wjT" x="42" y="46">Groundedness</text>
+        <text class="wjS" x="42" y="64">claims traced to sources</text>
+        <rect x="264" y="24" width="592" height="58" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="wjX" x="284" y="46">A rule can confirm a citation exists. It cannot confirm the citation supports the</text>
+        <text class="wjX" x="284" y="64">sentence. Nothing runs, and embeddings rate a confident wrong answer as close.</text>
+
+        <rect x="24" y="92" width="228" height="58" rx="10" fill="#1A4D33"/>
+        <text class="wjT" x="42" y="114">Refusal quality</text>
+        <text class="wjS" x="42" y="132">was the no a good no</text>
+        <rect x="264" y="92" width="592" height="58" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="wjX" x="284" y="114">A rule sees the word "cannot" and marks it a refusal. Whether that refusal was warm,</text>
+        <text class="wjX" x="284" y="132">specific and offered the escalation path is a judgement, and judgement is rung 4.</text>
+
+        <rect x="24" y="160" width="228" height="58" rx="10" fill="#3D7D5A"/>
+        <text class="wjT" x="42" y="182">Does it follow</text>
+        <text class="wjS" x="42" y="200" fill="#EDF6F0">insight from the numbers</text>
+        <rect x="264" y="160" width="592" height="58" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="wjX" x="284" y="182">The chart is legal, the number is right, and the takeaway says "driven by pricing"</text>
+        <text class="wjX" x="284" y="200">when nothing in the data mentions pricing. No cheaper rung has an opinion here.</text>
+
+        <rect x="24" y="236" width="832" height="110" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="wjH" x="44" y="262">Rung 4 is unavoidable, which is exactly why it needs a procedure</text>
+        <text class="wjA" x="44" y="286">Rungs 1 to 3 are instruments: they return the same verdict every time and their failure modes are known. Rung 4</text>
+        <text class="wjA" x="44" y="304">returns an opinion from a model with documented preferences about length, position and authorship. What separates</text>
+        <text class="wjA" x="44" y="322">an opinion from an instrument is not the model you pick - it is whether you measured its agreement with a human.</text>
+
+        <rect x="24" y="364" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="wjK" x="48" y="376">The cost of rung 4 is not the API bill. It is that an unmeasured judge reports its own</text>
+        <text class="wjK" x="48" y="394">preferences as your bot's accuracy, and nothing downstream can tell the difference.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the three question types that have nowhere cheaper to go</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The test for "does this actually need a judge"<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ask one question of every case in your golden set: <strong>is there any machine-checkable consequence of this answer being right?</strong> If yes, that consequence is your grader and the judge is a detour.</p>
+        <ul>
+          <li><strong>"Is this SQL correct?"</strong> has a consequence - the rows it returns. Grade at rung 2, not rung 4.</li>
+          <li><strong>"Did it escalate?"</strong> has a consequence - a handoff event in the trace. Grade at rung 1.</li>
+          <li><strong>"Was the refund policy quoted accurately?"</strong> has no machine-checkable consequence. The passage says "14 days from delivery" and the answer says "two weeks after it arrives". Rung 4, and no lower.</li>
+        </ul>
+        <p>In practice, running this test over a real golden set moves somewhere between a third and a half of the rows down the ladder, and it should be the first thing you do to any eval you inherit. What survives the test is the set the rest of this session is about.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="biases">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the four biases</span>
+      <h2>What the judge prefers, for reasons unrelated to quality <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Zheng et al. measured judge behaviour while building MT-Bench and named four failure modes. The useful thing about that paper is not the list - lists of model weaknesses age badly. It is that the same paper proposed a mitigation for each one, and every mitigation is cheap, mechanical, and something you can wire in this afternoon.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 416" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four documented LLM-judge biases from Zheng et al. MT-Bench - position, verbosity, self-enhancement and weak math or reasoning grading - each with the mitigation proposed in the same paper.">
+        <style>
+          .bzT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .bzS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .bzL { font: 700 12.5px Inter, sans-serif; fill: #1F2622; }
+          .bzX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .bzM { font: 600 11px Inter, sans-serif; fill: #3A2A08; }
+          .bzK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="200" height="76" rx="10" fill="#0E3320"/>
+        <text class="bzT" x="42" y="48">Position bias</text>
+        <text class="bzS" x="42" y="68">prefers first or last</text>
+        <rect x="236" y="24" width="620" height="76" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="bzL" x="256" y="48">Swap the two answers and the verdict flips</text>
+        <text class="bzX" x="256" y="68">It scores a slot in the prompt, not the answer in it, and one run can never show you.</text>
+        <text class="bzM" x="256" y="88">Mitigation: run both orders, keep only the cases where the two verdicts agree.</text>
+
+        <rect x="24" y="110" width="200" height="76" rx="10" fill="#1A4D33"/>
+        <text class="bzT" x="42" y="134">Verbosity bias</text>
+        <text class="bzS" x="42" y="154">prefers the longer answer</text>
+        <rect x="236" y="110" width="620" height="76" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="bzL" x="256" y="134">Length reads as effort, and effort reads as quality</text>
+        <text class="bzX" x="256" y="154">A padded wrong answer outscores a short right one, so conciseness reads as a regression.</text>
+        <text class="bzM" x="256" y="174">Mitigation: few-shot the judge with graded examples, including short correct ones.</text>
+
+        <rect x="24" y="196" width="200" height="76" rx="10" fill="#3D7D5A"/>
+        <text class="bzT" x="42" y="220">Self-enhancement</text>
+        <text class="bzS" x="42" y="240" fill="#EDF6F0">prefers its own family</text>
+        <rect x="236" y="196" width="620" height="76" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="bzL" x="256" y="220">A judge favours outputs from its own model</text>
+        <text class="bzX" x="256" y="240">If one model writes the answer and grades it, part of the score is simply authorship.</text>
+        <text class="bzM" x="256" y="260">Mitigation: grade with a different model from the one under test. Anthropic agrees.</text>
+
+        <rect x="24" y="282" width="200" height="76" rx="10" fill="#BF6708"/>
+        <text class="bzT" x="42" y="306">Weak at maths</text>
+        <text class="bzS" x="42" y="326" fill="#FDF3E3">poor at grading reasoning</text>
+        <rect x="236" y="282" width="620" height="76" rx="10" fill="#FDF3E3" stroke="#BF6708" stroke-width="1.5"/>
+        <text class="bzL" x="256" y="306">It cannot verify a chain it could not have produced</text>
+        <text class="bzX" x="256" y="326">On maths and reasoning it grades the confidence of the working, not its correctness.</text>
+        <text class="bzM" x="256" y="346">Mitigation: reference-guided grading - hand the judge the worked answer first.</text>
+
+        <rect x="24" y="372" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="bzK" x="48" y="384">All four mitigations come from the paper that named the biases. None needs a bigger judge</text>
+        <text class="bzK" x="48" y="402">model, and all four are cheaper than the incident an inflated pass rate lets through.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four biases, four mitigations, all from the same source</figcaption>
+    </figure>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>Verbosity bias is the one that quietly reverses your roadmap.</strong> Session b3 makes conciseness an operational metric: shorter answers are faster to read, cheaper to generate and usually better UX. Now grade those answers with an uncalibrated judge. The trimmed answer loses to the padded one, the quality dashboard dips, and the team concludes the conciseness work made the bot worse. Nothing about the bot got worse. The grader had a preference and nobody had measured it. This is the specific mechanism by which an unmeasured judge does not merely add noise - it points your team in a direction.</p>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Position swapping in practice, and what to do with the leftovers<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The mitigation is mechanical: present the pair twice, once in each order, and keep only the verdicts that survive the swap. The implementation is about ten lines.</p>
+        <div class="prompt-box"><span class="label">★ Position-swap harness - keep only consistent verdicts</span>def verdict(judge, question, answer, reference):
+    a = judge(question, first=answer,    second=reference)   # returns 1 or 2
+    b = judge(question, first=reference, second=answer)      # returns 1 or 2
+
+    if a == 1 and b == 2:
+        return "answer"       # wins in both orders
+    if a == 2 and b == 1:
+        return "reference"    # loses in both orders
+    return "no_verdict"       # order decided it, so the judge had no opinion</div>
+        <p>The interesting output is not the verdicts. It is the <strong>no_verdict</strong> pile. That pile is your position-bias rate, measured on your own data rather than quoted from a paper, and it is the single cheapest diagnostic in this session. A large pile means your rubric is not discriminating and no amount of averaging will fix it; those cases need a sharper scale, not more runs.</p>
+        <p>Do not silently drop them either. Report them: "n = 400, of which 37 had no consistent verdict" is an honest line in a launch document, and it is the kind of line that stops a room from over-reading a pass rate.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="calibration">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · calibration</span>
+      <h2>The step that turns an opinion into an instrument <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Every instrument in a lab has a known error against a reference. That is the entire difference between an instrument and a device that displays numbers. A judge becomes an instrument at exactly the moment you can state its agreement with a human-labelled slice of your own traffic - and not one minute before.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The six-step judge calibration loop: label by hand, run the judge, measure agreement, name the systematic skew, fix the rubric, re-measure. The target is human-parity agreement.">
+        <style>
+          .cbT { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .cbS { font: 400 11px Inter, sans-serif; fill: #A9CDB8; }
+          .cbW { font: 400 11px Inter, sans-serif; fill: #EDF6F0; }
+          .cbF { font: 400 11px Inter, sans-serif; fill: #FDF3E3; }
+          .cbH { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+          .cbX { font: 400 11px Inter, sans-serif; fill: #66736B; }
+          .cbK { font: 600 12.5px Inter, sans-serif; fill: #3A2A08; }
+        </style>
+
+        <rect x="24" y="24" width="264" height="94" rx="10" fill="#0E3320"/>
+        <text class="cbT" x="42" y="48">1 · Label by hand</text>
+        <text class="cbS" x="42" y="68">Pull 100+ traces from the</text>
+        <text class="cbS" x="42" y="86">traffic the judge will grade.</text>
+        <text class="cbS" x="42" y="104">Two labellers, reconciled.</text>
+
+        <rect x="308" y="24" width="264" height="94" rx="10" fill="#1A4D33"/>
+        <text class="cbT" x="326" y="48">2 · Run the judge</text>
+        <text class="cbS" x="326" y="68">Same slice, same rubric,</text>
+        <text class="cbS" x="326" y="86">both answer orders. Keep</text>
+        <text class="cbS" x="326" y="104">verdicts that survive a swap.</text>
+
+        <rect x="592" y="24" width="264" height="94" rx="10" fill="#3D7D5A"/>
+        <text class="cbT" x="610" y="48">3 · Measure agreement</text>
+        <text class="cbW" x="610" y="68">Judge verdict against human</text>
+        <text class="cbW" x="610" y="86">label, as a percentage. Then</text>
+        <text class="cbW" x="610" y="104">list every disagreement.</text>
+
+        <rect x="24" y="146" width="264" height="94" rx="10" fill="#3D7D5A"/>
+        <text class="cbT" x="42" y="170">4 · Name the skew</text>
+        <text class="cbW" x="42" y="190">Disagreements never come out</text>
+        <text class="cbW" x="42" y="208">random. They cluster: long</text>
+        <text class="cbW" x="42" y="226">answers, refusals, one topic.</text>
+
+        <rect x="308" y="146" width="264" height="94" rx="10" fill="#1A4D33"/>
+        <text class="cbT" x="326" y="170">5 · Fix the rubric</text>
+        <text class="cbS" x="326" y="190">Define every scale point. Add</text>
+        <text class="cbS" x="326" y="208">few-shot examples of what it</text>
+        <text class="cbS" x="326" y="226">got wrong. Force one number.</text>
+
+        <rect x="592" y="146" width="264" height="94" rx="10" fill="#BF6708"/>
+        <text class="cbT" x="610" y="170">6 · Re-measure</text>
+        <text class="cbF" x="610" y="190">Same slice, new rubric. If</text>
+        <text class="cbF" x="610" y="208">agreement did not move, the</text>
+        <text class="cbF" x="610" y="226">rubric was not the problem.</text>
+
+        <rect x="24" y="266" width="832" height="104" rx="10" fill="#EDF6F0" stroke="#A9CDB8" stroke-width="1.5"/>
+        <text class="cbH" x="44" y="292">The target, and where the target comes from</text>
+        <text class="cbX" x="44" y="316">MT-Bench found a GPT-4 judge reaching over 80% agreement with human preferences - the same level two human</text>
+        <text class="cbX" x="44" y="334">annotators reach with each other. That is the bar: not perfect agreement, but human-parity agreement, measured</text>
+        <text class="cbX" x="44" y="352">on your own slice with your own rubric. Below it, the judge is an opinion. At it, it is an instrument.</text>
+
+        <rect x="24" y="386" width="14" height="14" rx="3" fill="#BF6708"/>
+        <text class="cbK" x="48" y="398">A judge is calibrated for one prompt, one model and one rubric. Change any of the three and</text>
+        <text class="cbK" x="48" y="416">the agreement figure you keep quoting belongs to something that no longer exists.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - six steps, and the human-parity bar they are aiming at</figcaption>
+    </figure>
+
+    <p>Three numbers recur across the practitioner literature and they are worth memorising as a set, because each one guards a different mistake:</p>
+
+    <table class="clean">
+      <tr><th>The number</th><th>What it is for</th><th>The mistake it prevents</th></tr>
+      <tr><td><strong>100+ traces</strong></td><td>Read them by hand before you write any rubric. This is error analysis, not grading</td><td>Writing a rubric for the failures you imagined instead of the ones you have</td></tr>
+      <tr><td><strong>100+ labelled examples</strong></td><td>The slice you validate the judge against, drawn from the same traffic</td><td>Quoting a judge's pass rate with no idea whether the judge is right</td></tr>
+      <tr><td><strong>Not 100% pass</strong></td><td>A suite everything passes is measuring nothing. Make it harder</td><td>Mistaking an easy eval for a good bot, which no gate downstream can catch</td></tr>
+    </table>
+
+    <div class="callout warn">
+      <strong>The 100% trap is the one people argue about</strong>
+      A 100% pass rate feels like the goal, and on the <em>regression</em> suite it is - that suite is supposed to sit near 100% because every case in it is a bug you already fixed. On the <em>capability</em> suite it is a diagnosis: your set is too easy, and it will keep reading 100% right through the release that breaks things. Session b1 split the two suites for exactly this reason, and this is where the split earns its keep.
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What the vendors converged on, independently<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The interesting part of the vendor landscape is not any single product. It is that three organisations designing judge tooling separately arrived at the same three ideas: a bounded scale, an explicit threshold, and a documented notion of how good the grader itself is.</p>
+        <table class="clean">
+          <tr><th>Pattern</th><th>Where it shows up</th><th>What to copy</th></tr>
+          <tr><td><strong>Bounded scale, thresholded to pass/fail</strong></td><td>Azure AI Foundry agent evaluators (intent resolution, task adherence, tool-call accuracy, task navigation efficiency) score on 1-5 with a default threshold of 3</td><td>A graded scale for trending plus a binary for the gate. Do not let a room debate a 3.4</td></tr>
+          <tr><td><strong>A reason returned with the score</strong></td><td>The same evaluators return the rationale alongside the number</td><td>Store the reason with every verdict. Step 4 of calibration is impossible without it</td></tr>
+          <tr><td><strong>Autorater calibration against human raters</strong></td><td>Vertex's rubric-based evaluation frames the grader as an autorater whose agreement with human raters is itself checked</td><td>The vocabulary. "Autorater" makes it obvious the grader is a component with an error rate</td></tr>
+          <tr><td><strong>Published benchmark targets per eval</strong></td><td>Arize Phoenix ships pre-tested eval templates with precision and F1 figures published for each one</td><td>Never adopt a template without asking what it scored on a labelled set. If nobody knows, you are back to step 1</td></tr>
+        </table>
+        <p>Anthropic's own eval-design guidance lands in the same place from the other direction: use a <strong>different model as the grader</strong>, <strong>define every scale point explicitly</strong>, <strong>force predictable output</strong> so parsing is not a second source of error, and <strong>quantify even fuzzy criteria</strong> rather than leaving them to the model's taste.</p>
+        <p><em>The honest edge:</em> Phoenix ships under Elastic License 2.0 rather than plain open source, and the Azure and Vertex patterns are documented product behaviour rather than peer-reviewed findings. Copy the shape of the design, not the marketing around it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Write Beacon's groundedness rubric <span class="tag demo">★ 10 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">Beacon's Support Bot answers from the help centre. The one thing that must never happen is a fluent, confident, wrong version of the refund window. That is a groundedness failure, it cannot be executed, and it is what a judge is for. Write the rubric now, before you have seen a single score.</p>
+
+    <div class="steps">
+      <div class="step"><p>Read <strong>20 real traces</strong> first, silently, before writing anything. You are looking for the shape of the failures, not counting them. Every rubric written without this step grades the failures its author imagined.</p></div>
+      <div class="step"><p>Pick <strong>one</strong> criterion for this rubric. Groundedness only. The instinct to score helpfulness, tone and grounding on one scale produces a number nobody can act on - if it drops, you cannot tell which of the three moved.</p></div>
+      <div class="step"><p>Write out <strong>every scale point</strong> in observable language, with money and timing called out explicitly, because those are the claims that cost Beacon something. A scale point you cannot apply to a trace in five seconds is not defined yet.</p></div>
+      <div class="step"><p>Set the pass threshold <em>inside</em> the rubric, not in the analysis afterwards. Then force the output format so the parsing step cannot introduce its own errors.</p></div>
+      <div class="step"><p>Choose a grader model that is <strong>not</strong> the model under test. Beacon's bot runs on one family, so the judge runs on another. This costs a procurement conversation and removes an entire bias.</p></div>
+    </div>
+
+    <div class="prompt-box good"><span class="label">★ Beacon groundedness rubric v1 - one criterion, five defined points</span>You are grading ONE support answer against ONE retrieved policy passage.
+Score GROUNDEDNESS only. Ignore length, style, confidence and tone.
+
+5 - every factual sentence is supported by the passage
+4 - all facts supported; one sentence adds harmless framing not in the passage
+3 - one unsupported factual sentence, and it is not about money, timing or eligibility
+2 - an unsupported factual claim about money, timing or eligibility
+1 - the central claim contradicts the passage
+
+PASS threshold: 4.
+
+Output only the number. No explanation, no punctuation, no other text.</div>
+
+    <div class="callout warn">
+      <strong>The scale point that does the work is 3 versus 2</strong>
+      Everything above 3 is easy to agree on and everything at 1 is obvious. The whole value of the rubric sits in the line between "unsupported but harmless" and "unsupported and about money" - because that is where human labellers disagree with each other and where the judge will disagree with both. If two of your colleagues cannot apply that line to the same trace and land on the same number, the judge has no chance, and no calibration run will rescue it.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Calibrate it, then fix what the disagreements tell you <span class="tag demo">★ 12 min · everyone builds</span></h2>
+    </div>
+    <p class="lede">This is the loop from Part 3, run once, on paper or in code. It takes an afternoon the first time and twenty minutes every time after. The output is a single percentage that you are then allowed to put next to the word "calibrated" in a launch document.</p>
+
+    <div class="steps">
+      <div class="step"><p>Sample <strong>100+ traces</strong> from the same traffic distribution the judge will grade in production. Not the demo set, not the hardest cases, not last week's incidents. The slice has to look like the job.</p></div>
+      <div class="step"><p>Label them by hand against your rubric, <strong>two people independently</strong>, then reconcile the disagreements out loud. Human-human disagreement is your ceiling: a judge cannot beat the consistency of the people who defined the target.</p></div>
+      <div class="step"><p>Run the judge on the same slice with the swap harness. Record three things per trace: the score, the returned reason, and whether the verdict survived the swap.</p></div>
+      <div class="step"><p>Compute agreement and, more importantly, <strong>read the disagreements as a group</strong>. They cluster. Sort them by answer length, by category and by whether the answer was a refusal, and the systematic skew becomes visible in about a minute.</p></div>
+      <div class="step"><p>Fix the rubric against the cluster you found - usually by adding two few-shot examples that sit exactly on the disputed line - then re-run and re-measure. If agreement did not move, the rubric was not the problem and your labels probably disagree with each other.</p></div>
+    </div>
+
+    <div class="prompt-box"><span class="label">★ The measurement, and the part that matters more</span>agreed = sum(1 for j, h in zip(judge_scores, human_scores) if (j >= 4) == (h >= 4))
+agreement = agreed / len(human_scores)          # target: >= 0.80, human-parity
+
+# The list, not the number, is what you act on:
+misses = [t for t, j, h in zip(traces, judge_scores, human_scores)
+          if (j >= 4) != (h >= 4)]
+
+# Sort them and the skew names itself.
+misses.sort(key=lambda t: len(t.answer), reverse=True)</div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>What a first calibration run usually looks like.</strong> Agreement comes back somewhere in the sixties, which feels like a disaster and is completely normal. The disagreements sort into two piles: long answers the judge passed and the humans failed (verbosity bias, straight out of the paper), and polite refusals the judge failed and the humans passed (the rubric never said what an abstention scores, so the judge invented a rule). Neither pile needs a better model. The first needs a few-shot example of a long unsupported answer scoring 2; the second needs one more line in the rubric. Second run lands in the low eighties, and that number - not the bot's pass rate - is the one that unlocks the quality gate in b9.</p>
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 50-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Take any judge you are already running in an eval and answer one question in writing: what is its agreement with a human on your data? If the honest answer is "we never measured", you have found this week's most valuable hour of work, and it is an hour, not a sprint.</li>
+      <li>Run the swap harness on 50 existing judged cases and count the no-verdict pile. Report that count next to your pass rate in your next eval summary. Watch how differently the room reads the pass rate once it is standing beside a position-bias number.</li>
+      <li>Audit your rubrics for the single-criterion rule. Any rubric scoring more than one thing on one scale gets split this week - a combined score cannot tell you which component moved, which makes it useless for the only job an eval has.</li>
+      <li>Find the capability suite in your project that scores 100% and make it harder until it does not. Bring the three new failing cases to your next standup; they are worth more than the previous 100% ever was.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Every framework and figure on this page traces to a primary source - peer-reviewed papers, vendor evaluation documentation and the practitioner canon catalogued in this course's source map. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Zheng et al. (MT-Bench): position, verbosity and self-enhancement bias, plus weak math and reasoning grading</span><span class="note">Part 2 · the four rows of the bias diagram</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Mitigations proposed in that same paper: position swapping with consistency, few-shot judging, reference-guided grading</span><span class="note">Part 2 · one mitigation per bias, none needing a bigger model</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">MT-Bench: a GPT-4 judge reached over 80% agreement with human preferences, equal to human-human agreement</span><span class="note">Part 3 · the target the calibration loop aims at</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Practitioner canon: 100+ traces for error analysis, 100+ labelled examples to validate a judge, 100% pass means too easy</span><span class="note">Part 3 table + Demo 2 · the three numbers as a set</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic eval-design guidance: a different model as grader, every scale point defined, predictable output, fuzzy criteria quantified</span><span class="note">Demo 1 · the rubric is written to this standard</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Azure AI Foundry agent evaluators: 1-5 scales thresholded to pass/fail, default threshold 3, reason returned with the score</span><span class="note">Part 3 vendor table · documented product behaviour, not a research finding</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Vertex rubric-based evaluation and autorater calibration against human raters</span><span class="note">Named for its vocabulary only · no figures quoted</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Arize Phoenix pre-tested eval templates with published benchmark targets (Elastic License 2.0, not plain OSS)</span><span class="note">Part 3 vendor table · licence flagged rather than glossed</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Faithfulness and answer-relevancy formulas the judge is used to compute</span><span class="note">Not re-derived here · b2 states them, Learn Evals goes deep</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Your bot and your judge run on the same model family, and the judge reports a high pass rate. What is the specific problem?</p>
+      <button class="qopt" type="button">A · Nothing, as long as temperature is set to zero on the judge</button>
+      <button class="qopt" type="button">B · Self-enhancement bias - part of that score is authorship rather than quality, and you cannot separate the two after the fact</button>
+      <button class="qopt" type="button">C · The judge will be too harsh, because it recognises its own weaknesses</button>
+      <p class="qwhy">Judges have a documented preference for outputs from their own model, so a same-family setup mixes an authorship effect into every score. It is unrecoverable after the run - there is no correction factor to apply, because you never measured how large the effect is on your data. The mitigation is structural and cheap: grade with a different model from the one under test, which is also what Anthropic's eval guidance recommends.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Your judged capability suite has scored 100% for three releases running. How should you read that?</p>
+      <button class="qopt" type="button">A · The bot is ready to launch - a perfect score is the strongest possible evidence</button>
+      <button class="qopt" type="button">B · The judge is too harsh and should be loosened before the next release</button>
+      <button class="qopt" type="button">C · The eval is too easy and is measuring nothing - a capability suite that everything passes cannot detect the release that breaks something</button>
+      <p class="qwhy">A capability suite exists to find headroom, so a perfect score is a statement about the suite rather than about the bot. It will keep reading 100% straight through a regression, because none of its cases were ever hard enough to fail. The regression suite is the one that is supposed to sit near 100%, since every case in it is a bug you already fixed - which is exactly why b1 insisted the two suites stay separate.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · You run every judged comparison in both answer orders. Thirty-seven of 400 cases give a different verdict depending on order. What do you do with them?</p>
+      <button class="qopt" type="button">A · Exclude them from the verdict but report the count - it is your measured position-bias rate and it belongs next to the pass rate</button>
+      <button class="qopt" type="button">B · Average the two runs so every case still contributes a score</button>
+      <button class="qopt" type="button">C · Re-run those 37 at a higher temperature until they settle</button>
+      <p class="qwhy">A verdict that flips when you swap the order was decided by position, not by the answers, so keeping it in the numerator manufactures signal from noise. But quietly dropping it is worse than useless - the size of that pile is a free, honest diagnostic measured on your own data, and reporting "400 cases, 37 with no consistent verdict" is the line that stops a room over-reading the headline. A large pile means the rubric is not discriminating, which is a rubric fix, not a sampling fix.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Builder session 4 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Rung 4 is for meaning</b><span>Groundedness, refusal quality, does-the-insight-follow. If the answer has a machine-checkable consequence, that consequence is your grader instead.</span></div>
+      <div class="cheat-item"><b>Four documented biases</b><span>Position, verbosity, self-enhancement, weak at maths and reasoning. Named in the MT-Bench work, along with every mitigation.</span></div>
+      <div class="cheat-item"><b>Swap, then keep the agreers</b><span>Run both orders, keep consistent verdicts, and report the no-verdict count. That count is your position-bias rate, measured on your data.</span></div>
+      <div class="cheat-item"><b>Different model as grader</b><span>Never let the model under test grade itself. Costs a procurement conversation, removes a whole bias.</span></div>
+      <div class="cheat-item"><b>One criterion per rubric</b><span>Grounding, tone and helpfulness on one scale gives a number nobody can act on. Split them or you cannot tell what moved.</span></div>
+      <div class="cheat-item"><b>Define every scale point</b><span>Observable language, threshold inside the rubric, output only the number. Parsing errors are a second grader you did not calibrate.</span></div>
+      <div class="cheat-item"><b>100 / 100 / not 100</b><span>100+ traces read by hand, 100+ labelled examples to validate the judge, and a capability suite that never scores 100%.</span></div>
+      <div class="cheat-item"><b>Calibrated means a percentage</b><span>Over 80% agreement is human-parity. Below that, the judge is an opinion. Recalibrate whenever the prompt, model or rubric changes.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Builder session 4 of 10 · learn-agent-launch-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="b5-gate-the-chatbot.html">Next: Gate the chatbot →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=2"></script>
+</body>
+</html>

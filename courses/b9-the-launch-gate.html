@@ -134,6 +134,34 @@
           <li><strong>T3 - high</strong> (financial or irreversible actions, regulated domains): bar around 90%, human approval on the action itself, kill switch drilled.</li>
         </ul>
         <p>Beacon's support bot can issue a refund credit. That single capability moves it from T2 to T3, raises its bar by five points, and forces the approval gate. Notice what a cheap product decision it would be to remove that capability - and how rarely anyone weighs it that way. <strong>Scoping the action space down is the fastest way to pass a launch gate, and it is almost never on the table because it feels like giving up.</strong></p>
+<figure class="zoomable">
+  <svg viewBox="0 0 880 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A bar chart of launch quality bars by risk tier: T1, low risk and reversible, sits around 80 percent, T2, medium risk, sits around 85 percent, and T3, high risk with financial or irreversible actions, sits around 90 percent and is Beacon's tier once its bot can issue a refund credit.">
+    <style>
+      .siT { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+      .siL { font: 700 12px Inter, sans-serif; fill: #1F2622; }
+      .siV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+      .siN { font: 400 12px Inter, sans-serif; fill: #66736B; }
+    </style>
+    <rect x="0" y="0" width="880" height="260" fill="#FAF9F5"/>
+    <text class="siT" x="40" y="28">The bar comes from blast radius, not a universal number</text>
+
+    <text class="siL" x="240" y="90" text-anchor="end">T1 - low risk</text>
+    <rect x="260" y="70" width="384" height="30" fill="#1A4D33"/>
+    <text class="siV" x="272" y="90">~80%</text>
+
+    <text class="siL" x="240" y="142" text-anchor="end">T2 - medium risk</text>
+    <rect x="260" y="122" width="408" height="30" fill="#1A4D33"/>
+    <text class="siV" x="272" y="142">~85%</text>
+
+    <text class="siL" x="240" y="194" text-anchor="end">T3 - high (Beacon)</text>
+    <rect x="260" y="174" width="432" height="30" fill="#BF6708"/>
+    <text class="siV" x="272" y="194">~90%</text>
+
+    <text class="siN" x="40" y="232">Beacon's refund capability moves it from T2 to T3: bar rises, approval gate required.</text>
+  </svg>
+  <figcaption>🔍 Click to zoom - one refund capability moves Beacon from an 85% bar to a 90% bar</figcaption>
+</figure>
+
       </div>
     </details>
 
@@ -142,6 +170,38 @@
       <div class="body">
         <p>Everything on this scorecard measures a single run. Production is not a single run - the same user asks the same thing on Tuesday. tau-bench introduced <strong>pass^k</strong>, the probability that <em>all</em> k independent trials of a task succeed, as against pass@k, the probability that at least one does. They pull in opposite directions: pass@k rewards a model that occasionally gets there, pass^k rewards one that always does.</p>
         <p>The arithmetic is unforgiving. A task the bot passes 75% of the time succeeds three times running only 42% of the time. On tau-bench's retail domain, GPT-4o-class agents scored under 50% at pass^1 and <strong>under 25% at pass^8</strong> - the same agent, the same tasks, just asked to be consistent. If your bot handles an eight-step workflow, that is the number that matters, and it is not the one on your dashboard. Session b8 measures it properly.</p>
+<figure class="zoomable">
+  <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A bar chart contrasting single-run and repeated-run success: a task passed 75% of the time on one run succeeds three times in a row only 42% of the time, and on tau-bench's retail domain GPT-4o-class agents scored under 50% at pass to the 1 and under 25% at pass to the 8, the same agents and tasks asked to be consistent.">
+    <style>
+      .shT { font: 700 13px Inter, sans-serif; fill: #1F2622; }
+      .shL { font: 700 12px Inter, sans-serif; fill: #1F2622; }
+      .shV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+      .shN { font: 400 12px Inter, sans-serif; fill: #66736B; }
+    </style>
+    <rect x="0" y="0" width="880" height="300" fill="#FAF9F5"/>
+    <text class="shT" x="40" y="28">pass^k is unforgiving: consistency costs more than one run suggests</text>
+
+    <text class="shL" x="240" y="90" text-anchor="end">One run (pass@1)</text>
+    <rect x="260" y="70" width="360" height="30" fill="#1A4D33"/>
+    <text class="shV" x="272" y="90">75%</text>
+
+    <text class="shL" x="240" y="142" text-anchor="end">Three in a row (pass^3)</text>
+    <rect x="260" y="122" width="202" height="30" fill="#1A4D33"/>
+    <text class="shV" x="272" y="142">42%</text>
+
+    <text class="shL" x="240" y="194" text-anchor="end">tau-bench pass^1</text>
+    <rect x="260" y="174" width="240" height="30" fill="#BF6708"/>
+    <text class="shV" x="272" y="194">&lt;50%</text>
+
+    <text class="shL" x="240" y="246" text-anchor="end">tau-bench pass^8</text>
+    <rect x="260" y="226" width="120" height="30" fill="#BF6708"/>
+    <text class="shV" x="272" y="246">&lt;25%</text>
+
+    <text class="shN" x="40" y="276">pass^k punishes inconsistency: a 75% task succeeds 3-for-3 only 42% of the time.</text>
+  </svg>
+  <figcaption>🔍 Click to zoom - the same agent scores worse the more consistency you demand</figcaption>
+</figure>
+
       </div>
     </details>
   </section>
